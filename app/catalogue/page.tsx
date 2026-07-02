@@ -121,12 +121,15 @@ export default async function CataloguePage({
 
   return (
     <div>
-      <form className="mb-4">
+      <form className="mb-6">
+        <label className="mb-2 block text-sm font-medium text-neutral-700">
+          Rechercher un produit par son nom ou sa référence
+        </label>
         <input
           name="q"
           defaultValue={search}
-          placeholder="Rechercher un article…"
-          aria-label="Rechercher un article"
+          placeholder="Saisissez un nom ou une référence produit…"
+          aria-label="Rechercher un produit par son nom ou sa référence"
           className="field max-w-md"
         />
         {sp.catalog && (
