@@ -203,7 +203,7 @@ export default async function HomePage() {
               ? 'Connectez-vous pour vos tarifs personnalisés, ou créez un compte en quelques minutes. Votre inscription est validée par un commercial.'
               : 'Connectez-vous pour retrouver vos tarifs personnalisés.'}
           </p>
-          <div className="mt-5 flex justify-center gap-3">
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
             {registrationOpen && (
               <Link href="/inscription" className="btn-primary">
                 Créer un compte
@@ -214,6 +214,12 @@ export default async function HomePage() {
               className={registrationOpen ? 'btn-outline' : 'btn-primary'}
             >
               Connexion
+            </Link>
+            <Link
+              href="/a-propos"
+              className="btn-ghost text-[var(--brand-dark)] hover:underline"
+            >
+              En savoir plus sur la boutique
             </Link>
           </div>
         </section>
