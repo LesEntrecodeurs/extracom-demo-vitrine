@@ -69,7 +69,7 @@ export default async function CataloguePage({
   const search = sp.q || undefined;
   const page = sp.page ? Math.max(1, Number(sp.page)) : 1;
   const limit = 24;
-  const sort = (sp.sort as ArticleSort | undefined) || undefined;
+  const sort = (sp.sort as ArticleSort | 'newest' | undefined) || undefined;
   const minPrice = sp.pmin ? Number(sp.pmin) : undefined;
   const maxPrice = sp.pmax ? Number(sp.pmax) : undefined;
 
