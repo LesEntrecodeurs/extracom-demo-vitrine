@@ -166,10 +166,48 @@ export default async function CataloguePage({
       />
 
       {total > 0 && (
-        <p className="mb-3 text-sm text-neutral-500">
+        <p className="mb-2 text-sm text-neutral-500">
           {total} article{total > 1 ? 's' : ''}
           {activeCatalogLabel ? ` dans « ${activeCatalogLabel} »` : ''}
         </p>
+      )}
+
+      {/* Récap visuel des filtres actifs */}
+      {(search || sp.family || sp.catalog || sp.pmin || sp.pmax || sp.sort) && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+          <span className="font-medium text-neutral-700">
+            Filtres appliqués :
+          </span>
+          {search && <span>Recherche : « {search} »</span>}
+          {sp.family && (
+            <span>
+              Famille :{' '}
+              {families.find((f) => f.code === sp.family)?.label ?? sp.family}
+            </span>
+          )}
+          {sp.catalog && activeCatalogLabel && (
+            <span>Catégorie : {activeCatalogLabel}</span>
+          )}
+          {(sp.pmin || sp.pmax) && (
+            <span>
+              Prix :
+              {sp.pmin && ` min. ${sp.pmin} €`}
+              {sp.pmax && ` max. ${sp.pmax} €`}
+            </span>
+          )}
+          {sp.sort && (
+            <span>
+              Tri :{
+                {
+                  name_asc: 'Nom (A → Z)',
+                  name_desc: 'Nom (Z → A)',
+                  ref_asc: 'Référence (A → Z)',
+                  ref_desc: 'Référence (Z → A)'
+                }[sp.sort as ArticleSort] ?? 'Personnalisé'
+              }
+            </span>
+          )}
+        </div>
       )}
 
       {res.data.length === 0 ? (
