@@ -85,7 +85,8 @@ export default async function RootLayout({
               title="Boutique"
               links={[
                 ['Catalogue', '/catalogue'],
-                ['Mon panier', '/panier']
+                ['Mon panier', '/panier'],
+                ['À propos', '/a-propos']
               ]}
             />
             <FooterCol
