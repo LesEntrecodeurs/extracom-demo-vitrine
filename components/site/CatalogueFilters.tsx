@@ -95,6 +95,26 @@ export function CatalogueFilters({
         </span>
       )}
 
+      {families.length > 0 && (
+        <Select
+          value={current.family ?? ALL}
+          onValueChange={(v) => apply({ family: v === ALL ? undefined : v })}
+        >
+          <SelectTrigger className="w-[190px]">
+            <Layers className="size-4 text-neutral-400" />
+            <SelectValue placeholder="Famille" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Toutes les familles</SelectItem>
+            {families.map((f) => (
+              <SelectItem key={f.code} value={f.code}>
+                {f.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
       {/* Filtre par prix */}
       <div className="flex items-center gap-2">
         <input
@@ -127,27 +147,6 @@ export function CatalogueFilters({
           className="field w-28"
         />
       </div>
-
-      {families.length > 0 && (
-        <Select
-          value={current.family ?? ALL}
-          onValueChange={(v) => apply({ family: v === ALL ? undefined : v })}
-        >
-          <SelectTrigger className="w-[190px]">
-            <Layers className="size-4 text-neutral-400" />
-            <SelectValue placeholder="Famille" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Toutes les familles</SelectItem>
-            {families.map((f) => (
-              <SelectItem key={f.code} value={f.code}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-
 
       {/* Tri — toujours disponible */}
       <Select
