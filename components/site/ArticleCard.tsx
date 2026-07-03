@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { formatPrice, type Article } from '@extracom/site-kit';
+import { formatPrice, type Article, type Gamme } from '@extracom/site-kit';
 import { AddToCart } from './AddToCart';
+
+function getVariantAxes(gammes?: Gamme[]) {
+  return (gammes ?? []).filter((g) => g.items.length > 0);
+}
 
 export function ArticleCard({ article }: { article: Article }) {
   const href = `/produit/${encodeURIComponent(article.reference)}`;
-  const hasVariants = (article.gammes ?? []).some((g) => g.items.length > 0);
+  const axes = getVariantAxes(article.gammes as Gamme[] | undefined);
+  const hasVariants = axes.length > 0;
   const hasPromo =
     article.promotion != null &&
     article.basePrice != null &&
@@ -64,8 +69,8 @@ export function ArticleCard({ article }: { article: Article }) {
 
         {hasVariants && (
           <p className="mt-1 text-xs text-neutral-500">
-            {article.gammes!.map((g) => g.label).join(', ')} ·{' '}
-            {article.gammes!.reduce((n, g) => n + g.items.length, 0)}{' '}
+            {axes.map((g) => g.label).join(', ')} ·{' '}
+            {axes.reduce((n, g) => n + g.items.length, 0)}{' '}
             déclinaisons
           </p>
         )}
@@ -86,15 +91,52 @@ export function ArticleCard({ article }: { article: Article }) {
           </p>
         )}
 
+        {hasVariants && (
+          <div className="mt-3 space-y-2">
+            <p className="text-xs font-medium text-neutral-700">
+              Choisissez une déclinaison :
+            </p>
+            <div className="space-y-1.5">
+              {axes.map((axis) => (
+                <div key={axis.id} className="space-y-0.5">
+                  <p className="text-xs text-neutral-600">{axis.label}</p>
+                  <select
+                    className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-800"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // On garde le comportement actuel : la sélection fine
+                      // se fait sur la fiche produit. Ici, on redirige
+                      // simplement vers la page détail avec le paramètre
+                      // de déclinaison si besoin.
+                      if (!value) return;
+                      const url = new URL(window.location.origin + href);
+                      url.searchParams.set('variantId', value);
+                      window.location.href = url.toString();
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Sélectionner…
+                    </option>
+                    {axis.items.map((it) => (
+                      <option key={it.id} value={it.id}>
+                        {it.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-auto pt-3">
           {hasVariants ? (
-            // Article à déclinaisons : on ne peut pas l'ajouter sans choisir
-            // → renvoi vers la fiche pour sélectionner la déclinaison.
             <Link
               href={href}
               className="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--brand)] px-4 py-2 text-sm font-medium text-[var(--brand-dark)] hover:bg-[var(--brand-light)]"
             >
-              Choisir une déclinaison
+              Voir la fiche détaillée
             </Link>
           ) : (
             <AddToCart
