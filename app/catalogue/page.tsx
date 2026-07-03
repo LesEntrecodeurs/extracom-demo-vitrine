@@ -111,8 +111,6 @@ export default async function CataloguePage({
     if (sp.clevel) params.set('clevel', sp.clevel);
     if (sp.family) params.set('family', sp.family);
     if (sp.sort) params.set('sort', sp.sort);
-    if (sp.pmin) params.set('pmin', sp.pmin);
-    if (sp.pmax) params.set('pmax', sp.pmax);
     params.set('page', String(p));
     return `/catalogue?${params.toString()}`;
   };
@@ -157,9 +155,7 @@ export default async function CataloguePage({
           family: sp.family,
           catalog: sp.catalog,
           clevel: sp.clevel,
-          sort: sp.sort,
-          pmin: sp.pmin,
-          pmax: sp.pmax
+          sort: sp.sort
         }}
       />
 
@@ -211,14 +207,6 @@ function findCatalogLabel(
       ? findCatalogLabel(node.children, id)
       : undefined;
     if (child) return child;
-  }
-  return undefined;
-}
-rn child;
-  }
-  return undefined;
-}
-   if (child) return child;
   }
   return undefined;
 }

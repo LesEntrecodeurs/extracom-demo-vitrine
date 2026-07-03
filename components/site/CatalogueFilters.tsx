@@ -21,8 +21,8 @@ interface Current {
   clevel?: string;
   sort?: string;
   /** Fourchette de prix (sur le prix de base). */
-  pmin?: string;
-  pmax?: string;
+  // pmin?: string;
+  // pmax?: string;
 }
 
 const ALL = 'all'; // Radix interdit les <SelectItem value="">.
@@ -51,8 +51,8 @@ export function CatalogueFilters({
   activeCatalogLabel?: string;
 }) {
   const router = useRouter();
-  const [pmin, setPmin] = useState(current.pmin ?? '');
-  const [pmax, setPmax] = useState(current.pmax ?? '');
+  const [pmin, setPmin] = useState('');
+  const [pmax, setPmax] = useState('');
 
   const apply = (patch: Partial<Current>) => {
     const next = { ...current, ...patch };
@@ -64,18 +64,11 @@ export function CatalogueFilters({
       if (next.clevel) p.set('clevel', next.clevel);
     }
     if (next.sort) p.set('sort', next.sort);
-    if (next.pmin) p.set('pmin', next.pmin);
-    if (next.pmax) p.set('pmax', next.pmax);
     const qs = p.toString();
     router.push(qs ? `/catalogue?${qs}` : '/catalogue');
   };
 
-  const hasActiveFilter = !!(
-    current.family ||
-    current.catalog ||
-    current.pmin ||
-    current.pmax
-  );
+  const hasActiveFilter = !!(current.family || current.catalog);
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2.5">
@@ -115,39 +108,6 @@ export function CatalogueFilters({
         </Select>
       )}
 
-      {/* Fourchette de prix (sur le prix de base) */}
-      <form
-        className="flex items-center gap-1"
-        onSubmit={(e) => {
-          e.preventDefault();
-          apply({ pmin: pmin || undefined, pmax: pmax || undefined });
-        }}
-      >
-        <input
-          type="number"
-          min={0}
-          inputMode="decimal"
-          value={pmin}
-          onChange={(e) => setPmin(e.target.value)}
-          placeholder="Min €"
-          className="field w-[90px]"
-          aria-label="Prix minimum"
-        />
-        <span className="text-neutral-400">–</span>
-        <input
-          type="number"
-          min={0}
-          inputMode="decimal"
-          value={pmax}
-          onChange={(e) => setPmax(e.target.value)}
-          placeholder="Max €"
-          className="field w-[90px]"
-          aria-label="Prix maximum"
-        />
-        <Button type="submit" variant="outline" size="sm">
-          OK
-        </Button>
-      </form>
 
       {/* Tri — toujours disponible */}
       <Select
@@ -186,10 +146,6 @@ export function CatalogueFilters({
           Réinitialiser
         </Button>
       )}
-    </div>
-  );
-}
- )}
     </div>
   );
 }
