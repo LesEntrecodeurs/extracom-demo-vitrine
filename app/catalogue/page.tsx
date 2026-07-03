@@ -80,7 +80,9 @@ export default async function CataloguePage({
     catalogId: sp.catalog ? Number(sp.catalog) : undefined,
     catalogLevel: sp.clevel ? Number(sp.clevel) : undefined,
     familyCode: sp.family || undefined,
-    sort
+    sort,
+    minPrice,
+    maxPrice
   };
 
   // Connecté → données FRAÎCHES (prix client). Anonyme → cache (ISR).
@@ -155,7 +157,9 @@ export default async function CataloguePage({
           family: sp.family,
           catalog: sp.catalog,
           clevel: sp.clevel,
-          sort: sp.sort
+          sort: sp.sort,
+          pmin: sp.pmin,
+          pmax: sp.pmax
         }}
       />
 

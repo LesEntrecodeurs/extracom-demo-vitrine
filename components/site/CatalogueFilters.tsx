@@ -21,8 +21,8 @@ interface Current {
   clevel?: string;
   sort?: string;
   /** Fourchette de prix (sur le prix de base). */
-  // pmin?: string;
-  // pmax?: string;
+  pmin?: string;
+  pmax?: string;
 }
 
 const ALL = 'all'; // Radix interdit les <SelectItem value="">.
@@ -51,8 +51,8 @@ export function CatalogueFilters({
   activeCatalogLabel?: string;
 }) {
   const router = useRouter();
-  const [pmin, setPmin] = useState('');
-  const [pmax, setPmax] = useState('');
+  const [pmin, setPmin] = useState(current.pmin ?? '');
+  const [pmax, setPmax] = useState(current.pmax ?? '');
 
   const apply = (patch: Partial<Current>) => {
     const next = { ...current, ...patch };
@@ -64,11 +64,18 @@ export function CatalogueFilters({
       if (next.clevel) p.set('clevel', next.clevel);
     }
     if (next.sort) p.set('sort', next.sort);
+    if (next.pmin) p.set('pmin', next.pmin);
+    if (next.pmax) p.set('pmax', next.pmax);
     const qs = p.toString();
     router.push(qs ? `/catalogue?${qs}` : '/catalogue');
   };
 
-  const hasActiveFilter = !!(current.family || current.catalog);
+  const hasActiveFilter = !!(
+    current.family ||
+    current.catalog ||
+    current.pmin ||
+    current.pmax
+  );
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2.5">
@@ -87,6 +94,39 @@ export function CatalogueFilters({
           </button>
         </span>
       )}
+
+      {/* Filtre par prix */}
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          inputMode="decimal"
+          min={0}
+          placeholder="Prix min"
+          value={pmin}
+          onChange={(e) => setPmin(e.target.value)}
+          onBlur={() =>
+            apply({
+              pmin: pmin || undefined
+            })
+          }
+          className="field w-28"
+        />
+        <span className="text-sm text-neutral-400">à</span>
+        <input
+          type="number"
+          inputMode="decimal"
+          min={0}
+          placeholder="Prix max"
+          value={pmax}
+          onChange={(e) => setPmax(e.target.value)}
+          onBlur={() =>
+            apply({
+              pmax: pmax || undefined
+            })
+          }
+          className="field w-28"
+        />
+      </div>
 
       {families.length > 0 && (
         <Select
@@ -138,7 +178,9 @@ export function CatalogueFilters({
             apply({
               family: undefined,
               catalog: undefined,
-              clevel: undefined
+              clevel: undefined,
+              pmin: undefined,
+              pmax: undefined
             });
           }}
         >
