@@ -80,9 +80,7 @@ export default async function CataloguePage({
     catalogId: sp.catalog ? Number(sp.catalog) : undefined,
     catalogLevel: sp.clevel ? Number(sp.clevel) : undefined,
     familyCode: sp.family || undefined,
-    sort,
-    minPrice: Number.isFinite(minPrice) ? minPrice : undefined,
-    maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined
+    sort
   };
 
   // Connecté → données FRAÎCHES (prix client). Anonyme → cache (ISR).
@@ -213,6 +211,14 @@ function findCatalogLabel(
       ? findCatalogLabel(node.children, id)
       : undefined;
     if (child) return child;
+  }
+  return undefined;
+}
+rn child;
+  }
+  return undefined;
+}
+   if (child) return child;
   }
   return undefined;
 }

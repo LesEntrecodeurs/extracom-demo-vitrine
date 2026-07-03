@@ -178,9 +178,7 @@ export function CatalogueFilters({
             apply({
               family: undefined,
               catalog: undefined,
-              clevel: undefined,
-              pmin: undefined,
-              pmax: undefined
+              clevel: undefined
             });
           }}
         >
@@ -188,6 +186,10 @@ export function CatalogueFilters({
           Réinitialiser
         </Button>
       )}
+    </div>
+  );
+}
+ )}
     </div>
   );
 }
