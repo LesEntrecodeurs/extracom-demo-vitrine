@@ -21,7 +21,7 @@ export function ArticleCard({ article }: { article: Article }) {
 
   return (
     <div className="group card flex flex-col overflow-hidden">
-      <Link href={href} className="block">
+      <Link href={href} className="block" prefetch={false}>
         <div className="relative aspect-square w-full overflow-hidden bg-neutral-100">
           <Image
             src={article.imageUrl || '/placeholder.svg'}
@@ -106,14 +106,15 @@ export function ArticleCard({ article }: { article: Article }) {
                     className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-800"
                     onChange={(e) => {
                       const value = e.target.value;
-                      // On garde le comportement actuel : la sélection fine
-                      // se fait sur la fiche produit. Ici, on redirige
-                      // simplement vers la page détail avec le paramètre
-                      // de déclinaison si besoin.
                       if (!value) return;
-                      const url = new URL(window.location.origin + href);
-                      url.searchParams.set('variantId', value);
-                      window.location.href = url.toString();
+
+                      // Au lieu d'ouvrir directement la fiche détaillée,
+                      // on reste sur le catalogue et on pré-règle
+                      // la déclinaison choisie pour le bouton "Ajouter".
+                      const search = new URLSearchParams(window.location.search);
+                      search.set('variantId', value);
+                      const newUrl = `${window.location.pathname}?${search.toString()}`;
+                      window.history.replaceState(null, '', newUrl);
                     }}
                     defaultValue=""
                   >
@@ -134,12 +135,10 @@ export function ArticleCard({ article }: { article: Article }) {
 
         <div className="mt-auto pt-3">
           {hasVariants ? (
-            <Link
-              href={href}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--brand)] px-4 py-2 text-sm font-medium text-[var(--brand-dark)] hover:bg-[var(--brand-light)]"
-            >
-              Voir la fiche détaillée
-            </Link>
+            <AddToCart
+              reference={article.reference}
+              disabled={article.price == null}
+            />
           ) : (
             <AddToCart
               reference={article.reference}

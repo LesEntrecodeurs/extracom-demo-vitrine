@@ -8,10 +8,12 @@ import { Button } from '@/components/ui/button';
 
 export function AddToCart({
   reference,
-  disabled
+  disabled,
+  variantId
 }: {
   reference: string;
   disabled?: boolean;
+  variantId?: number | null;
 }) {
   const { addItem, isLoading } = useAddToCart();
   const [added, setAdded] = useState(false);
@@ -23,7 +25,11 @@ export function AddToCart({
       className="w-full"
       onClick={async () => {
         try {
-          await addItem({ reference, quantity: 1 });
+          await addItem({
+            reference,
+            quantity: 1,
+            variantId: variantId ?? undefined
+          });
           setAdded(true);
           toast.success('Ajouté au panier');
           setTimeout(() => setAdded(false), 1500);
