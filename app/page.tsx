@@ -170,21 +170,14 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="card h-full border-none bg-neutral-50/80 p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">En deux mots</h3>
-            <p className="mt-2 text-sm text-neutral-600">
-              Une boutique professionnelle pensée pour les besoins des entreprises : un catalogue clair
-              et un parcours de commande simple pour aller à l’essentiel.
-            </p>
-          </div>
-          <div className="card h-full border-none bg-neutral-50/80 p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">Pour en savoir plus</h3>
-            <p className="mt-2 text-sm text-neutral-600">
-              Tous les détails (histoire, équipe, engagements) seront présentés sur la page À propos
-              une fois vos textes définitifs rédigés.
-            </p>
-          </div>
+        <div className="mt-4">
+          <Link
+            href="/a-propos"
+            className="inline-flex items-center gap-1 text-sm font-medium text-[var(--brand-dark)] hover:underline"
+          >
+            Découvrir la boutique
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
       </section>
 
