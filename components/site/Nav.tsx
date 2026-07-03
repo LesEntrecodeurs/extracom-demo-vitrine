@@ -45,6 +45,13 @@ export function Nav({
 
           <nav className="ml-auto flex items-center gap-5 text-sm">
             <Link
+              href="/a-propos"
+              className="hidden font-medium text-neutral-700 hover:text-[var(--brand-dark)] sm:inline"
+            >
+              À propos
+            </Link>
+
+            <Link
               href="/catalogue"
               className="hidden font-medium text-neutral-700 hover:text-[var(--brand-dark)] sm:inline"
             >
