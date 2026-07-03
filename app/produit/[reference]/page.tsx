@@ -7,6 +7,7 @@ import {
   isAuthenticatedAction
 } from '@extracom/site-kit/server';
 import { formatPrice, type Article } from '@extracom/site-kit';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
 
@@ -147,11 +148,76 @@ export default async function ProduitPage({
           </p>
         )}
 
-        {article.description && (
-          <p className="mt-4 whitespace-pre-line text-neutral-700">
-            {article.description}
-          </p>
-        )}
+        {/* Onglets pour organiser le contenu */}
+        <div className="mt-6">
+          <Tabs defaultValue="description" className="flex flex-col gap-4">
+            <TabsList variant="line">
+              <TabsTrigger value="description">Description</TabsTrigger>
+              <TabsTrigger value="specs">Caractéristiques</TabsTrigger>
+              {article.glossaires?.some((g) => g.text?.trim()) && (
+                <TabsTrigger value="glossary">Infos complémentaires</TabsTrigger>
+              )}
+              {article.specSheets && article.specSheets.length > 0 && (
+                <TabsTrigger value="docs">Documents</TabsTrigger>
+              )}
+            </TabsList>
+
+            <TabsContent value="description">
+              {article.description ? (
+                <p className="text-sm whitespace-pre-line text-neutral-700">
+                  {article.description}
+                </p>
+              ) : (
+                <p className="text-sm text-neutral-500">
+                  Aucune description détaillée n'est renseignée pour cet article.
+                </p>
+              )}
+            </TabsContent>
+
+            <TabsContent value="specs">
+              <Specs article={article} />
+            </TabsContent>
+
+            {article.glossaires?.some((g) => g.text?.trim()) && (
+              <TabsContent value="glossary">
+                {article.glossaires
+                  .filter((g) => g.text?.trim())
+                  .map((g, i) => (
+                    <p
+                      key={i}
+                      className="mt-2 text-sm whitespace-pre-line text-neutral-600"
+                    >
+                      {g.text}
+                    </p>
+                  ))}
+              </TabsContent>
+            )}
+
+            {article.specSheets && article.specSheets.length > 0 && (
+              <TabsContent value="docs">
+                <div>
+                  <h2 className="text-sm font-medium text-neutral-700">
+                    Documents
+                  </h2>
+                  <ul className="mt-2 space-y-1">
+                    {article.specSheets.map((url, i) => (
+                      <li key={i}>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm text-[var(--brand-dark)] underline"
+                        >
+                          Fiche technique {i + 1}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
+        </div>
 
         {/* Déclinaisons (gamme) + ajout au panier */}
         <div className="mt-6">
@@ -161,42 +227,6 @@ export default async function ProduitPage({
             priceHidden={article.price == null}
           />
         </div>
-
-        {/* Caractéristiques */}
-        <Specs article={article} />
-
-        {/* Contenu enrichi (glossaires) */}
-        {article.glossaires
-          ?.filter((g) => g.text?.trim())
-          .map((g, i) => (
-            <p
-              key={i}
-              className="mt-4 text-sm whitespace-pre-line text-neutral-600"
-            >
-              {g.text}
-            </p>
-          ))}
-
-        {/* Fiches techniques */}
-        {article.specSheets && article.specSheets.length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
-            <ul className="mt-2 space-y-1">
-              {article.specSheets.map((url, i) => (
-                <li key={i}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-[var(--brand-dark)] underline"
-                  >
-                    Fiche technique {i + 1}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );
