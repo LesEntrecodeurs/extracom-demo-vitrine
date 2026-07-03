@@ -157,41 +157,32 @@ export default async function HomePage() {
               À propos
             </p>
             <h2 className="mt-2 text-2xl font-semibold text-neutral-900 md:text-3xl">
-              Une boutique B2B pensée pour les professionnels
+              À propos de la boutique
             </h2>
             <p className="mt-3 max-w-2xl text-sm text-neutral-600 md:text-base">
-              Ce texte est provisoire : il présente brièvement la boutique, son positionnement
-              professionnel et la promesse de service (disponibilité, réactivité, conseil).
-              Il pourra être remplacé par votre vraie histoire, votre équipe et vos engagements.
+              Une courte présentation de votre activité B2B, pour situer qui vous êtes sans tout détailler.
             </p>
           </div>
           <div className="mt-2 md:mt-0">
             <Link href="/a-propos" className="btn-primary inline-flex items-center gap-1">
-              Découvrir la boutique
+              En savoir plus
               <ArrowRight className="size-4" />
             </Link>
           </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           <div className="card h-full border-none bg-neutral-50/80 p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">Qui nous sommes</h3>
+            <h3 className="text-sm font-semibold text-neutral-900">En deux mots</h3>
             <p className="mt-2 text-sm text-neutral-600">
-              Une équipe fictive de spécialistes, dédiée aux besoins des acheteurs professionnels :
-              gestion de volumes, contraintes de délais et suivi personnalisé des comptes.
+              Une boutique professionnelle pensée pour les besoins des entreprises : un catalogue clair
+              et un parcours de commande simple pour aller à l’essentiel.
             </p>
           </div>
           <div className="card h-full border-none bg-neutral-50/80 p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">Ce que nous proposons</h3>
+            <h3 className="text-sm font-semibold text-neutral-900">Pour en savoir plus</h3>
             <p className="mt-2 text-sm text-neutral-600">
-              Un catalogue B2B complet, avec des références illustratives, des tarifs adaptés et
-              un parcours de commande pensé pour gagner du temps au quotidien.
-            </p>
-          </div>
-          <div className="card h-full border-none bg-neutral-50/80 p-5">
-            <h3 className="text-sm font-semibold text-neutral-900">Notre façon de travailler</h3>
-            <p className="mt-2 text-sm text-neutral-600">
-              Relations de confiance, accompagnement réactif et échanges réguliers avec vos équipes.
-              Ce bloc pourra détailler vos vrais engagements de service et de qualité.
+              Tous les détails (histoire, équipe, engagements) seront présentés sur la page À propos
+              une fois vos textes définitifs rédigés.
             </p>
           </div>
         </div>
