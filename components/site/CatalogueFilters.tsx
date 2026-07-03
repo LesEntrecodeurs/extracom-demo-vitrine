@@ -27,8 +27,7 @@ interface Current {
 
 const ALL = 'all'; // Radix interdit les <SelectItem value="">.
 
-const SORTS: { value: ArticleSort | 'newest'; label: string }[] = [
-  { value: 'newest', label: 'Nouveautés' },
+const SORTS: { value: ArticleSort; label: string }[] = [
   { value: 'name_asc', label: 'Nom (A → Z)' },
   { value: 'name_desc', label: 'Nom (Z → A)' },
   { value: 'ref_asc', label: 'Référence (A → Z)' },
