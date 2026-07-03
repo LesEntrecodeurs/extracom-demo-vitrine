@@ -185,12 +185,20 @@ export default async function HomePage() {
         <section>
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-xl font-semibold">Notre sélection</h2>
-            <Link
-              href="/catalogue"
-              className="text-sm text-[var(--brand-dark)] hover:underline"
-            >
-              Tout voir →
-            </Link>
+            <div className="flex items-center gap-4 text-sm">
+              <Link
+                href="/a-propos"
+                className="text-[var(--brand-dark)] hover:underline"
+              >
+                À propos
+              </Link>
+              <Link
+                href="/catalogue"
+                className="text-[var(--brand-dark)] hover:underline"
+              >
+                Tout voir →
+              </Link>
+            </div>
           </div>
           <FeaturedCarousel
             items={featured.map((a) => (

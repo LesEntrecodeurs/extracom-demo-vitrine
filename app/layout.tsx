@@ -71,14 +71,6 @@ export default async function RootLayout({
       <body>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
-        <div className="container-x mt-4 flex justify-end">
-          <Link
-            href="/a-propos"
-            className="text-xs font-medium text-[var(--brand-dark)] hover:underline"
-          >
-            À propos
-          </Link>
-        </div>
         <main className="container-x py-10">{children}</main>
 
         <footer className="mt-16 border-t border-neutral-200 bg-white">
