@@ -9,6 +9,7 @@ import {
 import { formatPrice, type Article } from '@extracom/site-kit';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,42 +163,78 @@ export default async function ProduitPage({
           />
         </div>
 
-        {/* Caractéristiques */}
-        <Specs article={article} />
-
-        {/* Contenu enrichi (glossaires) */}
-        {article.glossaires
-          ?.filter((g) => g.text?.trim())
-          .map((g, i) => (
-            <p
-              key={i}
-              className="mt-4 text-sm whitespace-pre-line text-neutral-600"
-            >
-              {g.text}
-            </p>
-          ))}
-
-        {/* Fiches techniques */}
-        {article.specSheets && article.specSheets.length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
-            <ul className="mt-2 space-y-1">
-              {article.specSheets.map((url, i) => (
-                <li key={i}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-[var(--brand-dark)] underline"
-                  >
-                    Fiche technique {i + 1}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <ProductTabs article={article} />
       </div>
+    </div>
+  );
+}
+
+function ProductTabs({ article }: { article: Article }) {
+  const hasGlossaries = article.glossaires?.some((g) => g.text?.trim());
+  const hasSpecSheets = !!article.specSheets && article.specSheets.length > 0;
+
+  const defaultTab = 'caracteristiques';
+
+  return (
+    <div className="mt-8">
+      <Tabs defaultValue={defaultTab} className="flex flex-col gap-4">
+        <TabsList>
+          <TabsTrigger value="caracteristiques">Caractéristiques</TabsTrigger>
+          <TabsTrigger value="description">Description</TabsTrigger>
+          {hasSpecSheets && (
+            <TabsTrigger value="documents">Documents</TabsTrigger>
+          )}
+        </TabsList>
+
+        <TabsContent value="caracteristiques">
+          <Specs article={article} />
+        </TabsContent>
+
+        <TabsContent value="description">
+          {article.description && (
+            <p className="mt-2 whitespace-pre-line text-sm text-neutral-700">
+              {article.description}
+            </p>
+          )}
+
+          {hasGlossaries && (
+            <div className="mt-4 space-y-3">
+              {article.glossaires
+                ?.filter((g) => g.text?.trim())
+                .map((g, i) => (
+                  <p
+                    key={i}
+                    className="text-sm whitespace-pre-line text-neutral-600"
+                  >
+                    {g.text}
+                  </p>
+                ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {hasSpecSheets && (
+          <TabsContent value="documents">
+            <div className="mt-2">
+              <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
+              <ul className="mt-2 space-y-1">
+                {article.specSheets?.map((url, i) => (
+                  <li key={i}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm text-[var(--brand-dark)] underline"
+                    >
+                      Fiche technique {i + 1}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   );
 }
