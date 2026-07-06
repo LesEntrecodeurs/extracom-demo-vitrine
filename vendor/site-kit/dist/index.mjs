@@ -261,14 +261,6 @@ function toArticle(w) {
     customFields: mapCustomFields(w)
   };
 }
-function matchesFieldFilters(article, filters) {
-  const fields = article.customFields ?? [];
-  return filters.every(
-    (f) => fields.some(
-      (cf) => cf.name.toLowerCase() === f.name.toLowerCase() && cf.value.toLowerCase() === f.value.toLowerCase()
-    )
-  );
-}
 function buildListQuery(query, ctx) {
   const limit = query.limit ?? DEFAULT_LIMIT;
   const page = query.page ?? 1;
@@ -299,18 +291,20 @@ function buildListQuery(query, ctx) {
     filters.push({ field: "priceMin", value: query.minPrice });
   if (query.maxPrice != null)
     filters.push({ field: "priceMax", value: query.maxPrice });
+  for (const ff of query.fieldFilters ?? [])
+    if (ff.name && ff.value) filters.push({ field: ff.name, value: ff.value });
   if (filters.length > 0) params.set("filters", JSON.stringify(filters));
   return params.toString();
 }
-var FETCH_ALL_PAGE = 200;
-var FETCH_ALL_MAX_PAGES = 100;
+var FETCH_ALL_PAGE = 100;
+var FETCH_ALL_MAX_PAGES = 200;
 function createCatalog(http, shopName) {
   const routes = apiRoutes.shop(shopName);
   async function fetchAllArticles(query, ctx) {
     const all = [];
     for (let page = 1; page <= FETCH_ALL_MAX_PAGES; page++) {
       const qs = buildListQuery(
-        { ...query, page, limit: FETCH_ALL_PAGE},
+        { ...query, page, limit: FETCH_ALL_PAGE, fieldFilters: void 0 },
         ctx
       );
       const res = await http.get(`${routes.articles}?${qs}`, {
@@ -324,22 +318,6 @@ function createCatalog(http, shopName) {
   return {
     /** Liste paginée d'articles (prix embarqués si connecté). */
     async getArticles(query = {}, ctx = {}) {
-      if (query.fieldFilters && query.fieldFilters.length > 0) {
-        const all = await fetchAllArticles(query, ctx);
-        const filtered = all.filter(
-          (a) => matchesFieldFilters(
-            a,
-            query.fieldFilters
-          )
-        );
-        const limit = query.limit ?? DEFAULT_LIMIT;
-        const page = query.page ?? 1;
-        const start = Math.max(0, page - 1) * limit;
-        return {
-          data: filtered.slice(start, start + limit),
-          pagination: { page, limit, total: filtered.length }
-        };
-      }
       const qs = buildListQuery(query, ctx);
       const res = await http.get(`${routes.articles}?${qs}`, {
         sessionId: ctx.sessionId

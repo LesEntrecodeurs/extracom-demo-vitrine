@@ -187,12 +187,10 @@ interface ArticleListQuery {
     /** Filtre prix maxi (HT), même base que `minPrice`. */
     maxPrice?: number;
     /**
-     * Filtres sur **champs libres** de l'article (`customFields` : InfosLibres et
-     * Statistiques Sage, ex. la marque). Ces champs ne sont **pas** requêtables
-     * côté Sage : quand `fieldFilters` est fourni, le kit récupère l'ensemble du
-     * catalogue (selon les autres critères), puis filtre et pagine en TS.
-     * Sémantique : chaque entrée doit matcher (ET), comparaison insensible à la
-     * casse. Ex. `[{ name: 'Marque', value: 'Wetrok' }]`.
+     * Filtres sur **champs libres** de l'article (`customFields`, ex. la marque).
+     * Appliqués **côté serveur** (égalité SQL) et paginés serveur — pour chaque
+     * champ correspondant à une colonne libre connue du backend. Générique :
+     * `[{ name: 'Marque', value: 'Wetrok' }]`. Sémantique ET entre entrées.
      */
     fieldFilters?: {
         name: string;
