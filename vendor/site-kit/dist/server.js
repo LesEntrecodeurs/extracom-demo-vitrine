@@ -226,21 +226,10 @@ function mapGlossaires(w) {
 function mapCustomFields(w) {
   var _a;
   const fields = [];
-  for (const info of w.InfosLibres ?? []) {
-    const name = (_a = info == null ? void 0 : info.Name) == null ? void 0 : _a.trim();
-    const value = (info == null ? void 0 : info.Value) == null ? "" : `${info.Value}`.trim();
+  for (const cf of w.customFields ?? []) {
+    const name = (_a = cf == null ? void 0 : cf.name) == null ? void 0 : _a.trim();
+    const value = (cf == null ? void 0 : cf.value) == null ? "" : `${cf.value}`.trim();
     if (name && value) fields.push({ name, value });
-  }
-  const stats = [
-    ["Statistique1", w.Statistique1],
-    ["Statistique2", w.Statistique2],
-    ["Statistique3", w.Statistique3],
-    ["Statistique4", w.Statistique4],
-    ["Statistique5", w.Statistique5]
-  ];
-  for (const [name, raw] of stats) {
-    const value = raw == null ? "" : `${raw}`.trim();
-    if (value) fields.push({ name, value });
   }
   return fields.length > 0 ? fields : void 0;
 }
@@ -330,10 +319,9 @@ function createCatalog(http, shopName) {
         { ...query, page, limit: FETCH_ALL_PAGE},
         ctx
       );
-      const res = await http.get(
-        `${routes.articles}?${qs}`,
-        { sessionId: ctx.sessionId }
-      );
+      const res = await http.get(`${routes.articles}?${qs}`, {
+        sessionId: ctx.sessionId
+      });
       all.push(...res.data.map(toArticle));
       if (res.data.length < FETCH_ALL_PAGE || all.length >= res.count) break;
     }
@@ -345,7 +333,10 @@ function createCatalog(http, shopName) {
       if (query.fieldFilters && query.fieldFilters.length > 0) {
         const all = await fetchAllArticles(query, ctx);
         const filtered = all.filter(
-          (a) => matchesFieldFilters(a, query.fieldFilters)
+          (a) => matchesFieldFilters(
+            a,
+            query.fieldFilters
+          )
         );
         const limit = query.limit ?? DEFAULT_LIMIT;
         const page = query.page ?? 1;
@@ -383,7 +374,8 @@ function createCatalog(http, shopName) {
         for (const cf of a.customFields ?? []) {
           if (cf.name.toLowerCase() !== target) continue;
           const v = cf.value.trim();
-          if (v && !byLower.has(v.toLowerCase())) byLower.set(v.toLowerCase(), v);
+          if (v && !byLower.has(v.toLowerCase()))
+            byLower.set(v.toLowerCase(), v);
         }
       }
       return Array.from(byLower.values()).sort(
