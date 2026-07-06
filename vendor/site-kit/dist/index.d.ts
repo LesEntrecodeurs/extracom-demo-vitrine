@@ -1,5 +1,5 @@
-import { S as ShopContext, A as ArticleListQuery, a as ArticleListResponse, b as Article, C as CatalogNode, F as Family, c as Cart, d as AddItemInput, U as UpdateCartLineInput, e as SetCartDeliveryInput, O as OrderResult, L as LoginInput, f as LoginResult, g as User, R as RegisterInput, h as RequestPasswordResetInput, V as VerifyResetCodeInput, i as ChangePasswordInput, j as UpdateProfileInput, T as TermsDocument, D as DeliveryOptions, k as AddDeliveryAddressInput, l as DeliveryAddress, m as UpdateDeliveryAddressInput, n as StartPaymentInput, P as PaymentSession, o as DocumentListQuery, p as DocumentListResponse, q as DocumentDetail } from './document-gyuqZ23j.js';
-export { E as AnonymousPricing, y as ArticleComponent, w as ArticleDocument, r as ArticleImage, B as ArticleSort, W as CartIssue, M as CartLine, N as CartShipping, K as CartStatus, Q as CartTotals, X as CartValidation, x as CatalogPathNode, v as CustomField, _ as DeliveryOption, a2 as DocumentLine, a3 as DocumentSummary, a1 as DocumentType, t as Gamme, G as GammeItem, u as Glossaire, Z as Membership, Y as MembershipCapabilities, z as Pagination, $ as PaymentStatus, a0 as PaymentStatusResult, s as Promotion, J as ShopBranding, I as ShopCapabilities, H as ShopDisplaySettings } from './document-gyuqZ23j.js';
+import { S as ShopContext, A as ArticleListQuery, a as ArticleListResponse, b as Article, C as CatalogNode, F as Family, c as Cart, d as AddItemInput, U as UpdateCartLineInput, e as SetCartDeliveryInput, O as OrderResult, L as LoginInput, f as LoginResult, g as User, R as RegisterInput, h as RequestPasswordResetInput, V as VerifyResetCodeInput, i as ChangePasswordInput, j as UpdateProfileInput, T as TermsDocument, D as DeliveryOptions, k as AddDeliveryAddressInput, l as DeliveryAddress, m as UpdateDeliveryAddressInput, n as StartPaymentInput, P as PaymentSession, o as DocumentListQuery, p as DocumentListResponse, q as DocumentDetail } from './document-BD7GJwkf.js';
+export { E as AnonymousPricing, y as ArticleComponent, w as ArticleDocument, r as ArticleImage, B as ArticleSort, W as CartIssue, M as CartLine, N as CartShipping, K as CartStatus, Q as CartTotals, X as CartValidation, x as CatalogPathNode, v as CustomField, _ as DeliveryOption, a2 as DocumentLine, a3 as DocumentSummary, a1 as DocumentType, t as Gamme, G as GammeItem, u as Glossaire, Z as Membership, Y as MembershipCapabilities, z as Pagination, $ as PaymentStatus, a0 as PaymentStatusResult, s as Promotion, J as ShopBranding, I as ShopCapabilities, H as ShopDisplaySettings } from './document-BD7GJwkf.js';
 import { C as CreateTicketInput } from './support-CaV6KASU.js';
 
 /**
@@ -59,6 +59,7 @@ declare function createSiteKit(config?: SiteServerConfig): {
     };
     catalog: {
         getArticles(query?: ArticleListQuery, ctx?: RequestCtx): Promise<ArticleListResponse>;
+        getFieldValues(field: string, ctx?: RequestCtx, baseQuery?: ArticleListQuery): Promise<string[]>;
         getArticle(reference: string, ctx?: RequestCtx): Promise<Article>;
         getCatalogTree(ctx?: RequestCtx): Promise<CatalogNode[]>;
         getFamilies(ctx?: RequestCtx): Promise<Family[]>;

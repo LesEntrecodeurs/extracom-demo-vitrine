@@ -1,11 +1,18 @@
-import { S as ShopContext, A as ArticleListQuery, a as ArticleListResponse, b as Article, L as LoginInput, f as LoginResult, g as User, R as RegisterInput, h as RequestPasswordResetInput, V as VerifyResetCodeInput, i as ChangePasswordInput, j as UpdateProfileInput, c as Cart, d as AddItemInput, U as UpdateCartLineInput, e as SetCartDeliveryInput, O as OrderResult, o as DocumentListQuery, p as DocumentListResponse, q as DocumentDetail, D as DeliveryOptions, k as AddDeliveryAddressInput, l as DeliveryAddress, m as UpdateDeliveryAddressInput, n as StartPaymentInput, P as PaymentSession } from './document-gyuqZ23j.js';
+import { S as ShopContext, A as ArticleListQuery, a as ArticleListResponse, b as Article, L as LoginInput, f as LoginResult, g as User, R as RegisterInput, h as RequestPasswordResetInput, V as VerifyResetCodeInput, i as ChangePasswordInput, j as UpdateProfileInput, c as Cart, d as AddItemInput, U as UpdateCartLineInput, e as SetCartDeliveryInput, O as OrderResult, o as DocumentListQuery, p as DocumentListResponse, q as DocumentDetail, D as DeliveryOptions, k as AddDeliveryAddressInput, l as DeliveryAddress, m as UpdateDeliveryAddressInput, n as StartPaymentInput, P as PaymentSession } from './document-BD7GJwkf.js';
 import { C as CreateTicketInput } from './support-CaV6KASU.js';
 
 declare function getContextAction(): Promise<ShopContext>;
 declare function getArticlesAction(query?: ArticleListQuery): Promise<ArticleListResponse>;
 declare function getArticleAction(reference: string): Promise<Article>;
+/**
+ * Valeurs distinctes d'un champ libre d'article (ex. `'Marque'`) sur tout le
+ * catalogue — pour construire une liste de filtres (marques). `baseQuery`
+ * restreint éventuellement le périmètre.
+ */
+declare function getArticleFieldValuesAction(field: string, baseQuery?: ArticleListQuery): Promise<string[]>;
 declare function getAnonymousArticlesAction(query?: ArticleListQuery): Promise<ArticleListResponse>;
 declare function getAnonymousArticleAction(reference: string): Promise<Article>;
+declare function getAnonymousArticleFieldValuesAction(field: string, baseQuery?: ArticleListQuery): Promise<string[]>;
 declare function getAnonymousContextAction(): Promise<ShopContext>;
 /** `true` si une session brokerée est présente (→ ne PAS servir le cache). */
 declare function isAuthenticatedAction(): Promise<boolean>;
@@ -49,4 +56,4 @@ declare function addDeliveryAddressAction(input: AddDeliveryAddressInput): Promi
 declare function updateDeliveryAddressAction(input: UpdateDeliveryAddressInput): Promise<DeliveryAddress>;
 declare function startPaymentAction(input: StartPaymentInput): Promise<PaymentSession>;
 
-export { addDeliveryAddressAction, addItemAction, changePasswordAction, createDocumentAction, createOrderAction, createTicketAction, getActiveCompanyAction, getAnonymousArticleAction, getAnonymousArticlesAction, getAnonymousContextAction, getArticleAction, getArticlesAction, getCartAction, getContextAction, getDeliveryOptionsAction, getDocumentAction, getDocumentPdfAction, getDocumentsAction, isAuthenticatedAction, loginAction, logoutAction, meAction, registerAction, removeItemAction, reorderAction, requestPasswordResetAction, setActiveCompanyAction, setCartCommentAction, setCartDeliveryAction, startPaymentAction, updateDeliveryAddressAction, updateLineAction, updateProfileAction, verifyResetCodeAction };
+export { addDeliveryAddressAction, addItemAction, changePasswordAction, createDocumentAction, createOrderAction, createTicketAction, getActiveCompanyAction, getAnonymousArticleAction, getAnonymousArticleFieldValuesAction, getAnonymousArticlesAction, getAnonymousContextAction, getArticleAction, getArticleFieldValuesAction, getArticlesAction, getCartAction, getContextAction, getDeliveryOptionsAction, getDocumentAction, getDocumentPdfAction, getDocumentsAction, isAuthenticatedAction, loginAction, logoutAction, meAction, registerAction, removeItemAction, reorderAction, requestPasswordResetAction, setActiveCompanyAction, setCartCommentAction, setCartDeliveryAction, startPaymentAction, updateDeliveryAddressAction, updateLineAction, updateProfileAction, verifyResetCodeAction };

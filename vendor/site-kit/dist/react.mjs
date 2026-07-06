@@ -38,6 +38,12 @@ function useArticle(reference) {
     [reference]
   );
 }
+function useArticleFieldValues(field, baseQuery) {
+  return useQuery(
+    () => actions.getArticleFieldValuesAction(field, baseQuery),
+    [field, JSON.stringify(baseQuery)]
+  );
+}
 function useShopContext() {
   return useQuery(() => actions.getContextAction(), []);
 }
@@ -292,4 +298,4 @@ function useSupport() {
   };
 }
 
-export { useAccount, useAddToCart, useArticle, useArticles, useAuth, useCart, useCheckout, useCompany, useDelivery, useDocument, useDocuments, usePayment, useShopContext, useSupport };
+export { useAccount, useAddToCart, useArticle, useArticleFieldValues, useArticles, useAuth, useCart, useCheckout, useCompany, useDelivery, useDocument, useDocuments, usePayment, useShopContext, useSupport };

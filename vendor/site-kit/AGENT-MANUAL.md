@@ -16,7 +16,17 @@ dans `@extracom/site-kit`.
 Compte : inscription (prospect, avec acceptation CGV) et flux de réinitialisation de mot de passe (demande de code, vérification, changement). Renvoie `{ isLoading, error, register, requestPasswordReset, verifyResetCode, changePassword }`.
 
 ```ts
-useAccount: () => { isLoading: boolean; error: Error; register: (input: RegisterInput) => Promise<void>; requestPasswordReset: (email: string) => Promise<void>; verifyResetCode: (email: string, code: string) => Promise<void>; changePassword: (input: Parameters<typeof actions.changePasswordAction>[0]) => Promise<void>; updateProfile: (input: Parameters<typeof actions.updateProfileAction>[0]) => Promise<void>; }
+useAccount: () => {
+  isLoading: boolean;
+  error: Error;
+  register: (input: RegisterInput) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  verifyResetCode: (email: string, code: string) => Promise<void>;
+  changePassword: (input: Parameters<typeof actions.changePasswordAction>[0]) =>
+    Promise<void>;
+  updateProfile: (input: Parameters<typeof actions.updateProfileAction>[0]) =>
+    Promise<void>;
+};
 ```
 
 ### `useAddToCart`
@@ -24,7 +34,11 @@ useAccount: () => { isLoading: boolean; error: Error; register: (input: Register
 Ajout au panier léger (sans charger le panier) — pour les cartes produit.
 
 ```ts
-useAddToCart: () => { isLoading: boolean; error: Error; addItem: (input: AddItemInput) => Promise<Cart>; }
+useAddToCart: () => {
+  isLoading: boolean;
+  error: Error;
+  addItem: (input: AddItemInput) => Promise<Cart>;
+};
 ```
 
 ### `useArticle`
@@ -33,6 +47,14 @@ Détail complet d'un article (prix/stock/promo, déclinaisons, glossaires, fiche
 
 ```ts
 useArticle: (reference: string) => QueryState<Article> & { reload: () => void; }
+```
+
+### `useArticleFieldValues`
+
+Valeurs distinctes d'un **champ libre** d'article (ex. `'Marque'`) sur tout le catalogue — pour peupler une liste de filtres (marques). `baseQuery` restreint le périmètre. Récupère l'ensemble du catalogue puis agrège côté serveur. Renvoie `{ data, isLoading, error, reload }`.
+
+```ts
+useArticleFieldValues: (field: string, baseQuery?: ArticleListQuery) => QueryState<string[]> & { reload: () => void; }
 ```
 
 ### `useArticles`
@@ -48,7 +70,14 @@ useArticles: (query?: ArticleListQuery) => QueryState<ArticleListResponse> & { r
 Authentification : utilisateur courant (résolu côté serveur via le cookie de session), `login` et `logout`. `user` est `null` si anonyme. Renvoie `{ user, isLoading, error, login, logout }`.
 
 ```ts
-useAuth: () => { user: User; isLoading: boolean; error: Error; reload: () => Promise<void>; login: (input: LoginInput) => Promise<LoginResult>; logout: () => Promise<void>; }
+useAuth: () => {
+  user: User;
+  isLoading: boolean;
+  error: Error;
+  reload: () => Promise<void>;
+  login: (input: LoginInput) => Promise<LoginResult>;
+  logout: () => Promise<void>;
+};
 ```
 
 ### `useCart`
@@ -64,7 +93,15 @@ useCart: () => { cart: Cart; isLoading: boolean; error: Error; reload: () => voi
 Finalisation de commande. `createOrder` soumet le panier pour validation commerciale ; `validateWithoutPayment` crée directement le document Sage (commande ou devis selon `documentType`). Les deux sont **anti-double-clic** (un seul en vol). Renvoie `{ isLoading, error, createOrder, validateWithoutPayment }`.
 
 ```ts
-useCheckout: () => { isLoading: boolean; error: Error; createOrder: () => Promise<OrderResult>; validateWithoutPayment: (input?: { documentType?: string; reference?: string; }) => Promise<OrderResult>; }
+useCheckout: () => {
+  isLoading: boolean;
+  error: Error;
+  createOrder: () => Promise<OrderResult>;
+  validateWithoutPayment: (input?: {
+    documentType?: string;
+    reference?: string;
+  }) => Promise<OrderResult>;
+};
 ```
 
 ### `useCompany`
@@ -104,7 +141,11 @@ useDocuments: (filters?: { type?: number; deliveryCity?: string; deliveryPostalC
 Démarrage du paiement. `start` ouvre une session de paiement et renvoie l'URL de redirection vers le prestataire (anti-double : une seule session en vol). Renvoie `{ isLoading, error, start }`.
 
 ```ts
-usePayment: () => { isLoading: boolean; error: Error; start: (input?: StartPaymentInput) => Promise<PaymentSession>; }
+usePayment: () => {
+  isLoading: boolean;
+  error: Error;
+  start: (input?: StartPaymentInput) => Promise<PaymentSession>;
+};
 ```
 
 ### `useShopContext`
@@ -120,28 +161,33 @@ useShopContext: () => QueryState<ShopContext> & { reload: () => void; }
 Support : création d'un ticket de contact. **Réservé au connecté** (le serveur attache le ticket au compte de la session). Pour un visiteur anonyme, masque le formulaire et invite à se connecter. Renvoie `{ isLoading, error, createTicket }`.
 
 ```ts
-useSupport: () => { isLoading: boolean; error: Error; createTicket: (input: Parameters<typeof actions.createTicketAction>[0]) => Promise<void>; }
+useSupport: () => {
+  isLoading: boolean;
+  error: Error;
+  createTicket: (input: Parameters<typeof actions.createTicketAction>[0]) =>
+    Promise<void>;
+};
 ```
-
 
 ## Fonctions serveur (server actions — `@extracom/site-kit/server`)
 
 ### `addDeliveryAddressAction`
 
 ```ts
-addDeliveryAddressAction: (input: AddDeliveryAddressInput) => Promise<DeliveryAddress>
+addDeliveryAddressAction: (input: AddDeliveryAddressInput) =>
+  Promise<DeliveryAddress>;
 ```
 
 ### `addItemAction`
 
 ```ts
-addItemAction: (input: AddItemInput) => Promise<Cart>
+addItemAction: (input: AddItemInput) => Promise<Cart>;
 ```
 
 ### `changePasswordAction`
 
 ```ts
-changePasswordAction: (input: ChangePasswordInput) => Promise<void>
+changePasswordAction: (input: ChangePasswordInput) => Promise<void>;
 ```
 
 ### `createDocumentAction`
@@ -149,19 +195,20 @@ changePasswordAction: (input: ChangePasswordInput) => Promise<void>
 Valider sans payer : crée directement le document Sage (commande).
 
 ```ts
-createDocumentAction: (input?: { documentType?: string; reference?: string; }) => Promise<OrderResult>
+createDocumentAction: (input?: { documentType?: string; reference?: string }) =>
+  Promise<OrderResult>;
 ```
 
 ### `createOrderAction`
 
 ```ts
-createOrderAction: () => Promise<OrderResult>
+createOrderAction: () => Promise<OrderResult>;
 ```
 
 ### `createTicketAction`
 
 ```ts
-createTicketAction: (input: CreateTicketInput) => Promise<void>
+createTicketAction: (input: CreateTicketInput) => Promise<void>;
 ```
 
 ### `getActiveCompanyAction`
@@ -169,73 +216,95 @@ createTicketAction: (input: CreateTicketInput) => Promise<void>
 Société (compte client) active = `customerId` du broker.
 
 ```ts
-getActiveCompanyAction: () => Promise<string | null>
+getActiveCompanyAction: () => Promise<string | null>;
 ```
 
 ### `getAnonymousArticleAction`
 
 ```ts
-getAnonymousArticleAction: (reference: string) => Promise<Article>
+getAnonymousArticleAction: (reference: string) => Promise<Article>;
+```
+
+### `getAnonymousArticleFieldValuesAction`
+
+```ts
+getAnonymousArticleFieldValuesAction: (
+  field: string,
+  baseQuery?: ArticleListQuery
+) => Promise<string[]>;
 ```
 
 ### `getAnonymousArticlesAction`
 
 ```ts
-getAnonymousArticlesAction: (query?: ArticleListQuery) => Promise<ArticleListResponse>
+getAnonymousArticlesAction: (query?: ArticleListQuery) =>
+  Promise<ArticleListResponse>;
 ```
 
 ### `getAnonymousContextAction`
 
 ```ts
-getAnonymousContextAction: () => Promise<ShopContext>
+getAnonymousContextAction: () => Promise<ShopContext>;
 ```
 
 ### `getArticleAction`
 
 ```ts
-getArticleAction: (reference: string) => Promise<Article>
+getArticleAction: (reference: string) => Promise<Article>;
+```
+
+### `getArticleFieldValuesAction`
+
+Valeurs distinctes d'un champ libre d'article (ex. `'Marque'`) sur tout le catalogue — pour construire une liste de filtres (marques). `baseQuery` restreint éventuellement le périmètre.
+
+```ts
+getArticleFieldValuesAction: (field: string, baseQuery?: ArticleListQuery) =>
+  Promise<string[]>;
 ```
 
 ### `getArticlesAction`
 
 ```ts
-getArticlesAction: (query?: ArticleListQuery) => Promise<ArticleListResponse>
+getArticlesAction: (query?: ArticleListQuery) => Promise<ArticleListResponse>;
 ```
 
 ### `getCartAction`
 
 ```ts
-getCartAction: () => Promise<Cart>
+getCartAction: () => Promise<Cart>;
 ```
 
 ### `getContextAction`
 
 ```ts
-getContextAction: () => Promise<ShopContext>
+getContextAction: () => Promise<ShopContext>;
 ```
 
 ### `getDeliveryOptionsAction`
 
 ```ts
-getDeliveryOptionsAction: () => Promise<DeliveryOptions>
+getDeliveryOptionsAction: () => Promise<DeliveryOptions>;
 ```
 
 ### `getDocumentAction`
 
 ```ts
-getDocumentAction: (id: string, type?: number | string) => Promise<DocumentDetail>
+getDocumentAction: (id: string, type?: number | string) =>
+  Promise<DocumentDetail>;
 ```
 
 ### `getDocumentPdfAction`
 
 ```ts
-getDocumentPdfAction: (documentId: string, type: string) => Promise<{ base64: string; contentType: string; }>
+getDocumentPdfAction: (documentId: string, type: string) =>
+  Promise<{ base64: string; contentType: string }>;
 ```
 
 ### `getDocumentsAction`
 
 ```ts
-getDocumentsAction: (query?: DocumentListQuery) => Promise<DocumentListResponse>
+getDocumentsAction: (query?: DocumentListQuery) =>
+  Promise<DocumentListResponse>;
 ```
 
 ### `isAuthenticatedAction`
@@ -243,49 +312,49 @@ getDocumentsAction: (query?: DocumentListQuery) => Promise<DocumentListResponse>
 `true` si une session brokerée est présente (→ ne PAS servir le cache).
 
 ```ts
-isAuthenticatedAction: () => Promise<boolean>
+isAuthenticatedAction: () => Promise<boolean>;
 ```
 
 ### `loginAction`
 
 ```ts
-loginAction: (input: LoginInput) => Promise<LoginResult>
+loginAction: (input: LoginInput) => Promise<LoginResult>;
 ```
 
 ### `logoutAction`
 
 ```ts
-logoutAction: () => Promise<void>
+logoutAction: () => Promise<void>;
 ```
 
 ### `meAction`
 
 ```ts
-meAction: () => Promise<User>
+meAction: () => Promise<User>;
 ```
 
 ### `registerAction`
 
 ```ts
-registerAction: (input: RegisterInput) => Promise<void>
+registerAction: (input: RegisterInput) => Promise<void>;
 ```
 
 ### `removeItemAction`
 
 ```ts
-removeItemAction: (lineId: string) => Promise<Cart>
+removeItemAction: (lineId: string) => Promise<Cart>;
 ```
 
 ### `reorderAction`
 
 ```ts
-reorderAction: (orderReference: string) => Promise<Cart>
+reorderAction: (orderReference: string) => Promise<Cart>;
 ```
 
 ### `requestPasswordResetAction`
 
 ```ts
-requestPasswordResetAction: (input: RequestPasswordResetInput) => Promise<void>
+requestPasswordResetAction: (input: RequestPasswordResetInput) => Promise<void>;
 ```
 
 ### `setActiveCompanyAction`
@@ -293,48 +362,48 @@ requestPasswordResetAction: (input: RequestPasswordResetInput) => Promise<void>
 Change la société active (re-scelle la session avec un autre `customerId`). Sécurité : le `customerId` doit appartenir aux memberships de l'utilisateur.
 
 ```ts
-setActiveCompanyAction: (customerId: string) => Promise<void>
+setActiveCompanyAction: (customerId: string) => Promise<void>;
 ```
 
 ### `setCartCommentAction`
 
 ```ts
-setCartCommentAction: (comment: string) => Promise<Cart>
+setCartCommentAction: (comment: string) => Promise<Cart>;
 ```
 
 ### `setCartDeliveryAction`
 
 ```ts
-setCartDeliveryAction: (input: SetCartDeliveryInput) => Promise<Cart>
+setCartDeliveryAction: (input: SetCartDeliveryInput) => Promise<Cart>;
 ```
 
 ### `startPaymentAction`
 
 ```ts
-startPaymentAction: (input: StartPaymentInput) => Promise<PaymentSession>
+startPaymentAction: (input: StartPaymentInput) => Promise<PaymentSession>;
 ```
 
 ### `updateDeliveryAddressAction`
 
 ```ts
-updateDeliveryAddressAction: (input: UpdateDeliveryAddressInput) => Promise<DeliveryAddress>
+updateDeliveryAddressAction: (input: UpdateDeliveryAddressInput) =>
+  Promise<DeliveryAddress>;
 ```
 
 ### `updateLineAction`
 
 ```ts
-updateLineAction: (lineId: string, input: UpdateCartLineInput) => Promise<Cart>
+updateLineAction: (lineId: string, input: UpdateCartLineInput) => Promise<Cart>;
 ```
 
 ### `updateProfileAction`
 
 ```ts
-updateProfileAction: (input: UpdateProfileInput) => Promise<void>
+updateProfileAction: (input: UpdateProfileInput) => Promise<void>;
 ```
 
 ### `verifyResetCodeAction`
 
 ```ts
-verifyResetCodeAction: (input: VerifyResetCodeInput) => Promise<void>
+verifyResetCodeAction: (input: VerifyResetCodeInput) => Promise<void>;
 ```
-

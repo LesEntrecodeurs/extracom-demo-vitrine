@@ -1,4 +1,4 @@
-import { A as ArticleListQuery, a as ArticleListResponse, b as Article, S as ShopContext, c as Cart, d as AddItemInput, U as UpdateCartLineInput, e as SetCartDeliveryInput, p as DocumentListResponse, q as DocumentDetail, g as User, L as LoginInput, f as LoginResult, Z as Membership, O as OrderResult, n as StartPaymentInput, P as PaymentSession, D as DeliveryOptions, k as AddDeliveryAddressInput, l as DeliveryAddress, m as UpdateDeliveryAddressInput, R as RegisterInput } from './document-gyuqZ23j.js';
+import { A as ArticleListQuery, a as ArticleListResponse, b as Article, S as ShopContext, c as Cart, d as AddItemInput, U as UpdateCartLineInput, e as SetCartDeliveryInput, p as DocumentListResponse, q as DocumentDetail, g as User, L as LoginInput, f as LoginResult, Z as Membership, O as OrderResult, n as StartPaymentInput, P as PaymentSession, D as DeliveryOptions, k as AddDeliveryAddressInput, l as DeliveryAddress, m as UpdateDeliveryAddressInput, R as RegisterInput } from './document-BD7GJwkf.js';
 import * as actions from '@extracom/site-kit/server';
 
 interface QueryState<T> {
@@ -20,6 +20,15 @@ declare function useArticles(query?: ArticleListQuery): QueryState<ArticleListRe
  * Renvoie `{ data, isLoading, error, reload }`.
  */
 declare function useArticle(reference: string): QueryState<Article> & {
+    reload: () => void;
+};
+/**
+ * Valeurs distinctes d'un **champ libre** d'article (ex. `'Marque'`) sur tout le
+ * catalogue — pour peupler une liste de filtres (marques). `baseQuery` restreint
+ * le périmètre. Récupère l'ensemble du catalogue puis agrège côté serveur.
+ * Renvoie `{ data, isLoading, error, reload }`.
+ */
+declare function useArticleFieldValues(field: string, baseQuery?: ArticleListQuery): QueryState<string[]> & {
     reload: () => void;
 };
 /**
@@ -166,4 +175,4 @@ declare function useSupport(): {
     createTicket: (input: Parameters<typeof actions.createTicketAction>[0]) => Promise<void>;
 };
 
-export { useAccount, useAddToCart, useArticle, useArticles, useAuth, useCart, useCheckout, useCompany, useDelivery, useDocument, useDocuments, usePayment, useShopContext, useSupport };
+export { useAccount, useAddToCart, useArticle, useArticleFieldValues, useArticles, useAuth, useCart, useCheckout, useCompany, useDelivery, useDocument, useDocuments, usePayment, useShopContext, useSupport };

@@ -60,6 +60,12 @@ function useArticle(reference) {
     [reference]
   );
 }
+function useArticleFieldValues(field, baseQuery) {
+  return useQuery(
+    () => actions__namespace.getArticleFieldValuesAction(field, baseQuery),
+    [field, JSON.stringify(baseQuery)]
+  );
+}
 function useShopContext() {
   return useQuery(() => actions__namespace.getContextAction(), []);
 }
@@ -317,6 +323,7 @@ function useSupport() {
 exports.useAccount = useAccount;
 exports.useAddToCart = useAddToCart;
 exports.useArticle = useArticle;
+exports.useArticleFieldValues = useArticleFieldValues;
 exports.useArticles = useArticles;
 exports.useAuth = useAuth;
 exports.useCart = useCart;

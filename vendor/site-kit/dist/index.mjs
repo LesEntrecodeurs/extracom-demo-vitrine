@@ -108,7 +108,9 @@ var HttpClient = class {
       throw new SiteApiError(res.status, await res.text());
     }
     if (!res.arrayBuffer) {
-      throw new Error("[site-kit] transport sans support binaire (arrayBuffer)");
+      throw new Error(
+        "[site-kit] transport sans support binaire (arrayBuffer)"
+      );
     }
     return {
       data: await res.arrayBuffer(),
@@ -215,6 +217,27 @@ function mapGlossaires(w) {
   var _a;
   return (_a = w.glossaires) == null ? void 0 : _a.map((g) => ({ text: g.text }));
 }
+function mapCustomFields(w) {
+  var _a;
+  const fields = [];
+  for (const info of w.InfosLibres ?? []) {
+    const name = (_a = info == null ? void 0 : info.Name) == null ? void 0 : _a.trim();
+    const value = (info == null ? void 0 : info.Value) == null ? "" : `${info.Value}`.trim();
+    if (name && value) fields.push({ name, value });
+  }
+  const stats = [
+    ["Statistique1", w.Statistique1],
+    ["Statistique2", w.Statistique2],
+    ["Statistique3", w.Statistique3],
+    ["Statistique4", w.Statistique4],
+    ["Statistique5", w.Statistique5]
+  ];
+  for (const [name, raw] of stats) {
+    const value = raw == null ? "" : `${raw}`.trim();
+    if (value) fields.push({ name, value });
+  }
+  return fields.length > 0 ? fields : void 0;
+}
 function toCatalogNode(c, level = 1) {
   var _a;
   return {
@@ -245,8 +268,17 @@ function toArticle(w) {
     expirationDate: w.DLC,
     barcode: w.barcode,
     gammes: w.gamme ? [mapGamme(w.gamme)] : void 0,
-    glossaires: mapGlossaires(w)
+    glossaires: mapGlossaires(w),
+    customFields: mapCustomFields(w)
   };
+}
+function matchesFieldFilters(article, filters) {
+  const fields = article.customFields ?? [];
+  return filters.every(
+    (f) => fields.some(
+      (cf) => cf.name.toLowerCase() === f.name.toLowerCase() && cf.value.toLowerCase() === f.value.toLowerCase()
+    )
+  );
 }
 function buildListQuery(query, ctx) {
   const limit = query.limit ?? DEFAULT_LIMIT;
@@ -281,11 +313,42 @@ function buildListQuery(query, ctx) {
   if (filters.length > 0) params.set("filters", JSON.stringify(filters));
   return params.toString();
 }
+var FETCH_ALL_PAGE = 200;
+var FETCH_ALL_MAX_PAGES = 100;
 function createCatalog(http, shopName) {
   const routes = apiRoutes.shop(shopName);
+  async function fetchAllArticles(query, ctx) {
+    const all = [];
+    for (let page = 1; page <= FETCH_ALL_MAX_PAGES; page++) {
+      const qs = buildListQuery(
+        { ...query, page, limit: FETCH_ALL_PAGE},
+        ctx
+      );
+      const res = await http.get(
+        `${routes.articles}?${qs}`,
+        { sessionId: ctx.sessionId }
+      );
+      all.push(...res.data.map(toArticle));
+      if (res.data.length < FETCH_ALL_PAGE || all.length >= res.count) break;
+    }
+    return all;
+  }
   return {
     /** Liste paginée d'articles (prix embarqués si connecté). */
     async getArticles(query = {}, ctx = {}) {
+      if (query.fieldFilters && query.fieldFilters.length > 0) {
+        const all = await fetchAllArticles(query, ctx);
+        const filtered = all.filter(
+          (a) => matchesFieldFilters(a, query.fieldFilters)
+        );
+        const limit = query.limit ?? DEFAULT_LIMIT;
+        const page = query.page ?? 1;
+        const start = Math.max(0, page - 1) * limit;
+        return {
+          data: filtered.slice(start, start + limit),
+          pagination: { page, limit, total: filtered.length }
+        };
+      }
       const qs = buildListQuery(query, ctx);
       const res = await http.get(`${routes.articles}?${qs}`, {
         sessionId: ctx.sessionId
@@ -298,6 +361,28 @@ function createCatalog(http, shopName) {
           total: res.count
         }
       };
+    },
+    /**
+     * Valeurs distinctes d'un **champ libre** (`customFields`) sur l'ensemble du
+     * catalogue — ex. la liste des marques via `getFieldValues('Marque')`.
+     * Récupère tous les articles puis agrège (tri alphabétique, casse d'origine
+     * conservée). `baseQuery` restreint éventuellement le périmètre (famille,
+     * catalogue, recherche…).
+     */
+    async getFieldValues(field, ctx = {}, baseQuery = {}) {
+      const all = await fetchAllArticles(baseQuery, ctx);
+      const target = field.toLowerCase();
+      const byLower = /* @__PURE__ */ new Map();
+      for (const a of all) {
+        for (const cf of a.customFields ?? []) {
+          if (cf.name.toLowerCase() !== target) continue;
+          const v = cf.value.trim();
+          if (v && !byLower.has(v.toLowerCase())) byLower.set(v.toLowerCase(), v);
+        }
+      }
+      return Array.from(byLower.values()).sort(
+        (x, y) => x.localeCompare(y, "fr")
+      );
     },
     /** Détail d'un article (page produit). */
     async getArticle(reference, ctx = {}) {
@@ -788,12 +873,14 @@ function createShop(http, shopName) {
   return {
     async getContext(ctx = {}) {
       var _a, _b, _c;
-      const [catalogTree, families, currentTerms, settings] = await Promise.all([
-        catalog.getCatalogTree(ctx),
-        catalog.getFamilies(ctx),
-        terms.getCurrent(ctx),
-        http.get(routes.settings, { sessionId: ctx.sessionId }).catch(() => null)
-      ]);
+      const [catalogTree, families, currentTerms, settings] = await Promise.all(
+        [
+          catalog.getCatalogTree(ctx),
+          catalog.getFamilies(ctx),
+          terms.getCurrent(ctx),
+          http.get(routes.settings, { sessionId: ctx.sessionId }).catch(() => null)
+        ]
+      );
       return {
         shopName,
         catalogTree,
