@@ -15,9 +15,9 @@
    lisible sur --brand. Le reste de la palette (neutres) suit Tailwind.
    ──────────────────────────────────────────────────────────────────────── */
 :root {
-  --brand: #1d9e75;
-  --brand-dark: #0f6e56;
-  --brand-light: #e1f5ee;
+  --brand: #f6b800;
+  --brand-dark: #b08000;
+  --brand-light: #fff6cc;
 
   /* Typo (éditable). Display = serif éditorial (caractère, sans réseau ni
      dépendance RGPD) ; corps = sans système clean. Pour une vraie identité,
