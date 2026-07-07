@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 
 /**
  * Bloc d'achat de la fiche produit : sélection de déclinaison (gamme) +
- * ajout au panier. Si l'article a des déclinaisons, l'ajout est **bloqué**
- * tant qu'aucune n'est choisie ; le `variantId` envoyé est l'id de la
- * déclinaison sélectionnée.
+ * ajout au panier. Chaque axe (Couleur, Taille…) garde son choix
+ * indépendamment ; le bouton n'est actif que lorsque toutes les
+ * sélections sont faites. Le `variantId` envoyé au panier est l'id de
+ * la valeur du dernier axe sélectionné — c'est ce qu'accepte le kit
+ * (un seul identifiant de variante par ajout).
  */
 export function BuyBox({
   reference,
@@ -25,10 +27,15 @@ export function BuyBox({
   const axes = (gammes ?? []).filter((g) => g.items.length > 0);
   const hasVariants = axes.length > 0;
   const { addItem, isLoading } = useAddToCart();
-  const [variantId, setVariantId] = useState<number | null>(null);
+  const [selected, setSelected] = useState<Record<number, number>>({});
   const [added, setAdded] = useState(false);
 
-  const canAdd = !priceHidden && (!hasVariants || variantId != null);
+  const isComplete =
+    !hasVariants || axes.every((axis) => selected[axis.id] != null);
+  const canAdd = !priceHidden && isComplete;
+
+  const variantId =
+    axes.length > 0 ? selected[axes[axes.length - 1].id] ?? null : null;
 
   return (
     <div className="max-w-sm space-y-4">
@@ -36,20 +43,23 @@ export function BuyBox({
         <div key={axis.id}>
           <p className="mb-1.5 text-sm font-medium text-neutral-700">
             {axis.label}
-            {hasVariants && variantId == null && (
+            {hasVariants && selected[axis.id] == null && (
               <span className="ml-1 text-red-500">*</span>
             )}
           </p>
           <div className="flex flex-wrap gap-2">
             {axis.items.map((it) => {
-              const selected = variantId === it.id;
+              const isSelected = selected[axis.id] === it.id;
               return (
                 <button
                   key={it.id}
                   type="button"
-                  onClick={() => setVariantId(it.id)}
+                  onClick={() =>
+                    setSelected((prev) => ({ ...prev, [axis.id]: it.id }))
+                  }
+                  aria-pressed={isSelected}
                   className={`rounded-lg border px-3 py-1.5 text-sm transition ${
-                    selected
+                    isSelected
                       ? 'border-[var(--brand)] bg-[var(--brand-light)] text-[var(--brand-dark)]'
                       : 'border-neutral-200 hover:border-neutral-300'
                   }`}
@@ -98,8 +108,8 @@ export function BuyBox({
           ? '…'
           : added
             ? 'Ajouté'
-            : hasVariants && variantId == null
-              ? 'Choisissez une déclinaison'
+            : hasVariants && !isComplete
+              ? 'Choisissez vos options'
               : 'Ajouter au panier'}
       </Button>
     </div>
