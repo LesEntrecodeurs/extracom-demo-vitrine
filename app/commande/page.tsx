@@ -85,8 +85,15 @@ function CommandeContent() {
                 ? 'Commande validée'
                 : 'Commande envoyée'}
           </h1>
-          <p className="mt-2 text-sm text-neutral-600">
-            {confirmedRef ? `Référence : ${confirmedRef}. ` : ''}
+          {confirmedRef && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-md bg-[var(--brand-light)] px-3 py-2 text-sm">
+              <span className="text-neutral-600">Numéro de commande</span>
+              <span className="font-mono font-semibold text-[var(--brand-dark)]">
+                {confirmedRef}
+              </span>
+            </div>
+          )}
+          <p className="mt-4 text-sm text-neutral-600">
             {isQuote || created
               ? 'Vous le retrouvez dès maintenant dans votre historique.'
               : 'Elle sera validée par un commercial.'}
