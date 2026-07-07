@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   useCart,
@@ -16,6 +17,7 @@ import { formatPrice } from '@extracom/site-kit';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
+import { EmptyState } from '@/components/site/EmptyState';
 
 export default function CommandePage() {
   return (
@@ -106,12 +108,14 @@ function CommandeContent() {
   if (isLoading) return <CartSkeleton />;
   if (!cart || cart.lines.length === 0)
     return (
-      <p>
-        Panier vide.{' '}
-        <Link href="/catalogue" className="text-[var(--brand-dark)] underline">
-          Catalogue
-        </Link>
-      </p>
+      <div className="mx-auto max-w-lg">
+        <EmptyState
+          icon={<ShoppingCart className="size-8" />}
+          title="Votre panier est vide"
+          description="Ajoutez des articles depuis le catalogue avant de passer commande."
+          action={{ label: 'Voir le catalogue', href: '/catalogue' }}
+        />
+      </div>
     );
 
   const hasDelivery = !!cart.deliveryAddressId;
