@@ -51,7 +51,14 @@ function PanierContent() {
                   </p>
                 )}
                 <p className="text-sm text-neutral-500">
-                  {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
+                  {formatPrice(line.unitPrice)}{' '}
+                  {line.unitBasePrice != null &&
+                    line.unitBasePrice > line.unitPrice && (
+                      <span className="ml-1 text-neutral-400 line-through">
+                        {formatPrice(line.unitBasePrice)}
+                      </span>
+                    )}{' '}
+                  / {line.unit ?? 'unité'}
                 </p>
               </div>
               <input

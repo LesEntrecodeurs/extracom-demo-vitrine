@@ -136,8 +136,16 @@ function CommandeContent() {
                 {l.label ?? l.reference}
                 {l.variantLabel ? ` — ${l.variantLabel}` : ''} × {l.quantity}
               </span>
-              <span>
+              <span className="text-right">
                 {formatPrice(l.lineTotalInclVat ?? l.unitPrice * l.quantity)}
+                {l.unitBasePrice != null && l.unitBasePrice > l.unitPrice && (
+                  <span className="ml-2 block text-xs font-normal text-neutral-400 line-through">
+                    {formatPrice(
+                      (l.lineTotalInclVat ?? l.unitPrice * l.quantity) +
+                        (l.unitBasePrice - l.unitPrice) * l.quantity
+                    )}
+                  </span>
+                )}
               </span>
             </li>
           ))}
