@@ -178,25 +178,36 @@ export default async function ProduitPage({
           ))}
 
         {/* Fiches techniques */}
-        {article.specSheets && article.specSheets.length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
-            <ul className="mt-2 space-y-1">
+        <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-4">
+          <div className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-[var(--brand-dark)]" />
+            <h2 className="text-base font-semibold text-neutral-800">
+              Fiche technique
+            </h2>
+          </div>
+          {article.specSheets && article.specSheets.length > 0 ? (
+            <ul className="mt-3 space-y-2">
               {article.specSheets.map((url, i) => (
                 <li key={i}>
                   <a
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-[var(--brand-dark)] underline"
+                    className="inline-flex items-center gap-2 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm font-medium text-[var(--brand-dark)] transition hover:bg-neutral-100"
                   >
-                    Fiche technique {i + 1}
+                    <Download className="h-4 w-4" />
+                    Télécharger la fiche technique (PDF)
                   </a>
                 </li>
               ))}
             </ul>
-          </div>
-        )}
+          ) : (
+            <p className="mt-2 text-sm text-neutral-600">
+              La fiche technique n'est pas encore disponible en ligne. Contactez-nous
+              pour la recevoir par e-mail.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
