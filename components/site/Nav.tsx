@@ -81,6 +81,23 @@ export function Nav({
           </nav>
         </div>
 
+        {/* Barre de recherche dédiée mobile : pleine largeur sous la ligne
+            logo/panier/connexion, au-dessus du menu des catégories. Cachée à
+            partir de `md` car la barre inline prend le relais sur grand écran. */}
+        <div className="container-x pb-3 md:hidden">
+          <form action="/catalogue">
+            <div className="relative">
+              <SearchIcon className="pointer-events-none absolute top-2.5 left-3 h-4 w-4 text-neutral-400" />
+              <input
+                name="q"
+                placeholder="Rechercher un article…"
+                aria-label="Rechercher un article"
+                className="field pl-9"
+              />
+            </div>
+          </form>
+        </div>
+
         <CategoryMenu categories={categories} />
       </div>
     </header>
