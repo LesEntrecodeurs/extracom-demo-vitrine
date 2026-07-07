@@ -16,7 +16,9 @@ import {
 } from '@extracom/site-kit/server';
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
+import { FaqSection } from '@/components/site/FaqSection';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { JsonLd } from '@/components/site/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +47,7 @@ export default async function HomePage() {
   const categories = context?.catalogTree?.slice(0, 6) ?? [];
   const firstName = user?.name?.split(' ')[0];
   const shopName = context?.branding?.name ?? context?.shopName ?? 'Boutique';
+  const faqs = buildFaqs(shopName);
   // Inscription ouverte = capability vitrine dérivée (création de compte + liens
   // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
@@ -218,6 +221,27 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <FaqSection
+        title="Questions fréquentes"
+        intro={`Tout ce que vous devez savoir pour commander chez ${shopName} en tant que professionnel.`}
+        items={faqs}
+      />
+
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: f.answer
+            }
+          }))
+        }}
+      />
     </div>
   );
 }
@@ -263,5 +287,28 @@ const valueProps = [
     title: 'Support dédié',
     text: 'Une équipe à votre écoute',
     icon: <MessageCircle className="size-6" />
+  }
+];
+
+const buildFaqs = (shopName: string) => [
+  {
+    question: `Comment ${shopName} affiche-t-elle les tarifs négociés ?`,
+    answer: `${shopName} affiche vos tarifs négociés dès la connexion à votre espace client. Nous appliquons automatiquement vos remises contractuelles et votre centrale d'achat, pour voir le prix réel de chaque référence sans négociation à chaque commande. Créez votre compte pour activer l'affichage personnalisé.`
+  },
+  {
+    question: `Comment demander un devis à ${shopName} ?`,
+    answer: `${shopName} permet de demander un devis en un clic depuis chaque fiche produit. Nous transmettons votre demande à notre équipe commerciale sous 24 heures ouvrées, avec un retour personnalisé par e-mail incluant prix, délais et conditions de livraison.`
+  },
+  {
+    question: `Quels sont les délais de livraison de ${shopName} ?`,
+    answer: `${shopName} expédie les commandes validées sous 24 à 48 heures ouvrées. Nous travaillons avec des transporteurs spécialisés pour les colis volumineux et garantissons un suivi complet à chaque étape, de la préparation à la livraison à l'adresse de votre choix.`
+  },
+  {
+    question: `Comment créer un compte professionnel chez ${shopName} ?`,
+    answer: `${shopName} propose une inscription professionnelle en quelques minutes : remplissez le formulaire dédié avec votre numéro SIRET et votre activité. Nous validons votre compte sous 24 heures ouvrées, dès qu'un commercial confirme votre référencement, pour activer vos tarifs personnalisés.`
+  },
+  {
+    question: `Quels moyens de paiement accepte ${shopName} ?`,
+    answer: `${shopName} accepte la carte bancaire sécurisée, le virement et le paiement à 30 jours pour les comptes validés. Nous utilisons une plateforme de paiement certifiée pour garantir la sécurité de chaque transaction et la confidentialité de vos coordonnées bancaires.`
   }
 ];
