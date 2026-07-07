@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useDocuments } from '@extracom/site-kit/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useDocuments, useCart } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
 
@@ -28,6 +30,9 @@ export default function CommandesPage() {
     search: applied.search,
     deliveryCity: applied.city
   });
+  const { reorder } = useCart();
+  const router = useRouter();
+  const [reordering, setReordering] = useState<string | null>(null);
 
   const docs = data?.data ?? [];
 
@@ -143,6 +148,25 @@ export default function CommandesPage() {
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                {d.typeCode === 1 && (
+                  <button
+                    type="button"
+                    disabled={reordering === d.id}
+                    onClick={async () => {
+                      try {
+                        setReordering(d.id);
+                        await reorder(d.orderReference ?? d.reference);
+                        router.push('/panier');
+                      } catch {
+                        toast.error('La recommandation a échoué.');
+                        setReordering(null);
+                      }
+                    }}
+                    className="btn-primary !py-1.5 !text-sm"
+                  >
+                    {reordering === d.id ? 'Recommandation…' : 'Recommander'}
+                  </button>
+                )}
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
