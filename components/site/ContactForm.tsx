@@ -1,68 +1,71 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth, useSupport } from '@extracom/site-kit/react';
 
+interface ContactFormProps {
+  supportEmail?: string;
+}
+
 /**
- * Formulaire de contact → ticket support. **Réservé au connecté** (le kit attache
- * le ticket au compte de la session). Pour un visiteur anonyme, on invite à se
- * connecter plutôt que d'afficher un champ qui échouerait. L'agent peut restyler
- * librement ; ne pas remplacer l'appel `createTicket` par un `fetch` direct.
+ * Le kit attache les tickets au compte de session, donc `createTicket` n'est
+ * utilisable que par un visiteur connecté. Pour les anonymes, on ouvre un
+ * `mailto` pré-rempli vers l'adresse du shop : contournement sans toucher au
+ * kit ni ajouter d'API.
  */
-export function ContactForm() {
+export function ContactForm({
+  supportEmail = 'contact@exemple.fr'
+}: ContactFormProps) {
   const { user, isLoading: loadingUser } = useAuth();
   const { createTicket, isLoading } = useSupport();
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [email, setEmail] = useState('');
 
-  // Pré-remplit l'email de réponse avec celui du compte (modifiable).
   useEffect(() => {
     if (user) setEmail((e) => e || user.email);
   }, [user]);
 
   if (loadingUser) return null;
 
-  if (!user) {
-    return (
-      <div className="card mt-8 p-5 text-sm text-neutral-600">
-        <p className="font-medium text-neutral-800">Envoyer un message</p>
-        <p className="mt-1">
-          <Link
-            href="/connexion?redirect=/contact"
-            className="text-[var(--brand-dark)] underline"
-          >
-            Connectez-vous
-          </Link>{' '}
-          pour nous écrire depuis votre espace — nous rattachons votre demande à
-          votre compte pour un suivi plus rapide.
-        </p>
-      </div>
-    );
+  const isAnonymous = !user;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (isAnonymous) {
+      const body = `Email de réponse : ${email.trim()}\n\n${description.trim()}`;
+      const href = `mailto:${supportEmail}?subject=${encodeURIComponent(
+        subject.trim()
+      )}&body=${encodeURIComponent(body)}`;
+      window.location.href = href;
+      return;
+    }
+    try {
+      await createTicket({
+        subject: subject.trim(),
+        description: description.trim(),
+        email: email.trim()
+      });
+      setSubject('');
+      setDescription('');
+      toast.success('Message envoyé — nous revenons vers vous rapidement.');
+    } catch {
+      toast.error("L'envoi du message a échoué. Réessayez.");
+    }
   }
 
   return (
-    <form
-      className="card mt-8 space-y-4 p-5"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        try {
-          await createTicket({
-            subject: subject.trim(),
-            description: description.trim(),
-            email: email.trim()
-          });
-          setSubject('');
-          setDescription('');
-          toast.success('Message envoyé — nous revenons vers vous rapidement.');
-        } catch {
-          toast.error("L'envoi du message a échoué. Réessayez.");
-        }
-      }}
-    >
-      <p className="font-medium">Envoyer un message</p>
+    <form className="card mt-8 space-y-4 p-5" onSubmit={handleSubmit}>
+      <div>
+        <p className="font-medium">Envoyer un message</p>
+        {isAnonymous && (
+          <p className="mt-1 text-xs text-neutral-500">
+            Vous n'êtes pas connecté·e — l'envoi passera par votre messagerie
+            et nous vous répondrons par email.
+          </p>
+        )}
+      </div>
       <label className="block space-y-1">
         <span className="text-xs font-medium text-neutral-500">Objet</span>
         <input
@@ -97,8 +100,16 @@ export function ContactForm() {
           placeholder="Décrivez votre demande…"
         />
       </label>
-      <button type="submit" disabled={isLoading} className="btn-primary">
-        {isLoading ? 'Envoi…' : 'Envoyer'}
+      <button
+        type="submit"
+        disabled={!isAnonymous && isLoading}
+        className="btn-primary"
+      >
+        {isAnonymous
+          ? 'Envoyer via ma messagerie'
+          : isLoading
+            ? 'Envoi…'
+            : 'Envoyer'}
       </button>
     </form>
   );

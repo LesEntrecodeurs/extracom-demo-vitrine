@@ -46,7 +46,7 @@ export default function ContactPage() {
         Horaires : du lundi au vendredi, 9h–18h.
       </p>
 
-      <ContactForm />
+      <ContactForm supportEmail={coordonnees[0].value} />
     </div>
   );
 }
