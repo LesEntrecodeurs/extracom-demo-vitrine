@@ -219,13 +219,13 @@ function CommandeContent() {
           <label className="text-sm text-neutral-600">Commentaire</label>
           <textarea
             value={comment}
-            onChange={(e) => setCommentValue(e.target.value.slice(0, 69))}
-            placeholder="Note pour la préparation (69 caractères max)"
-            rows={2}
+            onChange={(e) => setCommentValue(e.target.value.slice(0, 500))}
+            placeholder="Note pour la préparation (500 caractères max)"
+            rows={3}
             className="field mt-1 resize-none"
           />
           <p className="mt-0.5 text-right text-xs text-neutral-400">
-            {comment.length}/69
+            {comment.length}/500
           </p>
         </div>
       </section>

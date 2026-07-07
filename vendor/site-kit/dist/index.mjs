@@ -531,12 +531,12 @@ function createCart(http, shopName) {
       );
       return get(ctx);
     },
-    /** Définit le commentaire de commande (max 69 caractères côté API). */
+    /** Définit le commentaire de commande (max 500 caractères côté kit — le backend peut imposer sa propre limite). */
     async setComment(comment, ctx) {
       const raw = await fetchRawCart(http, shopName, ctx);
       await http.put(
         routes.cartComment,
-        { cartId: raw.id, orderComment: comment.slice(0, 69) },
+        { cartId: raw.id, orderComment: comment.slice(0, 500) },
         { sessionId: ctx.sessionId }
       );
       return get(ctx);
