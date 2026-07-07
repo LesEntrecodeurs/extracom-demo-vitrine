@@ -48,16 +48,22 @@ export function BuyBox({
                   key={it.id}
                   type="button"
                   onClick={() => setVariantId(it.id)}
-                  className={`rounded-lg border px-3 py-1.5 text-sm transition ${
+                  aria-pressed={selected}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition ${
                     selected
-                      ? 'border-[var(--brand)] bg-[var(--brand-light)] text-[var(--brand-dark)]'
-                      : 'border-neutral-200 hover:border-neutral-300'
+                      ? 'border-[var(--brand)] bg-[var(--brand-light)] text-[var(--brand-dark)] shadow-sm ring-1 ring-[var(--brand)]'
+                      : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50'
                   }`}
                   title={it.ean ? `EAN ${it.ean}` : undefined}
                 >
+                  {selected && <Check className="size-3.5" />}
                   {it.label}
                   {it.price != null && (
-                    <span className="ml-1.5 text-neutral-400">
+                    <span
+                      className={`ml-1 ${
+                        selected ? 'text-[var(--brand-dark)]/70' : 'text-neutral-400'
+                      }`}
+                    >
                       {formatPrice(it.price)}
                     </span>
                   )}
@@ -67,6 +73,28 @@ export function BuyBox({
           </div>
         </div>
       ))}
+
+      {hasVariants && variantId != null && (() => {
+        const selected = axes
+          .flatMap((a) => a.items.map((it) => ({ axis: a, item: it })))
+          .find((x) => x.item.id === variantId);
+        if (!selected) return null;
+        return (
+          <div className="flex items-start gap-2 rounded-lg border border-[var(--brand)]/30 bg-[var(--brand-light)]/60 px-3 py-2.5 text-sm">
+            <Check className="mt-0.5 size-4 shrink-0 text-[var(--brand-dark)]" />
+            <div className="flex-1">
+              <p className="font-medium text-[var(--brand-dark)]">
+                Votre sélection : {selected.axis.label} — {selected.item.label}
+              </p>
+              {selected.item.price != null && (
+                <p className="mt-0.5 text-xs text-neutral-600">
+                  Prix de cette déclinaison : {formatPrice(selected.item.price)}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       <Button
         type="button"
