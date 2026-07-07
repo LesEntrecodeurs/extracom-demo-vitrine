@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getContextAction, meAction } from '@extracom/site-kit/server';
 import type { ShopContext, User } from '@extracom/site-kit';
+import { Sun } from 'lucide-react';
 import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
@@ -70,6 +71,20 @@ export default async function RootLayout({
     <html lang="fr">
       <body>
         <JsonLd data={orgLd} />
+        <div className="bg-[var(--brand)] text-white">
+          <div className="container-x flex flex-col items-center justify-center gap-2 py-2.5 text-center text-sm sm:flex-row sm:gap-3">
+            <span className="inline-flex items-center gap-2 font-medium">
+              <Sun className="size-4" aria-hidden="true" />
+              Soldes d'été : profitez de nos offres sur une sélection d'articles
+            </span>
+            <Link
+              href="/catalogue"
+              className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[var(--brand-dark)] transition hover:bg-white/90"
+            >
+              Découvrir →
+            </Link>
+          </div>
+        </div>
         <Nav context={context} user={user} />
         <main className="container-x py-10">{children}</main>
 
