@@ -70,8 +70,7 @@ export function ArticleCard({ article }: { article: Article }) {
           </p>
         )}
 
-        {/* Stock : la donnée est déjà façonnée par les settings côté serveur
-            (absente / disponibilité / quantité exacte). On l'affiche telle quelle. */}
+        {/* Stock : affichage dispo / pas dispo (sans la quantité exacte). */}
         {article.stockQuantity != null && (
           <p
             className={`mt-1 text-xs font-medium ${
@@ -80,9 +79,7 @@ export function ArticleCard({ article }: { article: Article }) {
                 : 'text-red-500'
             }`}
           >
-            {article.stockQuantity > 0
-              ? `En stock${article.stockQuantity > 1 ? ` (${article.stockQuantity})` : ''}`
-              : 'Épuisé'}
+            {article.stockQuantity > 0 ? 'Disponible' : 'Indisponible'}
           </p>
         )}
 
