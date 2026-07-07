@@ -52,14 +52,28 @@ export default function ConnexionPage() {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded border px-3 py-2"
         />
-        <input
-          type="password"
-          required
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded border px-3 py-2"
-        />
+        <div>
+          <div className="mb-1 flex items-center justify-between text-sm">
+            <label htmlFor="password" className="text-neutral-700">
+              Mot de passe
+            </label>
+            <Link
+              href="/mot-de-passe-oublie"
+              className="text-[var(--brand-dark)] underline"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </div>
+          <input
+            id="password"
+            type="password"
+            required
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded border px-3 py-2"
+          />
+        </div>
         {err && (
           <p role="alert" className="text-sm text-red-600">
             {err}
@@ -84,14 +98,6 @@ export default function ConnexionPage() {
           </Link>
         </p>
       )}
-      <p className="mt-1 text-sm text-neutral-600">
-        <Link
-          href="/mot-de-passe-oublie"
-          className="text-[var(--brand-dark)] underline"
-        >
-          Mot de passe oublié ?
-        </Link>
-      </p>
     </div>
   );
 }
