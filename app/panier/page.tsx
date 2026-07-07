@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingCart, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
@@ -68,14 +70,11 @@ function PanierContent() {
                   line.lineTotalInclVat ?? line.unitPrice * line.quantity
                 )}
               </div>
-              <button
-                type="button"
-                onClick={() => removeItem(line.id)}
-                aria-label={`Retirer ${line.label ?? line.reference} du panier`}
-                className="text-sm text-neutral-400 hover:text-red-600"
-              >
-                <span aria-hidden="true">✕</span>
-              </button>
+              <RemoveLineButton
+                lineId={line.id}
+                label={line.label ?? line.reference}
+                removeItem={removeItem}
+              />
             </li>
           ))}
         </ul>
@@ -100,5 +99,44 @@ function PanierContent() {
         </Link>
       </aside>
     </div>
+  );
+}
+
+function RemoveLineButton({
+  lineId,
+  label,
+  removeItem,
+}: {
+  lineId: string;
+  label: string;
+  removeItem: (lineId: string) => Promise<unknown>;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleClick() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await removeItem(lineId);
+      toast.success(`${label} retiré du panier`);
+    } catch {
+      toast.error('Suppression impossible, réessayez.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={busy}
+      aria-label={`Retirer ${label} du panier`}
+      title={`Retirer ${label} du panier`}
+      className="inline-flex shrink-0 items-center gap-1.5 rounded border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <Trash2 className="size-4" aria-hidden="true" />
+      <span>Retirer</span>
+    </button>
   );
 }
