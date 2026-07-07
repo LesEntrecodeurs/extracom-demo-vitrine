@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUpDown, Layers, X } from 'lucide-react';
+import { ArrowUpDown, X } from 'lucide-react';
 import type { ArticleSort, Family } from '@extracom/site-kit';
 import {
   Select,
@@ -24,8 +24,6 @@ interface Current {
   pmin?: string;
   pmax?: string;
 }
-
-const ALL = 'all'; // Radix interdit les <SelectItem value="">.
 
 const SORTS: { value: ArticleSort; label: string }[] = [
   { value: 'name_asc', label: 'Nom (A → Z)' },
@@ -78,116 +76,135 @@ export function CatalogueFilters({
   );
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2.5">
-      {/* Catégorie active (posée via le menu navbar) — puce retirable dédiée,
-          en plus du « Réinitialiser » global. */}
-      {activeCatalogLabel && (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-light)] py-1.5 pr-2 pl-3 text-sm font-medium text-[var(--brand-dark)]">
-          {activeCatalogLabel}
+    <div className="mb-6 flex flex-col gap-3">
+      {/* Ligne 1 — Famille : pastilles cliquables (visibilité maximale). */}
+      {families.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => apply({ catalog: undefined, clevel: undefined })}
-            aria-label="Retirer le filtre catégorie"
-            className="rounded-full p-0.5 hover:bg-black/5"
+            onClick={() => apply({ family: undefined })}
+            aria-pressed={!current.family}
+            className={
+              'rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ' +
+              (!current.family
+                ? 'bg-[var(--brand)] text-white shadow-sm'
+                : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200')
+            }
           >
-            <X className="size-3.5" />
+            Toutes
           </button>
-        </span>
+          {families.map((f) => {
+            const active = current.family === f.code;
+            return (
+              <button
+                key={f.code}
+                type="button"
+                onClick={() => apply({ family: active ? undefined : f.code })}
+                aria-pressed={active}
+                className={
+                  'rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ' +
+                  (active
+                    ? 'bg-[var(--brand-light)] text-[var(--brand-dark)] shadow-sm'
+                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200')
+                }
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
       )}
 
-      {families.length > 0 && (
-        <Select
-          value={current.family ?? ALL}
-          onValueChange={(v) => apply({ family: v === ALL ? undefined : v })}
+      {/* Ligne 2 — Catégorie active, prix, tri, réinitialiser. */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        {activeCatalogLabel && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-light)] py-1.5 pr-2 pl-3 text-sm font-medium text-[var(--brand-dark)]">
+            {activeCatalogLabel}
+            <button
+              type="button"
+              onClick={() => apply({ catalog: undefined, clevel: undefined })}
+              aria-label="Retirer le filtre catégorie"
+              className="rounded-full p-0.5 hover:bg-black/5"
+            >
+              <X className="size-3.5" />
+            </button>
+          </span>
+        )}
+
+        {/* Fourchette de prix (sur le prix de base) */}
+        <form
+          className="flex items-center gap-1"
+          onSubmit={(e) => {
+            e.preventDefault();
+            apply({ pmin: pmin || undefined, pmax: pmax || undefined });
+          }}
         >
-          <SelectTrigger className="w-[190px]">
-            <Layers className="size-4 text-neutral-400" />
-            <SelectValue placeholder="Famille" />
+          <input
+            type="number"
+            min={0}
+            inputMode="decimal"
+            value={pmin}
+            onChange={(e) => setPmin(e.target.value)}
+            placeholder="Min €"
+            className="field w-[90px]"
+            aria-label="Prix minimum"
+          />
+          <span className="text-neutral-400">–</span>
+          <input
+            type="number"
+            min={0}
+            inputMode="decimal"
+            value={pmax}
+            onChange={(e) => setPmax(e.target.value)}
+            placeholder="Max €"
+            className="field w-[90px]"
+            aria-label="Prix maximum"
+          />
+          <Button type="submit" variant="outline" size="sm">
+            OK
+          </Button>
+        </form>
+
+        {/* Tri — toujours disponible */}
+        <Select
+          value={current.sort ?? 'name_asc'}
+          onValueChange={(v) => apply({ sort: v })}
+        >
+          <SelectTrigger className="ml-auto w-[185px]">
+            <ArrowUpDown className="size-4 text-neutral-400" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>Toutes les familles</SelectItem>
-            {families.map((f) => (
-              <SelectItem key={f.code} value={f.code}>
-                {f.label}
+            {SORTS.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-      )}
 
-      {/* Fourchette de prix (sur le prix de base) */}
-      <form
-        className="flex items-center gap-1"
-        onSubmit={(e) => {
-          e.preventDefault();
-          apply({ pmin: pmin || undefined, pmax: pmax || undefined });
-        }}
-      >
-        <input
-          type="number"
-          min={0}
-          inputMode="decimal"
-          value={pmin}
-          onChange={(e) => setPmin(e.target.value)}
-          placeholder="Min €"
-          className="field w-[90px]"
-          aria-label="Prix minimum"
-        />
-        <span className="text-neutral-400">–</span>
-        <input
-          type="number"
-          min={0}
-          inputMode="decimal"
-          value={pmax}
-          onChange={(e) => setPmax(e.target.value)}
-          placeholder="Max €"
-          className="field w-[90px]"
-          aria-label="Prix maximum"
-        />
-        <Button type="submit" variant="outline" size="sm">
-          OK
-        </Button>
-      </form>
-
-      {/* Tri — toujours disponible */}
-      <Select
-        value={current.sort ?? 'name_asc'}
-        onValueChange={(v) => apply({ sort: v })}
-      >
-        <SelectTrigger className="ml-auto w-[185px]">
-          <ArrowUpDown className="size-4 text-neutral-400" />
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {SORTS.map((s) => (
-            <SelectItem key={s.value} value={s.value}>
-              {s.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {hasActiveFilter && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-neutral-500"
-          onClick={() => {
-            setPmin('');
-            setPmax('');
-            apply({
-              family: undefined,
-              catalog: undefined,
-              clevel: undefined,
-              pmin: undefined,
-              pmax: undefined
-            });
-          }}
-        >
-          <X className="size-4" />
-          Réinitialiser
-        </Button>
-      )}
+        {hasActiveFilter && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-neutral-500"
+            onClick={() => {
+              setPmin('');
+              setPmax('');
+              apply({
+                family: undefined,
+                catalog: undefined,
+                clevel: undefined,
+                pmin: undefined,
+                pmax: undefined
+              });
+            }}
+          >
+            <X className="size-4" />
+            Réinitialiser
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
