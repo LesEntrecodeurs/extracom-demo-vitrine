@@ -16,9 +16,18 @@ export function Nav({
 
   return (
     <header className="sticky top-0 z-20 bg-white">
-      <div className="bg-[var(--brand-dark)] text-center text-xs text-white">
-        <div className="container-x py-1.5">
-          Livraison rapide · Tarifs négociés pour les professionnels
+      <div className="bg-amber-500 text-white">
+        <div className="container-x flex flex-wrap items-center justify-center gap-x-3 gap-y-1 py-2 text-xs sm:text-sm">
+          <span aria-hidden="true">☀</span>
+          <span>
+            <strong>Soldes d'été</strong> — une sélection d'articles à prix réduits
+          </span>
+          <Link
+            href="/catalogue"
+            className="font-semibold underline-offset-2 hover:underline"
+          >
+            Voir les offres →
+          </Link>
         </div>
       </div>
 
