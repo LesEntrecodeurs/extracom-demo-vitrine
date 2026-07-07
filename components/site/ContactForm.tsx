@@ -1,47 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth, useSupport } from '@extracom/site-kit/react';
 
 /**
- * Formulaire de contact → ticket support. **Réservé au connecté** (le kit attache
- * le ticket au compte de la session). Pour un visiteur anonyme, on invite à se
- * connecter plutôt que d'afficher un champ qui échouerait. L'agent peut restyler
- * librement ; ne pas remplacer l'appel `createTicket` par un `fetch` direct.
+ * Formulaire de contact → ticket support. Ouvert aux visiteurs **anonymes** (on
+ * leur demande simplement un email de réponse) comme aux clients connectés
+ * (l'email est alors pré-rempli avec celui du compte). L'appel passe toujours
+ * par `useSupport().createTicket` — ne pas le remplacer par un `fetch` direct.
  */
 export function ContactForm() {
-  const { user, isLoading: loadingUser } = useAuth();
+  const { user } = useAuth();
   const { createTicket, isLoading } = useSupport();
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [email, setEmail] = useState('');
 
-  // Pré-remplit l'email de réponse avec celui du compte (modifiable).
   useEffect(() => {
     if (user) setEmail((e) => e || user.email);
   }, [user]);
-
-  if (loadingUser) return null;
-
-  if (!user) {
-    return (
-      <div className="card mt-8 p-5 text-sm text-neutral-600">
-        <p className="font-medium text-neutral-800">Envoyer un message</p>
-        <p className="mt-1">
-          <Link
-            href="/connexion?redirect=/contact"
-            className="text-[var(--brand-dark)] underline"
-          >
-            Connectez-vous
-          </Link>{' '}
-          pour nous écrire depuis votre espace — nous rattachons votre demande à
-          votre compte pour un suivi plus rapide.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <form
