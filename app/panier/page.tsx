@@ -1,12 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  InputGroup,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 
 export default function PanierPage() {
   return (
@@ -54,14 +61,24 @@ function PanierContent() {
                   {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
                 </p>
               </div>
-              <input
-                type="number"
+              <QuantityStepper
+                value={line.quantity}
                 min={1}
-                defaultValue={line.quantity}
-                onBlur={(e) =>
-                  updateLine(line.id, { quantity: Number(e.target.value) })
-                }
-                className="field w-16 text-center"
+                itemLabel={line.label ?? line.reference}
+                onChange={async (q) => {
+                  try {
+                    await updateLine(line.id, { quantity: q });
+                  } catch {
+                    toast.error('Impossible de mettre à jour la quantité.');
+                  }
+                }}
+                onRemove={async () => {
+                  try {
+                    await removeItem(line.id);
+                  } catch {
+                    toast.error('Impossible de retirer cet article.');
+                  }
+                }}
               />
               <div className="w-24 text-right font-medium">
                 {formatPrice(
@@ -100,5 +117,119 @@ function PanierContent() {
         </Link>
       </aside>
     </div>
+  );
+}
+
+function QuantityStepper({
+  value,
+  min = 1,
+  itemLabel,
+  onChange,
+  onRemove,
+}: {
+  value: number;
+  min?: number;
+  itemLabel?: string;
+  onChange: (quantity: number) => Promise<void> | void;
+  onRemove: () => Promise<void> | void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+  const [busy, setBusy] = useState(false);
+  const dirtyRef = useRef(false);
+
+  // Resynchronise le champ quand la valeur du panier change depuis l'extérieur,
+  // sauf si l'utilisateur est en train de saisir.
+  useEffect(() => {
+    if (!dirtyRef.current) setDraft(String(value));
+  }, [value]);
+
+  const commit = async (raw: string) => {
+    dirtyRef.current = false;
+    const parsed = parseInt(raw, 10);
+    if (Number.isNaN(parsed)) {
+      setDraft(String(value));
+      return;
+    }
+    if (parsed <= 0) {
+      await onRemove();
+      return;
+    }
+    if (parsed === value) {
+      setDraft(String(value));
+      return;
+    }
+    setBusy(true);
+    try {
+      await onChange(parsed);
+      setDraft(String(parsed));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const step = async (delta: number) => {
+    const current = parseInt(draft, 10);
+    const base = Number.isNaN(current) ? value : current;
+    const next = Math.max(min, base + delta);
+    dirtyRef.current = false;
+    setDraft(String(next));
+    if (next === value) return;
+    setBusy(true);
+    try {
+      await onChange(next);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const decreaseLabel = itemLabel
+    ? `Diminuer la quantité de ${itemLabel}`
+    : 'Diminuer la quantité';
+  const increaseLabel = itemLabel
+    ? `Augmenter la quantité de ${itemLabel}`
+    : 'Augmenter la quantité';
+  const quantityLabel = itemLabel
+    ? `Quantité de ${itemLabel}`
+    : 'Quantité';
+
+  return (
+    <InputGroup className="w-28">
+      <InputGroupButton
+        type="button"
+        aria-label={decreaseLabel}
+        onClick={() => step(-1)}
+        disabled={busy || value <= min}
+      >
+        <Minus />
+      </InputGroupButton>
+      <InputGroupInput
+        type="number"
+        inputMode="numeric"
+        min={min}
+        value={draft}
+        onChange={(e) => {
+          dirtyRef.current = true;
+          setDraft(e.target.value);
+        }}
+        onBlur={(e) => commit(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            (e.currentTarget as HTMLInputElement).blur();
+          }
+        }}
+        disabled={busy}
+        aria-label={quantityLabel}
+        className="text-center"
+      />
+      <InputGroupButton
+        type="button"
+        aria-label={increaseLabel}
+        onClick={() => step(1)}
+        disabled={busy}
+      >
+        <Plus />
+      </InputGroupButton>
+    </InputGroup>
   );
 }
