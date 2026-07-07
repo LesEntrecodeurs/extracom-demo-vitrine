@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
@@ -44,6 +44,10 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  // Garde anti-double-clic : se met à jour SYNCHRONEMENT (à la différence d'un
+  // useState, lu via closure). Bloque tout second clic tant qu'une action est
+  // en vol, sans dépendre du délai de mise à jour des états de chargement.
+  const submittingRef = useRef(false);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -119,9 +123,16 @@ function CommandeContent() {
   // finalisation sur le choix d'une adresse.
   const deliveryOk = !deliveryEnabled || hasDelivery;
   const pay = async () => {
-    await persistComment();
-    const { redirectUrl } = await start({});
-    if (redirectUrl) window.location.href = redirectUrl;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      await persistComment();
+      const { redirectUrl } = await start({});
+      if (redirectUrl) window.location.href = redirectUrl;
+    } catch {
+      submittingRef.current = false;
+      toast.error('Le paiement n’a pas pu démarrer. Réessayez.');
+    }
   };
 
   return (
@@ -248,6 +259,8 @@ function CommandeContent() {
           <button
             type="button"
             onClick={async () => {
+              if (submittingRef.current) return;
+              submittingRef.current = true;
               try {
                 await persistComment();
                 const res = await validateWithoutPayment({
@@ -258,6 +271,7 @@ function CommandeContent() {
                 setCreated(true);
                 setConfirmedRef(res?.reference ?? '');
               } catch {
+                submittingRef.current = false;
                 toast.error(
                   'Le devis n’a pas pu être créé. Vérifiez vos droits ou réessayez.'
                 );
@@ -277,6 +291,8 @@ function CommandeContent() {
           <button
             type="button"
             onClick={async () => {
+              if (submittingRef.current) return;
+              submittingRef.current = true;
               try {
                 await persistComment();
                 const res = await validateWithoutPayment({
@@ -286,6 +302,7 @@ function CommandeContent() {
                 setCreated(true);
                 setConfirmedRef(res?.reference ?? '');
               } catch {
+                submittingRef.current = false;
                 toast.error(
                   'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
                 );
@@ -315,12 +332,15 @@ function CommandeContent() {
             <button
               type="button"
               onClick={async () => {
+                if (submittingRef.current) return;
+                submittingRef.current = true;
                 try {
                   await persistComment();
                   const res = await createOrder();
                   setCreated(false);
                   setConfirmedRef(res?.reference ?? '');
                 } catch {
+                  submittingRef.current = false;
                   toast.error(
                     "La commande n'a pas pu être envoyée. Réessayez."
                   );
