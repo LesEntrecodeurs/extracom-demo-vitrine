@@ -21,7 +21,7 @@ export function ArticleCard({ article }: { article: Article }) {
             alt={article.title}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+            className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
           />
           {hasPromo && (
             <span className="absolute top-2 left-2 rounded-full bg-[var(--brand)] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm">

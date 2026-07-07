@@ -175,30 +175,45 @@
   }
 
   /* ── Profondeur & atmosphère ─────────────────────────────────────────── */
-  /* Fond « mesh » teinté marque : deux halos radiaux doux sur surface claire. */
+  /* Fond « mesh » teinté marque : un halo radial doux sur surface claire.
+     Version mobile légère (un seul dégradé, plus petit) — le second halo et le
+     grain ne s'ajoutent qu'à partir de md, où le GPU suit sans ralentir. */
   .hero-mesh {
     background-color: var(--brand-light);
-    background-image:
-      radial-gradient(
-        60% 80% at 85% 10%,
-        color-mix(in oklab, var(--brand) 22%, transparent),
-        transparent 70%
-      ),
-      radial-gradient(
-        50% 60% at 10% 100%,
-        color-mix(in oklab, var(--brand-dark) 16%, transparent),
-        transparent 70%
-      );
+    background-image: radial-gradient(
+      55% 65% at 88% 8%,
+      color-mix(in oklab, var(--brand) 20%, transparent),
+      transparent 70%
+    );
   }
-  /* Grain léger (texture, casse le plat) — à poser sur un conteneur relatif. */
-  .grain::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.4;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+  @media (min-width: 768px) {
+    .hero-mesh {
+      background-image:
+        radial-gradient(
+          60% 80% at 85% 10%,
+          color-mix(in oklab, var(--brand) 22%, transparent),
+          transparent 70%
+        ),
+        radial-gradient(
+          50% 60% at 10% 100%,
+          color-mix(in oklab, var(--brand-dark) 16%, transparent),
+          transparent 70%
+        );
+    }
+  }
+  /* Grain léger (texture, casse le plat) — coûteux (SVG + blend) donc
+     désactivé sur mobile, où il fait chuter le framerate sans vrai bénéfice
+     visuel sur petit écran. */
+  @media (min-width: 768px) {
+    .grain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.4;
+      mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+    }
   }
 
   /* ── Révélations au chargement (CSS only, échelonnables) ─────────────── */
