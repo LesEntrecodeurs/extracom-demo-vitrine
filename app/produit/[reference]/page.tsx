@@ -140,7 +140,13 @@ export default async function ProduitPage({
         </p>
 
         {typeof article.stockQuantity === 'number' && (
-          <p className="mt-2 text-sm text-neutral-600">
+          <p
+            className={`mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+              article.stockQuantity > 0
+                ? 'bg-[var(--brand-light)] text-[var(--brand-dark)]'
+                : 'bg-red-50 text-red-700'
+            }`}
+          >
             {article.stockQuantity > 0
               ? `En stock (${article.stockQuantity})`
               : 'Rupture de stock'}
@@ -148,19 +154,38 @@ export default async function ProduitPage({
         )}
 
         {article.description && (
-          <p className="mt-4 whitespace-pre-line text-neutral-700">
-            {article.description}
-          </p>
+          <section className="mt-6">
+            <h2 className="mb-2 text-sm font-medium text-neutral-700">
+              Description
+            </h2>
+            <p className="whitespace-pre-line text-neutral-700">
+              {article.description}
+            </p>
+          </section>
         )}
 
         {/* Déclinaisons (gamme) + ajout au panier */}
-        <div className="mt-6">
-          <BuyBox
-            reference={article.reference}
-            gammes={article.gammes}
-            priceHidden={article.price == null}
-          />
-        </div>
+        {(article.gammes ?? []).some((g) => g.items.length > 0) && (
+          <section className="mt-6">
+            <h2 className="mb-3 text-sm font-medium text-neutral-700">
+              Déclinaisons
+            </h2>
+            <BuyBox
+              reference={article.reference}
+              gammes={article.gammes}
+              priceHidden={article.price == null}
+            />
+          </section>
+        )}
+        {!article.gammes?.some((g) => g.items.length > 0) && (
+          <div className="mt-6">
+            <BuyBox
+              reference={article.reference}
+              gammes={article.gammes}
+              priceHidden={article.price == null}
+            />
+          </div>
+        )}
 
         {/* Caractéristiques */}
         <Specs article={article} />
