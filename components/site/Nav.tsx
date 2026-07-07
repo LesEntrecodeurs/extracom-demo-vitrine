@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
+import { LogoutButton } from './LogoutButton';
 
 export function Nav({
   context,
@@ -64,15 +65,18 @@ export function Nav({
             )}
 
             {user ? (
-              <Link
-                href="/compte"
-                className="flex items-center gap-1.5 text-neutral-700 hover:text-neutral-900"
-              >
-                <UserIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">
-                  {firstName ? `Bonjour, ${firstName}` : 'Mon compte'}
-                </span>
-              </Link>
+              <>
+                <Link
+                  href="/compte"
+                  className="flex items-center gap-1.5 text-neutral-700 hover:text-neutral-900"
+                >
+                  <UserIcon className="h-5 w-5" />
+                  <span className="hidden sm:inline">
+                    {firstName ? `Bonjour, ${firstName}` : 'Mon compte'}
+                  </span>
+                </Link>
+                <LogoutButton />
+              </>
             ) : (
               <Link href="/connexion" className="btn-primary !px-4 !py-2">
                 Connexion
