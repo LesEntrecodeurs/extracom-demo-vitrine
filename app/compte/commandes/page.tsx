@@ -15,8 +15,8 @@ const TYPE_TABS: { code: number; label: string }[] = [
 ];
 
 export default function CommandesPage() {
-  // `undefined` = tous les types (filtre serveur désactivé).
-  const [typeCode, setTypeCode] = useState<number | undefined>(undefined);
+  // Par défaut : toutes les commandes du client (type Sage 1).
+  const [typeCode, setTypeCode] = useState<number | undefined>(1);
   // Filtres appliqués (texte) — appliqués au submit du formulaire.
   const [applied, setApplied] = useState<{ search?: string; city?: string }>(
     {}
