@@ -8,18 +8,14 @@ import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { Toaster } from '@/components/ui/sonner';
-import { siteUrl } from '@/lib/seo';
+import { siteUrl, localBusinessLd } from '@/lib/seo';
+import { shopInfo } from '@/data/shop';
 
-// Rendu au runtime : la vitrine lit des données live → pas de pré-rendu au build
-// (CI-safe : le build ne touche pas le backend).
 export const dynamic = 'force-dynamic';
 
-// Métadonnées par défaut, dérivées du shop. Chaque page peut surcharger via son
-// propre `generateMetadata` (cf. produit / catalogue).
 export async function generateMetadata(): Promise<Metadata> {
   let name = 'Boutique';
-  const description =
-    'Commande en ligne pour les professionnels : catalogue, tarifs négociés, livraison.';
+  const description = shopInfo.shortDescription;
   try {
     const c = await getContextAction();
     name = c.branding?.name ?? c.shopName ?? name;
@@ -48,8 +44,6 @@ export default async function RootLayout({
   } catch {
     context = null;
   }
-  // Utilisateur résolu côté serveur (cookie de session) → la Nav reflète l'état
-  // connecté dès le rendu, sans flash « Connexion ».
   let user: User | null = null;
   try {
     user = await meAction();
@@ -58,18 +52,10 @@ export default async function RootLayout({
   }
   const title = context?.branding?.name ?? context?.shopName ?? 'Boutique';
 
-  // JSON-LD Organization — socle GEO/SEO, lu par moteurs & assistants IA.
-  const orgLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: title,
-    url: siteUrl()
-  };
-
   return (
     <html lang="fr">
       <body>
-        <JsonLd data={orgLd} />
+        <JsonLd data={localBusinessLd(shopInfo, title)} />
         <Nav context={context} user={user} />
         <main className="container-x py-10">{children}</main>
 
@@ -78,7 +64,7 @@ export default async function RootLayout({
             <div>
               <p className="font-semibold">{title}</p>
               <p className="mt-2 text-sm text-neutral-500">
-                Votre boutique professionnelle en ligne.
+                {shopInfo.shortDescription}
               </p>
             </div>
             <FooterCol
@@ -92,8 +78,6 @@ export default async function RootLayout({
               title="Compte"
               links={[
                 ['Connexion', '/connexion'],
-                // Lien d'inscription masqué quand la vitrine n'ouvre pas la
-                // création de compte (capability dérivée).
                 ...(context?.capabilities?.registrationOpen
                   ? [['Créer un compte', '/inscription'] as [string, string]]
                   : []),
@@ -104,6 +88,7 @@ export default async function RootLayout({
               title="Aide"
               links={[
                 ['Nous contacter', '/contact'],
+                ['À propos', '/a-propos'],
                 ['Mentions légales', '/mentions-legales']
               ]}
             />

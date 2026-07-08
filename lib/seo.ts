@@ -1,4 +1,5 @@
-/** URL publique du site (pour metadataBase, OG, sitemap, JSON-LD). */
+import type { shopInfo } from '@/data/shop';
+
 export function siteUrl(): string {
   return (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(
     /\/$/,
@@ -6,13 +7,12 @@ export function siteUrl(): string {
   );
 }
 
-/** URL absolue d'un chemin du site. */
 export function absoluteUrl(path: string): string {
   return `${siteUrl()}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-// Fabriques JSON-LD centralisées — passer le résultat à <JsonLd data={…} />.
-// SEO + GEO : les moteurs génératifs lisent ces données structurées.
+/** Fabriques JSON-LD centralisées — passer le résultat à <JsonLd data={…} />.
+ *  SEO + GEO : les moteurs génératifs lisent ces données structurées. */
 type Ld = Record<string, unknown>;
 const ctx = 'https://schema.org';
 
@@ -23,6 +23,46 @@ export function organizationLd(name: string, logoUrl?: string): Ld {
     name,
     url: siteUrl(),
     ...(logoUrl ? { logo: absoluteUrl(logoUrl) } : {})
+  };
+}
+
+/**
+ * LocalBusiness enrichi — pour une boutique avec une adresse physique réelle.
+ *
+ * Reprend le nom, l'URL, l'adresse, le téléphone, les horaires, l'année de
+ * fondation, la zone desservie et le secteur d'expertise. C'est cette fiche
+ * que ChatGPT / Claude / Perplexity croisent avec le `llms.txt` pour répondre
+ * à « recommande-moi un fournisseur de pièces détachées auto à Lyon ».
+ */
+export function localBusinessLd(
+  info: typeof shopInfo,
+  name: string,
+  logoUrl?: string
+): Ld {
+  return {
+    '@context': ctx,
+    '@type': 'LocalBusiness',
+    '@id': `${siteUrl()}/#business`,
+    name,
+    url: siteUrl(),
+    description: info.shortDescription,
+    slogan: info.tagline,
+    foundingDate: info.foundingDate,
+    image: logoUrl ? absoluteUrl(logoUrl) : undefined,
+    logo: logoUrl ? absoluteUrl(logoUrl) : undefined,
+    telephone: info.phone,
+    email: info.email,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: info.address.street,
+      postalCode: info.address.postalCode,
+      addressLocality: info.address.city,
+      addressCountry: info.address.country
+    },
+    openingHours: info.openingHours,
+    areaServed: { '@type': 'AdministrativeArea', name: info.serviceArea },
+    knowsAbout: info.specialty,
+    priceRange: '€€'
   };
 }
 
