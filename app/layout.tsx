@@ -2,11 +2,13 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Sun } from 'lucide-react';
 import { getContextAction, meAction } from '@extracom/site-kit/server';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
+import { InfoBanner } from '@/components/site/InfoBanner';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
 
@@ -70,6 +72,17 @@ export default async function RootLayout({
     <html lang="fr">
       <body>
         <JsonLd data={orgLd} />
+        <div className="border-b border-[var(--brand)]/15 bg-[var(--brand-light)]">
+          <div className="container-x py-2">
+            <InfoBanner
+              icon={<Sun className="size-4" />}
+              action={{ label: 'Voir les offres', href: '/catalogue' }}
+            >
+              ☀ Soldes d'été : profitez de prix exceptionnels sur une sélection
+              d'articles.
+            </InfoBanner>
+          </div>
+        </div>
         <Nav context={context} user={user} />
         <main className="container-x py-10">{children}</main>
 
