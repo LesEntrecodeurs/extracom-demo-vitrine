@@ -118,11 +118,16 @@ function CommandeContent() {
   // Si la vitrine n'offre pas de sélection de livraison, on ne bloque pas la
   // finalisation sur le choix d'une adresse.
   const deliveryOk = !deliveryEnabled || hasDelivery;
-  const pay = async () => {
-    await persistComment();
-    const { redirectUrl } = await start({});
-    if (redirectUrl) window.location.href = redirectUrl;
-  };
+  const pay = () =>
+    runLocked(async () => {
+      try {
+        await persistComment();
+        const { redirectUrl } = await start({});
+        if (redirectUrl) window.location.href = redirectUrl;
+      } catch {
+        toast.error('Le paiement n’a pas pu démarrer. Réessayez.');
+      }
+    });
 
   return (
     <div className="mx-auto max-w-lg">
@@ -280,26 +285,28 @@ function CommandeContent() {
           // commande Sage directement (il apparaît dans l'historique).
           <button
             type="button"
-            onClick={async () => {
-              try {
-                await persistComment();
-                const res = await validateWithoutPayment({
-                  documentType: '1',
-                  reference: reference.trim() || undefined
-                });
-                setCreated(true);
-                setConfirmedRef(res?.reference ?? '');
-              } catch {
-                toast.error(
-                  'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
-                );
-              }
-            }}
-            disabled={ordering || !deliveryOk}
+            onClick={() =>
+              runLocked(async () => {
+                try {
+                  await persistComment();
+                  const res = await validateWithoutPayment({
+                    documentType: '1',
+                    reference: reference.trim() || undefined
+                  });
+                  setCreated(true);
+                  setConfirmedRef(res?.reference ?? '');
+                } catch {
+                  toast.error(
+                    'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
+                  );
+                }
+              })
+            }
+            disabled={submitting || ordering || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-primary flex-1"
           >
-            {ordering ? '…' : 'Valider la commande'}
+            {submitting || ordering ? '…' : 'Valider la commande'}
           </button>
         ) : (
           <>
@@ -309,8 +316,42 @@ function CommandeContent() {
               <button
                 type="button"
                 onClick={pay}
-                disabled={paying || !deliveryOk}
+                disabled={submitting || paying || !deliveryOk}
                 title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
+                className="btn-primary flex-1"
+              >
+                {submitting || paying ? '…' : 'Payer'}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() =>
+                runLocked(async () => {
+                  try {
+                    await persistComment();
+                    const res = await createOrder();
+                    setCreated(false);
+                    setConfirmedRef(res?.reference ?? '');
+                  } catch {
+                    toast.error(
+                      "La commande n'a pas pu être envoyée. Réessayez."
+                    );
+                  }
+                })
+              }
+              disabled={submitting || ordering || !deliveryOk}
+              className="btn-outline"
+              title="Soumettre pour validation par un commercial"
+            >
+              {submitting || ordering ? '…' : 'Soumettre pour validation'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+liveryOk ? '' : 'Choisissez une adresse de livraison'}
                 className="btn-primary flex-1"
               >
                 {paying ? '…' : 'Payer'}
