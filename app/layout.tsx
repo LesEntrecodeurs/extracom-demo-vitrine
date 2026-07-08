@@ -2,6 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { getContextAction, meAction } from '@extracom/site-kit/server';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
@@ -9,6 +10,15 @@ import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
+
+// Police des titres — moderne, géométrique, très lisible. Auto-hébergée au
+// build par next/font (zéro requête runtime, RGPD-safe).
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-jakarta',
+  weight: ['400', '500', '600', '700', '800']
+});
 
 // Rendu au runtime : la vitrine lit des données live → pas de pré-rendu au build
 // (CI-safe : le build ne touche pas le backend).
@@ -67,7 +77,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="fr">
+    <html lang="fr" className={jakarta.variable}>
       <body>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
