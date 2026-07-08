@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
@@ -17,7 +19,27 @@ export default function PanierPage() {
 }
 
 function PanierContent() {
-  const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const { cart, isLoading, error, updateLine, removeItem, setComment } = useCart();
+  const [comment, setCommentValue] = useState('');
+  const [savingComment, setSavingComment] = useState(false);
+
+  // Synchronise le champ avec la note enregistrée dans le panier (par ex.
+  // lorsque l'utilisateur revient sur la page après une modification).
+  useEffect(() => {
+    if (cart?.note !== undefined) setCommentValue(cart.note);
+  }, [cart?.note]);
+
+  const persistComment = async (next: string) => {
+    if (next === (cart.note ?? '')) return;
+    setSavingComment(true);
+    try {
+      await setComment(next);
+    } catch {
+      toast.error('Remarque non enregistrée, réessayez.');
+    } finally {
+      setSavingComment(false);
+    }
+  };
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -79,6 +101,40 @@ function PanierContent() {
             </li>
           ))}
         </ul>
+
+        <section className="mt-6 card p-5">
+          <div className="flex items-baseline justify-between gap-2">
+            <label
+              htmlFor="panier-comment"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Remarque à destination de nos équipes
+            </label>
+            <span className="text-xs text-neutral-400">
+              {savingComment
+                ? 'Enregistrement…'
+                : comment === (cart.note ?? '')
+                  ? 'Enregistré'
+                  : 'Non enregistré'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-neutral-500">
+            Indiquez ici toute précision utile à la préparation de votre
+            commande (optionnel).
+          </p>
+          <textarea
+            id="panier-comment"
+            value={comment}
+            onChange={(e) => setCommentValue(e.target.value.slice(0, 69))}
+            onBlur={(e) => persistComment(e.target.value)}
+            placeholder="Précisions sur votre commande (optionnel)"
+            rows={3}
+            className="field mt-3 resize-none"
+          />
+          <p className="mt-1 text-right text-xs text-neutral-400">
+            {comment.length}/69
+          </p>
+        </section>
       </div>
 
       <aside className="card h-fit p-5">
