@@ -78,6 +78,32 @@ export default function DocumentPage({
         <span>{formatPrice(doc.totalInclVat ?? null)}</span>
       </div>
 
+      <aside className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm">
+        <p className="font-medium text-neutral-800">
+          Besoin de retrouver ce paiement sur votre relevé bancaire&nbsp;?
+        </p>
+        <p className="mt-1 text-neutral-600">
+          Munissez-vous de ces trois informations, elles correspondent exactement à
+          l'opération débitée sur votre compte&nbsp;:
+        </p>
+        <ul className="mt-2 space-y-1 text-neutral-700">
+          <li>
+            <span className="text-neutral-500">Référence&nbsp;:</span>{' '}
+            <span className="font-medium">{doc.reference}</span>
+          </li>
+          <li>
+            <span className="text-neutral-500">Date&nbsp;:</span>{' '}
+            <span className="font-medium">{formatDate(doc.date)}</span>
+          </li>
+          <li>
+            <span className="text-neutral-500">Montant&nbsp;:</span>{' '}
+            <span className="font-medium">
+              {formatPrice(doc.totalInclVat ?? null)}
+            </span>
+          </li>
+        </ul>
+      </aside>
+
       <div className="mt-6 flex gap-3">
         <button
           type="button"
