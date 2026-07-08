@@ -17,6 +17,10 @@ import {
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { HomeFaq } from '@/components/site/HomeFaq';
+import { JsonLd } from '@/components/site/JsonLd';
+import { buildHomeFaq } from '@/data/homeFaq';
+import { faqLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -261,6 +265,11 @@ const valueProps = [
   },
   {
     title: 'Support dédié',
+    text: 'Une équipe à votre écoute',
+    icon: <MessageCircle className="size-6" />
+  }
+];
+dédié',
     text: 'Une équipe à votre écoute',
     icon: <MessageCircle className="size-6" />
   }
