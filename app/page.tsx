@@ -24,7 +24,7 @@ export default async function HomePage() {
   let featured: Article[] = [];
   let context: ShopContext | null = null;
   try {
-    featured = (await getArticlesAction({ limit: 8 })).data;
+    featured = (await getArticlesAction({ limit: 5 })).data;
   } catch {
     featured = [];
   }
