@@ -13,6 +13,7 @@ import {
   useShopContext
 } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
+import { MapPin, Clock, Phone, Store } from 'lucide-react';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
@@ -44,6 +45,7 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  const [pickupMode, setPickupMode] = useState(false);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -115,9 +117,25 @@ function CommandeContent() {
     );
 
   const hasDelivery = !!cart.deliveryAddressId;
-  // Si la vitrine n'offre pas de sélection de livraison, on ne bloque pas la
-  // finalisation sur le choix d'une adresse.
-  const deliveryOk = !deliveryEnabled || hasDelivery;
+  // Si la vitrine n'offre pas de sélection de livraison, ou si le client a
+  // choisi le retrait en magasin, on ne bloque pas la finalisation sur le
+  // choix d'une adresse.
+  const deliveryOk = !deliveryEnabled || pickupMode || hasDelivery;
+
+  // Active le mode « retrait en magasin ». Si le client a déjà une adresse
+  // enregistrée, on la conserve côté kit (le backend utilisera le flag
+  // pickup pour ignorer la destination de livraison).
+  const selectPickup = async () => {
+    setPickupMode(true);
+    const first = options?.addresses?.[0]?.id;
+    if (first) {
+      try {
+        await setDelivery({ deliveryAddressId: first, pickup: true });
+      } catch {
+        // L'UI reflète le choix ; le flag transitera au moment de la commande.
+      }
+    }
+  };
   const pay = async () => {
     await persistComment();
     const { redirectUrl } = await start({});
