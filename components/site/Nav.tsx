@@ -16,9 +16,19 @@ export function Nav({
 
   return (
     <header className="sticky top-0 z-20 bg-white">
-      <div className="bg-[var(--brand-dark)] text-center text-xs text-white">
-        <div className="container-x py-1.5">
-          Livraison rapide · Tarifs négociés pour les professionnels
+      <div className="bg-orange-600 text-white">
+        <div className="container-x flex flex-col items-center justify-center gap-1 py-2 text-center text-xs sm:flex-row sm:gap-2 sm:text-sm">
+          <SunIcon className="h-4 w-4 shrink-0" />
+          <span>
+            <strong>Soldes d'été</strong> · jusqu'à -50% sur une sélection
+            d'articles
+          </span>
+          <Link
+            href="/catalogue"
+            className="hidden font-medium underline-offset-2 hover:underline sm:inline"
+          >
+            Voir les offres →
+          </Link>
         </div>
       </div>
 
@@ -133,6 +143,24 @@ function CartIcon({ className }: { className?: string }) {
         d="M2 3h3l2.4 12.4a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L21 7H6"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function SunIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path
+        d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+        strokeLinecap="round"
       />
     </svg>
   );
