@@ -39,6 +39,7 @@ function CommandeContent() {
   const { activeId } = useCompany();
   const { data: context } = useShopContext();
   const [showAdd, setShowAdd] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
@@ -298,6 +299,51 @@ function CommandeContent() {
             disabled={ordering || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-primary flex-1"
+          >
+            {ordering ? '…' : 'Valider la commande'}
+          </button>
+        ) : (
+          <>
+            {/* Paiement en ligne affiché uniquement si la vitrine l'autorise
+                (capability dérivée : Axepta configuré pour le shop). */}
+            {paymentEnabled && (
+              <button
+                type="button"
+                onClick={pay}
+                disabled={paying || !deliveryOk}
+                title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
+                className="btn-primary flex-1"
+              >
+                {paying ? '…' : 'Payer'}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await persistComment();
+                  const res = await createOrder();
+                  setCreated(false);
+                  setConfirmedRef(res?.reference ?? '');
+                } catch {
+                  toast.error(
+                    "La commande n'a pas pu être envoyée. Réessayez."
+                  );
+                }
+              }}
+              disabled={ordering || !deliveryOk}
+              className="btn-outline"
+              title="Soumettre pour validation par un commercial"
+            >
+              {ordering ? '…' : 'Soumettre pour validation'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+n-primary flex-1"
           >
             {ordering ? '…' : 'Valider la commande'}
           </button>
