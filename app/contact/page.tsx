@@ -61,13 +61,13 @@ const coordonnees = [
   },
   {
     label: 'Téléphone',
-    value: '01 23 45 67 89',
-    href: 'tel:+33123456789',
+    value: '04 78 90 12 34',
+    href: 'tel:+33478901234',
     icon: <Phone className="size-6" />
   },
   {
     label: 'Adresse',
-    value: '1 rue de l’Exemple, 75000 Paris',
+    value: '25 cours Lafayette, 69006 Lyon',
     href: undefined,
     icon: <MapPin className="size-6" />
   }
