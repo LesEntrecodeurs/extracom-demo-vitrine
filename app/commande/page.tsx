@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   useCart,
@@ -16,6 +18,7 @@ import { formatPrice } from '@extracom/site-kit';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
+import { EmptyState } from '@/components/site/EmptyState';
 
 export default function CommandePage() {
   return (
@@ -38,12 +41,23 @@ function CommandeContent() {
   const { user } = useAuth();
   const { activeId } = useCompany();
   const { data: context } = useShopContext();
+  const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+
+  // Impossible de passer commande sans article : si le panier est vide (et
+  // chargé), on renvoie automatiquement vers la page panier. Couvre l'accès
+  // direct à /commande par URL et le cas où le panier se vide pendant qu'on
+  // est sur la page.
+  useEffect(() => {
+    if (!isLoading && cart && cart.lines.length === 0) {
+      router.replace('/panier');
+    }
+  }, [cart, isLoading, router]);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -106,12 +120,12 @@ function CommandeContent() {
   if (isLoading) return <CartSkeleton />;
   if (!cart || cart.lines.length === 0)
     return (
-      <p>
-        Panier vide.{' '}
-        <Link href="/catalogue" className="text-[var(--brand-dark)] underline">
-          Catalogue
-        </Link>
-      </p>
+      <EmptyState
+        icon={<ShoppingCart className="size-8" />}
+        title="Votre panier est vide"
+        description="Ajoutez des articles avant de passer commande."
+        action={{ label: 'Voir mon panier', href: '/panier' }}
+      />
     );
 
   const hasDelivery = !!cart.deliveryAddressId;
