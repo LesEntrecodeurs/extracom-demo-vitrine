@@ -48,6 +48,9 @@ export default async function HomePage() {
   // Inscription ouverte = capability vitrine dérivée (création de compte + liens
   // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+  // Mode d'affichage du stock (réglage shop). Défaut : juste dispo/pas dispo.
+  const stockMode: 'hidden' | 'quantity' | 'availability' =
+    context?.display?.stock ?? 'availability';
 
   return (
     <div className="space-y-16">
