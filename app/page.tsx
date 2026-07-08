@@ -11,12 +11,21 @@ import {
 } from 'lucide-react';
 import {
   getArticlesAction,
+  getCartAction,
   getContextAction,
+  getDocumentsAction,
   meAction
 } from '@extracom/site-kit/server';
-import type { Article, ShopContext, User } from '@extracom/site-kit';
+import type {
+  Article,
+  Cart,
+  DocumentSummary,
+  ShopContext,
+  User
+} from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { UserDashboard } from '@/components/site/UserDashboard';
 
 export const dynamic = 'force-dynamic';
 
@@ -239,6 +248,33 @@ const steps = [
   {
     title: 'Vos tarifs s’affichent',
     text: 'Une fois connecté : prix négociés, remises et centrale d’achat appliqués.',
+    icon: <BadgeEuro className="size-6" />
+  },
+  {
+    title: 'Commandez ou devisez',
+    text: 'Ajoutez au panier puis passez commande, ou demandez un devis selon vos droits.',
+    icon: <ClipboardCheck className="size-6" />
+  }
+];
+
+const valueProps = [
+  {
+    title: 'Livraison rapide',
+    text: 'Expédition sous 24–48h',
+    icon: <Truck className="size-6" />
+  },
+  {
+    title: 'Paiement sécurisé',
+    text: 'Transactions protégées',
+    icon: <ShieldCheck className="size-6" />
+  },
+  {
+    title: 'Support dédié',
+    text: 'Une équipe à votre écoute',
+    icon: <MessageCircle className="size-6" />
+  }
+];
+s connecté : prix négociés, remises et centrale d’achat appliqués.',
     icon: <BadgeEuro className="size-6" />
   },
   {
