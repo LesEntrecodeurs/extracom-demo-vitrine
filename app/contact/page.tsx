@@ -42,9 +42,15 @@ export default function ContactPage() {
         ))}
       </div>
 
-      <p className="mt-8 text-sm text-neutral-500">
-        Horaires : du lundi au vendredi, 9h–18h.
-      </p>
+      <div className="mt-6 rounded-lg border border-neutral-200 bg-white p-4">
+        <p className="text-sm font-medium">Horaires d’ouverture</p>
+        <p className="mt-1 text-sm text-neutral-600">
+          Du mardi au samedi
+        </p>
+        <p className="mt-0.5 text-sm text-neutral-600">
+          8h–13h et 15h–19h
+        </p>
+      </div>
 
       <ContactForm />
     </div>
@@ -55,8 +61,8 @@ export default function ContactPage() {
 const coordonnees = [
   {
     label: 'Email',
-    value: 'contact@exemple.fr',
-    href: 'mailto:contact@exemple.fr',
+    value: 'contact@boucherie-dupont.fr',
+    href: 'mailto:contact@boucherie-dupont.fr',
     icon: <Mail className="size-6" />
   },
   {
@@ -67,7 +73,7 @@ const coordonnees = [
   },
   {
     label: 'Adresse',
-    value: '1 rue de l’Exemple, 75000 Paris',
+    value: '12 rue du Marché, 75011 Paris',
     href: undefined,
     icon: <MapPin className="size-6" />
   }
