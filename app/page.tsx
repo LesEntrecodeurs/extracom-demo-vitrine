@@ -7,14 +7,27 @@ import {
   BadgeEuro,
   ClipboardCheck,
   Search,
-  ArrowRight
+  ArrowRight,
+  ShoppingCart,
+  Receipt,
+  Package,
+  User
 } from 'lucide-react';
 import {
   getArticlesAction,
+  getCartAction,
   getContextAction,
+  getDocumentsAction,
   meAction
 } from '@extracom/site-kit/server';
-import type { Article, ShopContext, User } from '@extracom/site-kit';
+import type {
+  Article,
+  Cart,
+  DocumentSummary,
+  ShopContext,
+  User as UserType
+} from '@extracom/site-kit';
+import { formatDate, formatPrice } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
 
@@ -33,13 +46,28 @@ export default async function HomePage() {
   } catch {
     context = null;
   }
-  // État connecté → on adapte l'onboarding (un client connecté n'a pas besoin
-  // du « comment ça marche » ni du CTA inscription).
-  let user: User | null = null;
+  // Accueil contextuel : un client connecté voit son panier, ses dernières
+  // commandes et des raccourcis compte à la place de l'onboarding visiteur.
+  let user: UserType | null = null;
+  let cart: Cart | null = null;
+  let recentDocs: DocumentSummary[] = [];
   try {
     user = await meAction();
   } catch {
     user = null;
+  }
+  if (user) {
+    try {
+      cart = await getCartAction();
+    } catch {
+      cart = null;
+    }
+    try {
+      const docsResp = await getDocumentsAction({ limit: 4 });
+      recentDocs = docsResp?.data ?? [];
+    } catch {
+      recentDocs = [];
+    }
   }
   const isAnonymous = !user;
   const categories = context?.catalogTree?.slice(0, 6) ?? [];
@@ -48,6 +76,9 @@ export default async function HomePage() {
   // Inscription ouverte = capability vitrine dérivée (création de compte + liens
   // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+  const cartLines = cart?.lines ?? [];
+  const cartItemCount = cart?.totals?.itemCount ?? 0;
+  const cartTotal = cart?.totals?.totalInclVat ?? null;
 
   return (
     <div className="space-y-16">
@@ -116,7 +147,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Onboarding visiteur B2B — comment fonctionne la commande pro. */}
+      {/* ── Zone 2a — Onboarding visiteur (anonyme uniquement). */}
       {isAnonymous && (
         <section>
           <h2 className="mb-1 text-xl font-semibold">Comment ça marche</h2>
@@ -135,6 +166,175 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
+        </section>
+      )}
+
+      {/* ── Zone 2b — Tableau de bord client (connecté uniquement). */}
+      {!isAnonymous && (
+        <section>
+          <h2 className="mb-1 text-xl font-semibold">
+            Bonjour {firstName}, voici votre espace
+          </h2>
+          <p className="mb-6 text-sm text-neutral-500">
+            Votre panier en cours, vos derniers documents et vos raccourcis
+            compte.
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {/* Carte panier */}
+            <div className="card p-5">
+              <span className="text-[var(--brand)]">
+                <ShoppingCart className="size-6" />
+              </span>
+              <p className="mt-3 text-sm text-neutral-500">Votre panier</p>
+              {cartLines.length > 0 ? (
+                <>
+                  <p className="mt-1 font-display text-2xl font-semibold">
+                    {cartItemCount} article{cartItemCount > 1 ? 's' : ''}
+                  </p>
+                  <p className="text-sm text-neutral-500">
+                    {cart?.totals?.lineCount ?? cartLines.length} référence
+                    {(cart?.totals?.lineCount ?? cartLines.length) > 1
+                      ? 's'
+                      : ''}{' '}
+                    · {formatPrice(cartTotal)} TTC
+                  </p>
+                  <Link
+                    href="/panier"
+                    className="mt-3 inline-flex text-sm font-medium text-[var(--brand-dark)] hover:underline"
+                  >
+                    Voir mon panier →
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 font-display text-2xl font-semibold">
+                    Vide
+                  </p>
+                  <p className="text-sm text-neutral-500">
+                    Vous n'avez pas encore ajouté d'article.
+                  </p>
+                  <Link
+                    href="/catalogue"
+                    className="mt-3 inline-flex text-sm font-medium text-[var(--brand-dark)] hover:underline"
+                  >
+                    Parcourir le catalogue →
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Carte derniers documents */}
+            <div className="card p-5">
+              <span className="text-[var(--brand)]">
+                <Receipt className="size-6" />
+              </span>
+              <p className="mt-3 text-sm text-neutral-500">
+                Vos derniers documents
+              </p>
+              {recentDocs.length > 0 ? (
+                <>
+                  <p className="mt-1 font-display text-2xl font-semibold">
+                    {recentDocs[0].reference}
+                  </p>
+                  <p className="text-sm text-neutral-500">
+                    {recentDocs[0].type} ·{' '}
+                    {formatDate(recentDocs[0].date)} ·{' '}
+                    {formatPrice(recentDocs[0].totalInclVat ?? null)}
+                  </p>
+                  <Link
+                    href="/compte/commandes"
+                    className="mt-3 inline-flex text-sm font-medium text-[var(--brand-dark)] hover:underline"
+                  >
+                    Voir l'historique →
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 font-display text-2xl font-semibold">—</p>
+                  <p className="text-sm text-neutral-500">
+                    Aucun document pour le moment.
+                  </p>
+                  <Link
+                    href="/catalogue"
+                    className="mt-3 inline-flex text-sm font-medium text-[var(--brand-dark)] hover:underline"
+                  >
+                    Démarrer une commande →
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Carte raccourcis compte */}
+            <div className="card p-5">
+              <span className="text-[var(--brand)]">
+                <User className="size-6" />
+              </span>
+              <p className="mt-3 text-sm text-neutral-500">Mon compte</p>
+              <ul className="mt-3 space-y-2 text-sm">
+                <li>
+                  <Link
+                    href="/compte/profil"
+                    className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-neutral-50"
+                  >
+                    <span>Mon profil</span>
+                    <ArrowRight className="size-3.5 text-neutral-400" />
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/compte/adresses"
+                    className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-neutral-50"
+                  >
+                    <span>Mes adresses</span>
+                    <ArrowRight className="size-3.5 text-neutral-400" />
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/compte/commandes"
+                    className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-neutral-50"
+                  >
+                    <span>Tous mes documents</span>
+                    <ArrowRight className="size-3.5 text-neutral-400" />
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Liste compacte des derniers documents (si plus d'un). */}
+          {recentDocs.length > 1 && (
+            <div className="card mt-4 divide-y divide-neutral-100">
+              {recentDocs.slice(1).map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/compte/commandes/${encodeURIComponent(d.id)}${
+                    d.typeCode != null ? `?type=${d.typeCode}` : ''
+                  }`}
+                  className="flex items-center justify-between gap-4 p-4 transition hover:bg-neutral-50"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{d.reference}</span>
+                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600">
+                        {d.type}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-sm text-neutral-500">
+                      {formatDate(d.date)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className="text-sm font-medium">
+                      {formatPrice(d.totalInclVat ?? null)}
+                    </span>
+                    <ArrowRight className="size-4 text-neutral-400" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
@@ -195,7 +395,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {isAnonymous && (
+      {/* ── Zone finale : CTA inscription (anonyme) / accès compte (connecté). */}
+      {isAnonymous ? (
         <section className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
           <h2 className="text-xl font-semibold">Un compte professionnel ?</h2>
           <p className="mx-auto mt-2 max-w-lg text-neutral-600">
@@ -215,6 +416,28 @@ export default async function HomePage() {
             >
               Connexion
             </Link>
+          </div>
+        </section>
+      ) : (
+        <section className="rounded-2xl border border-[var(--brand)]/20 bg-[var(--brand-light)] p-8">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Tout est à portée de clic depuis votre espace
+              </h2>
+              <p className="mt-1 text-sm text-neutral-700">
+                Profil, adresses de livraison, historique complet et paiements
+                en attente.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/compte" className="btn-primary">
+                Mon espace
+              </Link>
+              <Link href="/catalogue" className="btn-outline">
+                Parcourir le catalogue
+              </Link>
+            </div>
           </div>
         </section>
       )}
@@ -265,3 +488,6 @@ const valueProps = [
     icon: <MessageCircle className="size-6" />
   }
 ];
+
+n import inutilisé si Lucide ne sert pas dans une branche.
+void Package;
