@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice, type Article } from '@extracom/site-kit';
 import { AddToCart } from './AddToCart';
+import { RequestQuote } from './RequestQuote';
 
 export function ArticleCard({ article }: { article: Article }) {
   const href = `/produit/${encodeURIComponent(article.reference)}`;

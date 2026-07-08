@@ -6,6 +6,7 @@ import { ShoppingCart, Check, Loader2 } from 'lucide-react';
 import { useAddToCart } from '@extracom/site-kit/react';
 import { formatPrice, type Gamme } from '@extracom/site-kit';
 import { Button } from '@/components/ui/button';
+import { RequestQuote } from './RequestQuote';
 
 /**
  * Bloc d'achat de la fiche produit : sélection de déclinaison (gamme) +
@@ -102,6 +103,14 @@ export function BuyBox({
               ? 'Choisissez une déclinaison'
               : 'Ajouter au panier'}
       </Button>
+
+      {/* Devis : visible seulement si l'utilisateur a la capability `canQuote`.
+          Bloqué tant qu'une déclinaison n'est pas choisie (variante requise). */}
+      <RequestQuote
+        reference={reference}
+        variantId={variantId}
+        disabled={hasVariants && variantId == null}
+      />
     </div>
   );
 }
