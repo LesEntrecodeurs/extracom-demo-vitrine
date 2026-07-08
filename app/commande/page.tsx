@@ -71,7 +71,15 @@ function CommandeContent() {
   const paymentEnabled = shopCaps?.paymentEnabled ?? false;
   const deliveryEnabled = shopCaps?.deliveryEnabled ?? true;
 
-  if (confirmedRef !== null)
+  if (confirmedRef !== null) {
+    // L'adresse choisie est dans le panier à ce stade (le client l'a
+    // sélectionnée juste avant la finalisation). On la retrouve dans la liste
+    // des adresses connues pour pouvoir l'afficher en clair.
+    const chosenAddress =
+      (options?.addresses ?? []).find(
+        (a) => a.id === cart?.deliveryAddressId
+      ) ?? null;
+
     return (
       <div className="mx-auto max-w-lg">
         <div className="card p-10 text-center">
@@ -100,8 +108,68 @@ function CommandeContent() {
             </Link>
           </div>
         </div>
+
+        {cart && cart.lines.length > 0 && (
+          <section className="card mt-6 p-5">
+            <h2 className="mb-3 font-medium">
+              {isQuote ? 'Articles du devis' : 'Articles commandés'}
+            </h2>
+            <ul className="divide-y divide-neutral-100 text-sm">
+              {cart.lines.map((l) => (
+                <li key={l.id} className="flex justify-between gap-3 py-2">
+                  <span className="min-w-0">
+                    <span className="block truncate">
+                      {l.label ?? l.reference}
+                      {l.variantLabel ? ` — ${l.variantLabel}` : ''}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      Quantité&nbsp;: {l.quantity}
+                    </span>
+                  </span>
+                  <span className="shrink-0">
+                    {formatPrice(l.lineTotalInclVat ?? l.unitPrice * l.quantity)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-3 flex justify-between border-t border-neutral-100 pt-3 text-base font-semibold">
+              <span>Total TTC</span>
+              <span>{formatPrice(cart.totals?.totalInclVat ?? null)}</span>
+            </div>
+          </section>
+        )}
+
+        {chosenAddress && (
+          <section className="card mt-6 p-5">
+            <h2 className="mb-3 font-medium">Adresse de livraison</h2>
+            <address className="not-italic text-sm leading-relaxed text-neutral-700">
+              {chosenAddress.label && (
+                <span className="block font-medium text-neutral-900">
+                  {chosenAddress.label}
+                </span>
+              )}
+              {chosenAddress.contactName && (
+                <span className="block">{chosenAddress.contactName}</span>
+              )}
+              <span className="block">{chosenAddress.line1}</span>
+              {chosenAddress.line2 && (
+                <span className="block">{chosenAddress.line2}</span>
+              )}
+              <span className="block">
+                {chosenAddress.postalCode} {chosenAddress.city},{' '}
+                {chosenAddress.country}
+              </span>
+              {chosenAddress.phone && (
+                <span className="mt-1 block text-xs text-neutral-500">
+                  Tél. {chosenAddress.phone}
+                </span>
+              )}
+            </address>
+          </section>
+        )}
       </div>
     );
+  }
 
   if (isLoading) return <CartSkeleton />;
   if (!cart || cart.lines.length === 0)
