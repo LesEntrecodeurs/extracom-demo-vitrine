@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUpDown, Layers, X } from 'lucide-react';
 import type { ArticleSort, Family } from '@extracom/site-kit';
@@ -34,6 +33,16 @@ const SORTS: { value: ArticleSort; label: string }[] = [
   { value: 'ref_desc', label: 'Référence (Z → A)' }
 ];
 
+const PRICE_RANGES: {
+  label: string;
+  pmin?: string;
+  pmax?: string;
+}[] = [
+  { label: 'Moins de 50 €', pmax: '50' },
+  { label: '50 – 100 €', pmin: '50', pmax: '100' },
+  { label: 'Plus de 100 €', pmin: '100' }
+];
+
 /**
  * Filtres catalogue : famille + tri. Le filtre par catalogue se fait désormais
  * via le menu de la navbar (depth 1 → depth 2 au survol), qui pose `?catalog`
@@ -51,8 +60,6 @@ export function CatalogueFilters({
   activeCatalogLabel?: string;
 }) {
   const router = useRouter();
-  const [pmin, setPmin] = useState(current.pmin ?? '');
-  const [pmax, setPmax] = useState(current.pmax ?? '');
 
   const apply = (patch: Partial<Current>) => {
     const next = { ...current, ...patch };
@@ -115,39 +122,34 @@ export function CatalogueFilters({
         </Select>
       )}
 
-      {/* Fourchette de prix (sur le prix de base) */}
-      <form
-        className="flex items-center gap-1"
-        onSubmit={(e) => {
-          e.preventDefault();
-          apply({ pmin: pmin || undefined, pmax: pmax || undefined });
-        }}
+      {/* Fourchette de prix (sur le prix de base) — boutons de fourchettes rapides. */}
+      <div
+        className="flex items-center gap-1.5"
+        role="group"
+        aria-label="Filtrer par prix"
       >
-        <input
-          type="number"
-          min={0}
-          inputMode="decimal"
-          value={pmin}
-          onChange={(e) => setPmin(e.target.value)}
-          placeholder="Min €"
-          className="field w-[90px]"
-          aria-label="Prix minimum"
-        />
-        <span className="text-neutral-400">–</span>
-        <input
-          type="number"
-          min={0}
-          inputMode="decimal"
-          value={pmax}
-          onChange={(e) => setPmax(e.target.value)}
-          placeholder="Max €"
-          className="field w-[90px]"
-          aria-label="Prix maximum"
-        />
-        <Button type="submit" variant="outline" size="sm">
-          OK
-        </Button>
-      </form>
+        {PRICE_RANGES.map((r) => {
+          const isActive =
+            (r.pmin ?? '') === (current.pmin ?? '') &&
+            (r.pmax ?? '') === (current.pmax ?? '');
+          return (
+            <Button
+              key={r.label}
+              type="button"
+              size="sm"
+              variant={isActive ? 'default' : 'outline'}
+              aria-pressed={isActive}
+              onClick={() => {
+                // Re-cliquer sur la fourchette active la désactive.
+                if (isActive) apply({ pmin: undefined, pmax: undefined });
+                else apply({ pmin: r.pmin, pmax: r.pmax });
+              }}
+            >
+              {r.label}
+            </Button>
+          );
+        })}
+      </div>
 
       {/* Tri — toujours disponible */}
       <Select
@@ -173,8 +175,6 @@ export function CatalogueFilters({
           size="sm"
           className="text-neutral-500"
           onClick={() => {
-            setPmin('');
-            setPmax('');
             apply({
               family: undefined,
               catalog: undefined,
