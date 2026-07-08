@@ -24,6 +24,8 @@ export async function GET() {
 
 - Site : ${siteUrl()}
 - Catalogue : ${siteUrl()}/catalogue
+- À propos : ${siteUrl()}/a-propos
+- Contact : ${siteUrl()}/contact
 ${categories.length ? `\n## Catégories\n${categories.map((c) => `- ${c}`).join('\n')}\n` : ''}
 ## Notes
 - Les prix par client et le stock peuvent nécessiter une connexion.
