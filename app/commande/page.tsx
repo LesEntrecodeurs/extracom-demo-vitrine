@@ -45,9 +45,16 @@ function CommandeContent() {
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
 
+  // Reprend automatiquement la remarque saisie depuis la page panier.
+  useEffect(() => {
+    if (cart?.note !== undefined) setCommentValue(cart.note);
+  }, [cart?.note]);
+
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
-    if (comment.trim()) await setComment(comment.trim());
+    if (comment.trim() && comment !== (cart.note ?? '')) {
+      await setComment(comment.trim());
+    }
   };
 
   // Capacités métier de l'utilisateur sur la société active (dérivées de son
