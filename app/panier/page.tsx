@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
@@ -17,7 +19,32 @@ export default function PanierPage() {
 }
 
 function PanierContent() {
-  const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const { cart, isLoading, error, updateLine, removeItem, setComment } =
+    useCart();
+  const [note, setNote] = useState('');
+  const [hydrated, setHydrated] = useState(false);
+
+  // Au premier chargement du panier, on remplit le champ avec la note
+  // éventuellement déjà enregistrée côté serveur.
+  useEffect(() => {
+    if (cart && !hydrated) {
+      setNote(cart.note ?? '');
+      setHydrated(true);
+    }
+  }, [cart, hydrated]);
+
+  // Sauvegarde la remarque sur le panier. On ne déclenche l'appel que si la
+  // valeur a réellement changé, pour ne pas spammer l'API à chaque focus/blur.
+  const saveNote = async () => {
+    if (!cart) return;
+    const trimmed = note.trim();
+    if (trimmed === (cart.note ?? '')) return;
+    try {
+      await setComment(trimmed);
+    } catch {
+      toast.error("La remarque n'a pas pu être enregistrée.");
+    }
+  };
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -79,6 +106,30 @@ function PanierContent() {
             </li>
           ))}
         </ul>
+
+        <div className="card mt-6 p-5">
+          <label
+            htmlFor="panier-note"
+            className="text-sm font-medium text-neutral-700"
+          >
+            Remarque pour votre commande
+          </label>
+          <p className="mt-1 text-xs text-neutral-500">
+            Note transmise avant validation (69 caractères max).
+          </p>
+          <textarea
+            id="panier-note"
+            value={note}
+            onChange={(e) => setNote(e.target.value.slice(0, 69))}
+            onBlur={saveNote}
+            placeholder="Ex. : livrer après 14h, référence interne à reporter…"
+            rows={2}
+            className="field mt-3 resize-none"
+          />
+          <p className="mt-1 text-right text-xs text-neutral-400">
+            {note.length}/69
+          </p>
+        </div>
       </div>
 
       <aside className="card h-fit p-5">
