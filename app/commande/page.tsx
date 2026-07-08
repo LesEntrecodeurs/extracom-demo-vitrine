@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
@@ -44,6 +44,23 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  // Verrou anti-double-clic SYNCHRONE : useRef se met à jour avant le
+  // prochain tour de boucle, contrairement à un useState qui ne se reflète
+  // dans `disabled` qu'au rendu suivant. Sans ça, deux clics rapides
+  // déclenchent deux appels au prestataire de paiement → double facturation.
+  const submittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const beginSubmit = () => {
+    if (submittingRef.current) return false;
+    submittingRef.current = true;
+    setSubmitting(true);
+    return true;
+  };
+  const releaseSubmit = () => {
+    submittingRef.current = false;
+    setSubmitting(false);
+  };
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -119,9 +136,20 @@ function CommandeContent() {
   // finalisation sur le choix d'une adresse.
   const deliveryOk = !deliveryEnabled || hasDelivery;
   const pay = async () => {
-    await persistComment();
-    const { redirectUrl } = await start({});
-    if (redirectUrl) window.location.href = redirectUrl;
+    if (!beginSubmit()) return;
+    try {
+      await persistComment();
+      const { redirectUrl } = await start({});
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        // Pas d'URL de redirection → on libère pour permettre une nouvelle tentative.
+        releaseSubmit();
+      }
+    } catch {
+      releaseSubmit();
+      toast.error('Le paiement n’a pas pu démarrer. Réessayez.');
+    }
   };
 
   return (
@@ -252,6 +280,7 @@ function CommandeContent() {
           <button
             type="button"
             onClick={async () => {
+              if (!beginSubmit()) return;
               try {
                 await persistComment();
                 const res = await validateWithoutPayment({
@@ -262,16 +291,17 @@ function CommandeContent() {
                 setCreated(true);
                 setConfirmedRef(res?.reference ?? '');
               } catch {
+                releaseSubmit();
                 toast.error(
                   'Le devis n’a pas pu être créé. Vérifiez vos droits ou réessayez.'
                 );
               }
             }}
-            disabled={ordering || !deliveryOk}
+            disabled={ordering || submitting || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-outline flex-1"
           >
-            {ordering ? '…' : 'Demander un devis'}
+            {ordering || submitting ? '…' : 'Demander un devis'}
           </button>
         )}
 
@@ -281,6 +311,7 @@ function CommandeContent() {
           <button
             type="button"
             onClick={async () => {
+              if (!beginSubmit()) return;
               try {
                 await persistComment();
                 const res = await validateWithoutPayment({
@@ -290,16 +321,17 @@ function CommandeContent() {
                 setCreated(true);
                 setConfirmedRef(res?.reference ?? '');
               } catch {
+                releaseSubmit();
                 toast.error(
                   'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
                 );
               }
             }}
-            disabled={ordering || !deliveryOk}
+            disabled={ordering || submitting || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-primary flex-1"
           >
-            {ordering ? '…' : 'Valider la commande'}
+            {ordering || submitting ? '…' : 'Valider la commande'}
           </button>
         ) : (
           <>
@@ -309,32 +341,34 @@ function CommandeContent() {
               <button
                 type="button"
                 onClick={pay}
-                disabled={paying || !deliveryOk}
+                disabled={paying || submitting || !deliveryOk}
                 title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
                 className="btn-primary flex-1"
               >
-                {paying ? '…' : 'Payer'}
+                {paying || submitting ? '…' : 'Payer'}
               </button>
             )}
             <button
               type="button"
               onClick={async () => {
+                if (!beginSubmit()) return;
                 try {
                   await persistComment();
                   const res = await createOrder();
                   setCreated(false);
                   setConfirmedRef(res?.reference ?? '');
                 } catch {
+                  releaseSubmit();
                   toast.error(
                     "La commande n'a pas pu être envoyée. Réessayez."
                   );
                 }
               }}
-              disabled={ordering || !deliveryOk}
+              disabled={ordering || submitting || !deliveryOk}
               className="btn-outline"
               title="Soumettre pour validation par un commercial"
             >
-              {ordering ? '…' : 'Soumettre pour validation'}
+              {ordering || submitting ? '…' : 'Soumettre pour validation'}
             </button>
           </>
         )}
