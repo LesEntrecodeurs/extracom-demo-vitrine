@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
+import { CompanySwitcher } from './CompanySwitcher';
 
 export function Nav({
   context,
@@ -62,6 +63,8 @@ export function Nav({
                 <span className="hidden sm:inline">Panier</span>
               </Link>
             )}
+
+            {user ? <CompanySwitcher variant="inline" /> : null}
 
             {user ? (
               <Link
