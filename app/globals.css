@@ -5,19 +5,25 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    THÈME DE LA VITRINE — ZONE ÉDITABLE
-   Change l'identité visuelle du site en éditant ces 3 variables. Tout le
+   Change l'identité visuelle du site en éditant ces variables. Tout le
    template (boutons, liens actifs, puces, accents) en dérive — pas besoin de
    chercher des couleurs ailleurs dans le code.
-     --brand        : couleur principale (boutons, accents)
+     --brand        : couleur principale (boutons, accents majeurs)
      --brand-dark   : variante foncée (hover, texte de prix, titres actifs)
      --brand-light  : variante claire (fonds de puce, surfaces douces)
+     --accent-orange       : couleur d'accent secondaire (badges promo, compteur panier)
+     --accent-orange-dark  : variante foncée de l'accent
+     --accent-orange-light : variante claire de l'accent
    Garde un contraste suffisant : --brand-dark lisible sur blanc, texte blanc
    lisible sur --brand. Le reste de la palette (neutres) suit Tailwind.
    ──────────────────────────────────────────────────────────────────────── */
 :root {
-  --brand: #1d9e75;
-  --brand-dark: #0f6e56;
-  --brand-light: #e1f5ee;
+  --brand: #1e3a8a;
+  --brand-dark: #172554;
+  --brand-light: #dbeafe;
+  --accent-orange: #ea580c;
+  --accent-orange-dark: #c2410c;
+  --accent-orange-light: #ffedd5;
 
   /* Typo (éditable). Piles système par défaut. Pour une vraie identité, brancher
      une Google Font via next/font/google dans layout.tsx (auto-hébergée au build,
