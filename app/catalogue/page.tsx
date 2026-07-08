@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import { Lock, PackageSearch } from 'lucide-react';
 import {
@@ -19,6 +18,15 @@ import { ArticleCard } from '@/components/site/ArticleCard';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,7 +76,7 @@ export default async function CataloguePage({
   const sp = await searchParams;
   const search = sp.q || undefined;
   const page = sp.page ? Math.max(1, Number(sp.page)) : 1;
-  const limit = 24;
+  const limit = 50;
   const sort = (sp.sort as ArticleSort | undefined) || undefined;
   const minPrice = sp.pmin ? Number(sp.pmin) : undefined;
   const maxPrice = sp.pmax ? Number(sp.pmax) : undefined;
@@ -188,15 +196,52 @@ export default async function CataloguePage({
       )}
 
       {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4 text-sm">
-          {page > 1 && <Link href={pageHref(page - 1)}>← Précédent</Link>}
-          <span className="text-neutral-500">
-            Page {page} / {totalPages}
-          </span>
-          {page < totalPages && (
-            <Link href={pageHref(page + 1)}>Suivant →</Link>
-          )}
-        </div>
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={page > 1 ? pageHref(page - 1) : undefined}
+                aria-disabled={page === 1}
+                className={
+                  page === 1 ? 'pointer-events-none opacity-50' : undefined
+                }
+              >
+                Précédent
+              </PaginationPrevious>
+            </PaginationItem>
+
+            {buildPageItems(page, totalPages).map((item, idx) =>
+              item === 'ellipsis' ? (
+                <PaginationItem key={`ellipsis-${idx}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={item}>
+                  <PaginationLink
+                    href={pageHref(item)}
+                    isActive={item === page}
+                  >
+                    {item}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                href={page < totalPages ? pageHref(page + 1) : undefined}
+                aria-disabled={page === totalPages}
+                className={
+                  page === totalPages
+                    ? 'pointer-events-none opacity-50'
+                    : undefined
+                }
+              >
+                Suivant
+              </PaginationNext>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
@@ -215,4 +260,26 @@ function findCatalogLabel(
     if (child) return child;
   }
   return undefined;
+}
+
+/**
+ * Construit la liste des pages affichées : 1 … (current-1, current, current+1) … total.
+ * Retourne des "ellipsis" pour les trous. Garde la barre compacte même avec
+ * beaucoup de pages.
+ */
+function buildPageItems(
+  current: number,
+  total: number
+): (number | 'ellipsis')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const items: (number | 'ellipsis')[] = [1];
+  if (current > 4) items.push('ellipsis');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let p = start; p <= end; p++) items.push(p);
+  if (current < total - 3) items.push('ellipsis');
+  items.push(total);
+  return items;
 }
