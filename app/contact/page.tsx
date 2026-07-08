@@ -67,7 +67,7 @@ const coordonnees = [
   },
   {
     label: 'Adresse',
-    value: '1 rue de l’Exemple, 75000 Paris',
+    value: '12 rue des Lilas, 75011 Paris',
     href: undefined,
     icon: <MapPin className="size-6" />
   }
