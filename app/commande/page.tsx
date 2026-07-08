@@ -13,6 +13,14 @@ import {
   useShopContext
 } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
@@ -44,10 +52,48 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  // Action choisie par le client, affichée dans la modale de confirmation.
+  // `null` = modale fermée.
+  const [confirmAction, setConfirmAction] = useState<
+    'order' | 'pay' | 'submit' | null
+  >(null);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
     if (comment.trim()) await setComment(comment.trim());
+  };
+
+  // Déclenche l'action métier après confirmation explicite dans la modale.
+  const performAction = async (
+    action: 'order' | 'pay' | 'submit'
+  ) => {
+    setConfirmAction(null);
+    try {
+      await persistComment();
+      if (action === 'order') {
+        const res = await validateWithoutPayment({
+          documentType: '1',
+          reference: reference.trim() || undefined
+        });
+        setCreated(true);
+        setConfirmedRef(res?.reference ?? '');
+      } else if (action === 'pay') {
+        const { redirectUrl } = await start({});
+        if (redirectUrl) window.location.href = redirectUrl;
+      } else {
+        const res = await createOrder();
+        setCreated(false);
+        setConfirmedRef(res?.reference ?? '');
+      }
+    } catch {
+      const messages = {
+        order:
+          'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.',
+        pay: 'Le paiement n’a pas pu démarrer. Réessayez.',
+        submit: "La commande n'a pas pu être envoyée. Réessayez."
+      } as const;
+      toast.error(messages[action]);
+    }
   };
 
   // Capacités métier de l'utilisateur sur la société active (dérivées de son
@@ -118,11 +164,6 @@ function CommandeContent() {
   // Si la vitrine n'offre pas de sélection de livraison, on ne bloque pas la
   // finalisation sur le choix d'une adresse.
   const deliveryOk = !deliveryEnabled || hasDelivery;
-  const pay = async () => {
-    await persistComment();
-    const { redirectUrl } = await start({});
-    if (redirectUrl) window.location.href = redirectUrl;
-  };
 
   return (
     <div className="mx-auto max-w-lg">
@@ -280,21 +321,7 @@ function CommandeContent() {
           // commande Sage directement (il apparaît dans l'historique).
           <button
             type="button"
-            onClick={async () => {
-              try {
-                await persistComment();
-                const res = await validateWithoutPayment({
-                  documentType: '1',
-                  reference: reference.trim() || undefined
-                });
-                setCreated(true);
-                setConfirmedRef(res?.reference ?? '');
-              } catch {
-                toast.error(
-                  'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
-                );
-              }
-            }}
+            onClick={() => setConfirmAction('order')}
             disabled={ordering || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-primary flex-1"
@@ -308,7 +335,7 @@ function CommandeContent() {
             {paymentEnabled && (
               <button
                 type="button"
-                onClick={pay}
+                onClick={() => setConfirmAction('pay')}
                 disabled={paying || !deliveryOk}
                 title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
                 className="btn-primary flex-1"
@@ -318,18 +345,7 @@ function CommandeContent() {
             )}
             <button
               type="button"
-              onClick={async () => {
-                try {
-                  await persistComment();
-                  const res = await createOrder();
-                  setCreated(false);
-                  setConfirmedRef(res?.reference ?? '');
-                } catch {
-                  toast.error(
-                    "La commande n'a pas pu être envoyée. Réessayez."
-                  );
-                }
-              }}
+              onClick={() => setConfirmAction('submit')}
               disabled={ordering || !deliveryOk}
               className="btn-outline"
               title="Soumettre pour validation par un commercial"
@@ -339,6 +355,82 @@ function CommandeContent() {
           </>
         )}
       </div>
+
+      <Dialog
+        open={confirmAction !== null}
+        onOpenChange={(open) => {
+          if (!open && !ordering && !paying) setConfirmAction(null);
+        }}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>
+              {confirmAction === 'pay'
+                ? 'Confirmer le paiement'
+                : 'Confirmer votre commande'}
+            </DialogTitle>
+            <DialogDescription>
+              Vérifiez une dernière fois le récapitulatif avant de valider
+              définitivement.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-64 overflow-y-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm">
+            <ul className="divide-y divide-neutral-200">
+              {cart.lines.map((l) => (
+                <li
+                  key={l.id}
+                  className="flex items-center justify-between gap-3 py-1.5"
+                >
+                  <span className="text-neutral-700">
+                    {l.label ?? l.reference}
+                    {l.variantLabel ? ` — ${l.variantLabel}` : ''} ×{' '}
+                    {l.quantity}
+                  </span>
+                  <span className="font-medium">
+                    {formatPrice(
+                      l.lineTotalInclVat ?? l.unitPrice * l.quantity
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 font-semibold">
+              <span>Total TTC</span>
+              <span>{formatPrice(cart.totals?.totalInclVat ?? null)}</span>
+            </div>
+            {reference.trim() && (
+              <p className="mt-2 text-xs text-neutral-600">
+                Référence : {reference.trim()}
+              </p>
+            )}
+            {comment.trim() && (
+              <p className="mt-1 text-xs text-neutral-600">
+                Commentaire : {comment.trim()}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setConfirmAction(null)}
+              disabled={ordering || paying}
+              className="btn-outline"
+            >
+              Retour
+            </button>
+            <button
+              type="button"
+              onClick={() => confirmAction && performAction(confirmAction)}
+              disabled={ordering || paying}
+              className="btn-primary"
+            >
+              {ordering || paying ? '…' : 'Confirmer'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
