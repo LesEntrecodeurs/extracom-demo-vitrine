@@ -17,6 +17,7 @@ import type {
 } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
+import { SortMenu } from '@/components/site/SortMenu';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
 
@@ -166,10 +167,33 @@ export default async function CataloguePage({
       />
 
       {total > 0 && (
-        <p className="mb-3 text-sm text-neutral-500">
-          {total} article{total > 1 ? 's' : ''}
-          {activeCatalogLabel ? ` dans « ${activeCatalogLabel} »` : ''}
-        </p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+          <p className="text-sm text-neutral-600">
+            <span className="font-semibold text-neutral-900">{total}</span>{' '}
+            article{total > 1 ? 's' : ''}
+            {activeCatalogLabel ? (
+              <>
+                {' '}dans « <span className="font-medium text-neutral-800">{activeCatalogLabel}</span> »
+              </>
+            ) : null}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-neutral-700">
+              Trier par
+            </span>
+            <SortMenu
+              current={{
+                q: search,
+                family: sp.family,
+                catalog: sp.catalog,
+                clevel: sp.clevel,
+                sort: sp.sort,
+                pmin: sp.pmin,
+                pmax: sp.pmax
+              }}
+            />
+          </div>
+        </div>
       )}
 
       {res.data.length === 0 ? (

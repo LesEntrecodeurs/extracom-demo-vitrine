@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUpDown, Layers, X } from 'lucide-react';
-import type { ArticleSort, Family } from '@extracom/site-kit';
+import { Layers, X } from 'lucide-react';
+import type { Family } from '@extracom/site-kit';
 import {
   Select,
   SelectContent,
@@ -27,18 +27,12 @@ interface Current {
 
 const ALL = 'all'; // Radix interdit les <SelectItem value="">.
 
-const SORTS: { value: ArticleSort; label: string }[] = [
-  { value: 'name_asc', label: 'Nom (A → Z)' },
-  { value: 'name_desc', label: 'Nom (Z → A)' },
-  { value: 'ref_asc', label: 'Référence (A → Z)' },
-  { value: 'ref_desc', label: 'Référence (Z → A)' }
-];
-
 /**
- * Filtres catalogue : famille + tri. Le filtre par catalogue se fait désormais
- * via le menu de la navbar (depth 1 → depth 2 au survol), qui pose `?catalog`
- * dans l'URL — on le conserve simplement ici, et on l'inclut dans le bouton
- * « Réinitialiser ».
+ * Filtres catalogue : famille + fourchette de prix. Le tri est affiché
+ * séparément (au-dessus de la grille, `SortMenu`) pour rester bien visible.
+ * Le filtre par catalogue se fait via le menu de la navbar (depth 1 → depth 2
+ * au survol), qui pose `?catalog` dans l'URL — on le conserve simplement ici,
+ * et on l'inclut dans le bouton « Réinitialiser ».
  */
 export function CatalogueFilters({
   families,
@@ -78,7 +72,7 @@ export function CatalogueFilters({
   );
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2.5">
+    <div className="mb-4 flex flex-wrap items-center gap-2.5">
       {/* Catégorie active (posée via le menu navbar) — puce retirable dédiée,
           en plus du « Réinitialiser » global. */}
       {activeCatalogLabel && (
@@ -149,23 +143,7 @@ export function CatalogueFilters({
         </Button>
       </form>
 
-      {/* Tri — toujours disponible */}
-      <Select
-        value={current.sort ?? 'name_asc'}
-        onValueChange={(v) => apply({ sort: v })}
-      >
-        <SelectTrigger className="ml-auto w-[185px]">
-          <ArrowUpDown className="size-4 text-neutral-400" />
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {SORTS.map((s) => (
-            <SelectItem key={s.value} value={s.value}>
-              {s.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Tri : affiché séparément (SortMenu) au-dessus de la grille. */}
 
       {hasActiveFilter && (
         <Button
