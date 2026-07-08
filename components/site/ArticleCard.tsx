@@ -6,8 +6,7 @@ import { AddToCart } from './AddToCart';
 export function ArticleCard({ article }: { article: Article }) {
   const href = `/produit/${encodeURIComponent(article.reference)}`;
   const hasVariants = (article.gammes ?? []).some((g) => g.items.length > 0);
-  const hasPromo =
-    article.promotion != null &&
+  const hasDiscount =
     article.basePrice != null &&
     article.price != null &&
     article.basePrice > article.price;
@@ -23,7 +22,7 @@ export function ArticleCard({ article }: { article: Article }) {
             sizes="(max-width: 768px) 50vw, 25vw"
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
           />
-          {hasPromo && (
+          {(hasDiscount || article.promotion != null) && (
             <span className="absolute top-2 left-2 rounded-full bg-[var(--brand)] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm">
               Promo
             </span>
@@ -48,7 +47,7 @@ export function ArticleCard({ article }: { article: Article }) {
               <span className="font-semibold text-[var(--brand-dark)]">
                 {formatPrice(article.price)}
               </span>
-              {hasPromo && (
+              {hasDiscount && (
                 <span className="text-xs text-neutral-400 line-through">
                   {formatPrice(article.basePrice)}
                 </span>
