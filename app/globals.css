@@ -15,9 +15,11 @@
    lisible sur --brand. Le reste de la palette (neutres) suit Tailwind.
    ──────────────────────────────────────────────────────────────────────── */
 :root {
-  --brand: #1d9e75;
-  --brand-dark: #0f6e56;
-  --brand-light: #e1f5ee;
+  --brand: #1e3a8a;
+  --brand-dark: #172554;
+  --brand-light: #dbeafe;
+  --brand-accent: #ea580c;
+  --brand-accent-soft: #ffedd5;
 
   /* Typo (éditable). Piles système par défaut. Pour une vraie identité, brancher
      une Google Font via next/font/google dans layout.tsx (auto-hébergée au build,
