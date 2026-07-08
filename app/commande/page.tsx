@@ -245,6 +245,22 @@ function CommandeContent() {
         </p>
       )}
 
+      {canOrderDirect && (
+        <div className="mt-8 flex items-start gap-3 rounded-lg border border-[var(--brand)] bg-[var(--brand-light)] p-4 text-sm text-[var(--brand-dark)]">
+          <span
+            aria-hidden="true"
+            className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand)] text-xs font-semibold text-white"
+          >
+            ✓
+          </span>
+          <p>
+            <strong className="font-semibold">Paiement à la livraison.</strong>{' '}
+            Aucune saisie bancaire n'est demandée : le règlement se fait à
+            réception de votre commande.
+          </p>
+        </div>
+      )}
+
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {/* Devis : disponible dès que le rôle l'autorise (indépendant du
             paiement). Crée un document de type « devis » (0). */}
