@@ -19,16 +19,18 @@
   --brand-dark: #0f6e56;
   --brand-light: #e1f5ee;
 
-  /* Typo (éditable). Piles système par défaut. Pour une vraie identité, brancher
-     une Google Font via next/font/google dans layout.tsx (auto-hébergée au build,
-     sans réseau runtime ni RGPD) et remplacer ces piles par sa CSS variable.
-     Pas de <link> CDN ni de .woff2 manuel. */
+  /* Typo (éditable). Google Fonts branchées via next/font/google dans
+     layout.tsx — variables CSS exposées sur <html> :
+       --font-display-loaded  → titres (Plus Jakarta Sans)
+       --font-body-loaded     → texte courant (Inter)
+     Si la variable n'est pas chargée (build off-line rare), on retombe
+     sur des piles système équivalentes. */
   --font-display:
-    ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua',
-    Georgia, serif;
+    var(--font-display-loaded), ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+    var(--font-body-loaded), ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ── Tokens shadcn/ui (base neutral, oklch) ──────────────────────────────
@@ -146,14 +148,16 @@
     @apply bg-neutral-50 text-neutral-900 antialiased;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
-  /* Titres en display éditorial (pile serif système). */
+  /* Titres en sans-serif moderne (Plus Jakarta Sans), pour un look
+     contemporain et aéré. */
   h1,
   h2,
   h3,
   .font-display {
-    font-family: var(--font-display), Georgia, serif;
+    font-family: var(--font-display), ui-sans-serif, system-ui, -apple-system,
+      'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-optical-sizing: auto;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
   }
 }
 

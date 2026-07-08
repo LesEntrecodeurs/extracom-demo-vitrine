@@ -2,6 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
 import { getContextAction, meAction } from '@extracom/site-kit/server';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
@@ -9,6 +10,20 @@ import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
+
+// Polices modernes auto-hébergées au build (pas de CDN runtime, RGPD ok).
+const display = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-display-loaded',
+  display: 'swap'
+});
+const body = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-body-loaded',
+  display: 'swap'
+});
 
 // Rendu au runtime : la vitrine lit des données live → pas de pré-rendu au build
 // (CI-safe : le build ne touche pas le backend).
@@ -67,7 +82,10 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="fr">
+    <html
+      lang="fr"
+      className={`${display.variable} ${body.variable}`}
+    >
       <body>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
