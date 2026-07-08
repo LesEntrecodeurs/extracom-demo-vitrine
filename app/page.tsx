@@ -138,18 +138,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        {valueProps.map((v) => (
-          <div key={v.title} className="card flex items-start gap-3 p-4">
-            <span className="text-[var(--brand)]">{v.icon}</span>
-            <div>
-              <p className="text-sm font-medium">{v.title}</p>
-              <p className="text-sm text-neutral-500">{v.text}</p>
-            </div>
-          </div>
-        ))}
-      </section>
-
       {featured.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between">
@@ -194,6 +182,18 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="grid gap-4 sm:grid-cols-3">
+        {valueProps.map((v) => (
+          <div key={v.title} className="card flex items-start gap-3 p-4">
+            <span className="text-[var(--brand)]">{v.icon}</span>
+            <div>
+              <p className="text-sm font-medium">{v.title}</p>
+              <p className="text-sm text-neutral-500">{v.text}</p>
+            </div>
+          </div>
+        ))}
+      </section>
 
       {isAnonymous && (
         <section className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
