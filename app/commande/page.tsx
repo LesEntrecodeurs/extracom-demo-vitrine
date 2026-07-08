@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { Truck, MapPin } from 'lucide-react';
 import {
   useCart,
   useDelivery,
@@ -44,6 +45,35 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  // Mode de retrait : false = livraison à l'adresse choisie, true = retrait en
+  // magasin. L'option s'affiche dans la section de sélection d'adresse ; le
+  // choix est transmis au kit via `setDelivery({ ..., pickup })`.
+  const [pickupMode, setPickupMode] = useState(false);
+
+  // Bascule du mode de retrait. L'API du kit exige un `deliveryAddressId` même
+  // pour le retrait (placeholder métier) : on reprend l'adresse courante ou la
+  // première du carnet.
+  const togglePickupMode = async (next: boolean) => {
+    if (next === pickupMode) return;
+    setPickupMode(next);
+    const fallback =
+      cart?.deliveryAddressId ?? options?.addresses?.[0]?.id ?? null;
+    if (!fallback) {
+      if (next) {
+        toast.error(
+          "Ajoutez d'abord une adresse pour activer le retrait en magasin."
+        );
+        setPickupMode(false);
+      }
+      return;
+    }
+    try {
+      await setDelivery({ deliveryAddressId: fallback, pickup: next });
+    } catch {
+      toast.error("Le mode de retrait n'a pas pu être mis à jour.");
+      setPickupMode(!next);
+    }
+  };
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
