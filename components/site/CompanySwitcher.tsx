@@ -1,16 +1,19 @@
 'use client';
 
-import { useCompany, useShopContext } from '@extracom/site-kit/react';
+import { useCart, useCompany, useShopContext } from '@extracom/site-kit/react';
 import { Spinner } from '@/components/site/Loader';
 
 /**
  * Sélecteur d'entreprise (compte client). N'apparaît que si l'utilisateur est
- * rattaché à plusieurs sociétés sur cette boutique. Changer de société recharge
- * la page → prix, panier et commandes suivent la société choisie.
+ * rattaché à plusieurs sociétés sur cette boutique. Au changement, le panier
+ * de la société en cours est vidé (ligne par ligne — le kit n'expose pas de
+ * vidage global) avant la bascule, pour éviter tout mélange avec les prix
+ * de la nouvelle société. Le kit recharge ensuite la page.
  */
 export function CompanySwitcher() {
   const { data: context } = useShopContext();
   const { companies, activeId, isSwitching, switchTo } = useCompany();
+  const { cart, removeItem } = useCart();
 
   const shopName = context?.shopName;
   const list = shopName
@@ -18,6 +21,19 @@ export function CompanySwitcher() {
     : companies;
 
   if (list.length <= 1) return null;
+
+  const handleChange = async (newCustomerId: string) => {
+    if (newCustomerId === activeId) return;
+    const lineIds = cart?.lines.map((line) => line.id) ?? [];
+    for (const lineId of lineIds) {
+      try {
+        await removeItem(lineId);
+      } catch {
+        // On continue malgré l'erreur : ne pas bloquer le changement de société.
+      }
+    }
+    await switchTo(newCustomerId);
+  };
 
   return (
     <div className="card p-3">
@@ -33,7 +49,9 @@ export function CompanySwitcher() {
           list.find((c) => c.customerId === activeId)?.companyName ??
           undefined
         }
-        onChange={(e) => switchTo(e.target.value)}
+        onChange={(e) => {
+          void handleChange(e.target.value);
+        }}
       >
         {list.map((c) => (
           <option
