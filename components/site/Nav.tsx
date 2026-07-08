@@ -51,6 +51,8 @@ export function Nav({
               Catalogue
             </Link>
 
+            {user && <CompanySwitcher variant="compact" />}
+
             {user ? (
               <CartLink />
             ) : (
