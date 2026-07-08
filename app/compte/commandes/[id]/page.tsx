@@ -2,12 +2,13 @@
 
 import { use, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { useDocument, useCart } from '@extracom/site-kit/react';
+import { useDocument } from '@extracom/site-kit/react';
 import { getDocumentPdfAction } from '@extracom/site-kit/server';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { PageLoader } from '@/components/site/Loader';
+import { ReorderButton } from '@/components/site/ReorderButton';
 
 async function downloadPdf(documentId: string, type: string, filename: string) {
   const { base64, contentType } = await getDocumentPdfAction(documentId, type);
@@ -31,8 +32,6 @@ export default function DocumentPage({
     decodeURIComponent(id),
     typeParam
   );
-  const { reorder } = useCart();
-  const router = useRouter();
   const [downloading, setDownloading] = useState(false);
 
   if (isLoading) return <PageLoader label="Chargement du document…" />;
@@ -78,17 +77,12 @@ export default function DocumentPage({
         <span>{formatPrice(doc.totalInclVat ?? null)}</span>
       </div>
 
-      <div className="mt-6 flex gap-3">
-        <button
-          type="button"
-          onClick={async () => {
-            await reorder(doc.orderReference ?? doc.reference);
-            router.push('/panier');
-          }}
-          className="btn-primary"
-        >
-          Recommander
-        </button>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <ReorderButton
+          orderReference={doc.orderReference ?? doc.reference}
+          variant="primary"
+          redirectToCart
+        />
         <button
           type="button"
           disabled={downloading}

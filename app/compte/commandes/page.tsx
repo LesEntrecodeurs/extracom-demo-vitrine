@@ -139,10 +139,16 @@ export default function CommandesPage() {
                   {formatDate(d.date)}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-4">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                <ReorderButton
+                  orderReference={d.orderReference ?? d.reference}
+                  variant="outline"
+                  size="sm"
+                  label="Recommander"
+                />
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
