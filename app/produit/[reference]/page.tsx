@@ -209,6 +209,8 @@ function Specs({ article }: { article: Article }) {
   rows.push(['Unité de vente', article.unit]);
   if (article.packagingQuantity && article.packagingQuantity > 1)
     rows.push(['Conditionnement', `par ${article.packagingQuantity}`]);
+  if (article.basePrice != null)
+    rows.push(['Prix catalogue HT', formatPrice(article.basePrice)]);
   if (typeof article.vatRate === 'number')
     rows.push(['TVA', `${article.vatRate} %`]);
   if (article.weightNet) rows.push(['Poids net', `${article.weightNet} kg`]);
