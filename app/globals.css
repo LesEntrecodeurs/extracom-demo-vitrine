@@ -155,6 +155,46 @@
     font-optical-sizing: auto;
     letter-spacing: -0.015em;
   }
+
+  /* ── Accessibilité : lien d'accès rapide au contenu ─────────────────── */
+  /* Caché visuellement et pour les lecteurs d'écran tant qu'il n'est pas
+     focalisé (navigation clavier, lecteur d'écran). */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    background: var(--brand-dark);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 9999px;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    top: 0.75rem;
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+  }
+
+  /* ── Accessibilité : contour de focus bien visible ───────────────────── */
+  /* Anneau épais et contrasté pour la navigation clavier, accessible sur tous
+     les éléments interactifs (boutons, liens, champs). */
+  :where(a, button, [role='button'], input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--brand-dark);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  /* Le contenu principal (cible du skip-link) : on retire l'outline par défaut
+     car il est purement technique, mais on garde l'indication au clavier. */
+  main:focus,
+  main:focus-visible {
+    outline: 2px dashed var(--brand-dark);
+    outline-offset: 4px;
+  }
 }
 
 @layer components {
@@ -234,4 +274,48 @@
   .reveal {
     animation: none;
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ACCESSIBILITÉ — CONFORT DE LECTURE
+   Pilotes activés par le menu flottant d'accessibilité (voir
+   components/site/AccessibilityMenu.tsx). Ils appliquent des classes sur
+   l'élément <html> et n'utilisent que des variables CSS déjà présentes.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Taille de texte agrandie (3 paliers au-dessus de la base). Le multiplicateur
+   s'applique à la racine : toutes les rem du site s'adaptent. */
+html.font-scale-large {
+  font-size: 112.5%;
+}
+html.font-scale-x-large {
+  font-size: 125%;
+}
+html.font-scale-xx-large {
+  font-size: 137.5%;
+}
+
+/* Mode contraste renforcé : texte plus sombre, fonds plus clairs, accents plus
+   saturés. On renforce aussi la visibilité des liens et des contours. */
+html.high-contrast {
+  --background: #ffffff;
+  --foreground: #000000;
+  --muted: #f0f0f0;
+  --muted-foreground: #1a1a1a;
+  --border: #000000;
+  --input: #000000;
+  --brand-dark: #003824;
+  --brand: #006648;
+}
+html.high-contrast body {
+  background: #ffffff;
+  color: #000000;
+}
+html.high-contrast :where(a, button, [role='button'], input, select, textarea, summary):focus-visible {
+  outline: 4px solid #000000;
+  outline-offset: 3px;
+}
+html.high-contrast a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
