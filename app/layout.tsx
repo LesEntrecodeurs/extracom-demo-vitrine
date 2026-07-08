@@ -74,7 +74,7 @@ export default async function RootLayout({
         <main className="container-x py-10">{children}</main>
 
         <footer className="mt-16 border-t border-neutral-200 bg-white">
-          <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
+          <div className="container-x grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <p className="font-semibold">{title}</p>
               <p className="mt-2 text-sm text-neutral-500">
@@ -107,6 +107,17 @@ export default async function RootLayout({
                 ['Mentions légales', '/mentions-legales']
               ]}
             />
+            <div>
+              <p className="text-sm font-medium">Contact</p>
+              <ul className="mt-2 space-y-1.5 text-sm text-neutral-500">
+                <li>
+                  <a href="tel:+33123456789" className="hover:text-neutral-900">
+                    01 23 45 67 89
+                  </a>
+                </li>
+                <li>12 rue des Lilas, 75011 Paris</li>
+              </ul>
+            </div>
           </div>
           <div className="border-t border-neutral-100">
             <div className="container-x py-4 text-center text-xs text-neutral-400">
