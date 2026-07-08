@@ -27,17 +27,34 @@ export function ContactForm() {
 
   if (!user) {
     return (
-      <div className="card mt-8 p-5 text-sm text-neutral-600">
-        <p className="font-medium text-neutral-800">Envoyer un message</p>
-        <p className="mt-1">
+      <div className="card mt-8 space-y-2 p-5 text-sm text-neutral-600">
+        <p className="font-medium text-neutral-800">Vous n’êtes pas encore client ?</p>
+        <p>
+          Pour nous écrire, vous pouvez{' '}
+          <Link
+            href="/inscription?redirect=/contact"
+            className="text-[var(--brand-dark)] underline"
+          >
+            créer un compte
+          </Link>{' '}
+          afin d’utiliser le formulaire ci-dessous : votre demande sera rattachée à votre compte pour un suivi plus rapide. Sinon, vous pouvez aussi{' '}
+          <a
+            href="mailto:contact@exemple.fr"
+            className="text-[var(--brand-dark)] underline"
+          >
+            nous envoyer un email
+          </a>{' '}
+          directement, à l’adresse affichée plus haut sur cette page.
+        </p>
+        <p>
+          Vous avez déjà un compte ?{' '}
           <Link
             href="/connexion?redirect=/contact"
             className="text-[var(--brand-dark)] underline"
           >
             Connectez-vous
-          </Link>{' '}
-          pour nous écrire depuis votre espace — nous rattachons votre demande à
-          votre compte pour un suivi plus rapide.
+          </Link>
+          .
         </p>
       </div>
     );
