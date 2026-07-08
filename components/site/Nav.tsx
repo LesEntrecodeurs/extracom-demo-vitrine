@@ -51,17 +51,7 @@ export function Nav({
               Catalogue
             </Link>
 
-            {user ? (
-              <CartLink />
-            ) : (
-              <Link
-                href="/panier"
-                className="flex items-center gap-1.5 text-neutral-700 hover:text-neutral-900"
-              >
-                <CartIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">Panier</span>
-              </Link>
-            )}
+            <CartLink />
 
             {user ? (
               <Link
@@ -117,23 +107,4 @@ function UserIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-function CartIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden="true"
-    >
-      <circle cx="9" cy="20" r="1.5" />
-      <circle cx="18" cy="20" r="1.5" />
-      <path
-        d="M2 3h3l2.4 12.4a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L21 7H6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+
