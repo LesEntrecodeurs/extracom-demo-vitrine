@@ -56,6 +56,11 @@ export default async function RootLayout({
   } catch {
     user = null;
   }
+  // Identifiant du compte client actif — sert le debug discret en pied de page.
+  const activeCustomerId =
+    user?.memberships.find((m) => m.isActive)?.customerId ??
+    user?.memberships[0]?.customerId ??
+    null;
   const title = context?.branding?.name ?? context?.shopName ?? 'Boutique';
 
   // JSON-LD Organization — socle GEO/SEO, lu par moteurs & assistants IA.
@@ -112,6 +117,11 @@ export default async function RootLayout({
             <div className="container-x py-4 text-center text-xs text-neutral-400">
               © {new Date().getFullYear()} {title} — Propulsé par Extracom
             </div>
+            {activeCustomerId ? (
+              <div className="container-x pb-3 text-center text-[10px] text-neutral-300">
+                Session : {activeCustomerId}
+              </div>
+            ) : null}
           </div>
         </footer>
         <CookieConsent />
