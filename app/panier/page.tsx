@@ -95,6 +95,11 @@ function PanierContent() {
           <span>Total TTC</span>
           <span>{formatPrice(cart.totals?.totalInclVat ?? null)}</span>
         </div>
+        <p className="mt-4 text-xs text-neutral-500">
+          Le paiement à la livraison est réservé aux clients autorisés par
+          notre service commercial. Si vous y avez droit, vous pourrez valider
+          votre commande sans passer par le paiement en ligne.
+        </p>
         <Link href="/commande" className="btn-primary mt-5 w-full">
           Commander
         </Link>

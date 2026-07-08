@@ -245,6 +245,11 @@ function CommandeContent() {
         </p>
       )}
 
+      <p className="mt-6 text-xs text-neutral-500">
+        Le paiement à la livraison est réservé aux clients autorisés par notre
+        service commercial. Si cette option n'apparaît pas, contactez votre
+        commercial.
+      </p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {/* Devis : disponible dès que le rôle l'autorise (indépendant du
             paiement). Crée un document de type « devis » (0). */}

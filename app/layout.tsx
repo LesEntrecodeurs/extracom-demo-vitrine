@@ -104,7 +104,8 @@ export default async function RootLayout({
               title="Aide"
               links={[
                 ['Nous contacter', '/contact'],
-                ['Mentions légales', '/mentions-legales']
+                ['Mentions légales', '/mentions-legales'],
+                ['Conditions générales de vente', '/cgv']
               ]}
             />
           </div>
