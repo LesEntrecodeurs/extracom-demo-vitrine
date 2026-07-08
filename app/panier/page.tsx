@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, CreditCard, Lock } from 'lucide-react';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
@@ -95,9 +95,17 @@ function PanierContent() {
           <span>Total TTC</span>
           <span>{formatPrice(cart.totals?.totalInclVat ?? null)}</span>
         </div>
-        <Link href="/commande" className="btn-primary mt-5 w-full">
-          Commander
+        <Link
+          href="/commande"
+          className="btn-primary mt-5 inline-flex w-full items-center justify-center gap-2"
+        >
+          <CreditCard className="size-4" aria-hidden="true" />
+          Payer par carte
         </Link>
+        <p className="mt-2 flex items-center justify-center gap-1 text-center text-xs text-neutral-500">
+          <Lock className="size-3" aria-hidden="true" />
+          Paiement sécurisé — CB, Visa, Mastercard
+        </p>
       </aside>
     </div>
   );
