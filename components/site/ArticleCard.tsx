@@ -3,7 +3,21 @@ import Image from 'next/image';
 import { formatPrice, type Article } from '@extracom/site-kit';
 import { AddToCart } from './AddToCart';
 
-export function ArticleCard({ article }: { article: Article }) {
+/**
+ * Mode d'affichage du stock (3 valeurs prévues par le kit) :
+ * - `hidden` : ne pas afficher
+ * - `quantity` : "En stock (12)" / "Épuisé"
+ * - `availability` : "En stock" / "Épuisé" (juste dispo/pas dispo)
+ */
+export type StockMode = 'hidden' | 'quantity' | 'availability';
+
+export function ArticleCard({
+  article,
+  stockMode = 'availability'
+}: {
+  article: Article;
+  stockMode?: StockMode;
+}) {
   const href = `/produit/${encodeURIComponent(article.reference)}`;
   const hasVariants = (article.gammes ?? []).some((g) => g.items.length > 0);
   const hasPromo =
@@ -103,6 +117,11 @@ export function ArticleCard({ article }: { article: Article }) {
             />
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+/div>
       </div>
     </div>
   );

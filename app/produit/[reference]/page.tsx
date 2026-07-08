@@ -4,6 +4,8 @@ import Image from 'next/image';
 import {
   getArticleAction,
   getAnonymousArticleAction,
+  getAnonymousContextAction,
+  getContextAction,
   isAuthenticatedAction
 } from '@extracom/site-kit/server';
 import { formatPrice, type Article } from '@extracom/site-kit';
@@ -139,13 +141,22 @@ export default async function ProduitPage({
             : ''}
         </p>
 
-        {typeof article.stockQuantity === 'number' && (
-          <p className="mt-2 text-sm text-neutral-600">
-            {article.stockQuantity > 0
-              ? `En stock (${article.stockQuantity})`
-              : 'Rupture de stock'}
-          </p>
-        )}
+        {stockMode !== 'hidden' &&
+          typeof article.stockQuantity === 'number' &&
+          (() => {
+            const available = article.stockQuantity > 0;
+            const label =
+              stockMode === 'quantity'
+                ? available
+                  ? `En stock (${article.stockQuantity})`
+                  : 'Rupture de stock'
+                : available
+                  ? 'En stock'
+                  : 'Rupture de stock';
+            return (
+              <p className="mt-2 text-sm text-neutral-600">{label}</p>
+            );
+          })()}
 
         {article.description && (
           <p className="mt-4 whitespace-pre-line text-neutral-700">
