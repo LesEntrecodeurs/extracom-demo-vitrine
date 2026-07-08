@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useDocuments } from '@extracom/site-kit/react';
+import { useRouter } from 'next/navigation';
+import { RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
+import { useDocuments, useCart } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
 
@@ -28,8 +31,24 @@ export default function CommandesPage() {
     search: applied.search,
     deliveryCity: applied.city
   });
+  const { reorder } = useCart();
+  const router = useRouter();
+  // ID du document en cours de « recommandation » (anti-double-clic par ligne).
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
 
   const docs = data?.data ?? [];
+
+  const handleReorder = async (docId: string, orderRef: string) => {
+    if (reorderingId) return;
+    setReorderingId(docId);
+    try {
+      await reorder(orderRef);
+      router.push('/panier');
+    } catch {
+      toast.error('La recommande a échoué. Réessayez.');
+      setReorderingId(null);
+    }
+  };
 
   const submitFilters = (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,10 +158,24 @@ export default function CommandesPage() {
                   {formatDate(d.date)}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-4">
+              <div className="flex shrink-0 items-center gap-3">
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                {d.orderReference && (
+                  <button
+                    type="button"
+                    onClick={() => handleReorder(d.id, d.orderReference!)}
+                    disabled={reorderingId !== null}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 transition hover:border-neutral-400 hover:bg-neutral-100 active:scale-[0.98] disabled:opacity-50"
+                    aria-label={`Recommander ${d.reference} en un clic`}
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+                    {reorderingId === d.id
+                      ? 'Recommande…'
+                      : 'Recommander'}
+                  </button>
+                )}
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
