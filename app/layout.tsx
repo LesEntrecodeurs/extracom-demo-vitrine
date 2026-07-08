@@ -91,13 +91,18 @@ export default async function RootLayout({
             <FooterCol
               title="Compte"
               links={[
+                // « Mon compte » n'apparaît que pour les visiteurs connectés :
+                // pour les autres, « Connexion » est déjà listé juste en dessous
+                // (cohérent avec le header).
+                ...(user
+                  ? [['Mon compte', '/compte'] as [string, string]]
+                  : []),
                 ['Connexion', '/connexion'],
                 // Lien d'inscription masqué quand la vitrine n'ouvre pas la
                 // création de compte (capability dérivée).
                 ...(context?.capabilities?.registrationOpen
                   ? [['Créer un compte', '/inscription'] as [string, string]]
-                  : []),
-                ['Mon compte', '/compte']
+                  : [])
               ]}
             />
             <FooterCol
