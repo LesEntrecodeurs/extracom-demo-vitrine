@@ -47,7 +47,7 @@ export function CookieConsent() {
           fonctionnement (session, panier). En poursuivant votre navigation,
           vous les acceptez.{' '}
           <Link
-            href="/mentions-legales"
+            href="/politique-cookies"
             className="text-[var(--brand-dark)] underline"
           >
             En savoir plus

@@ -13,6 +13,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: absoluteUrl('/mentions-legales'),
       changeFrequency: 'yearly',
       priority: 0.2
+    },
+    {
+      url: absoluteUrl('/politique-cookies'),
+      changeFrequency: 'yearly',
+      priority: 0.2
     }
   ];
 
