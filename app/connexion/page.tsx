@@ -60,6 +60,14 @@ export default function ConnexionPage() {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full rounded border px-3 py-2"
         />
+        <div className="text-right">
+          <Link
+            href="/mot-de-passe-oublie"
+            className="text-sm text-[var(--brand-dark)] underline"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
         {err && (
           <p role="alert" className="text-sm text-red-600">
             {err}
@@ -84,14 +92,6 @@ export default function ConnexionPage() {
           </Link>
         </p>
       )}
-      <p className="mt-1 text-sm text-neutral-600">
-        <Link
-          href="/mot-de-passe-oublie"
-          className="text-[var(--brand-dark)] underline"
-        >
-          Mot de passe oublié ?
-        </Link>
-      </p>
     </div>
   );
 }
