@@ -80,9 +80,7 @@ export function ArticleCard({ article }: { article: Article }) {
                 : 'text-red-500'
             }`}
           >
-            {article.stockQuantity > 0
-              ? `En stock${article.stockQuantity > 1 ? ` (${article.stockQuantity})` : ''}`
-              : 'Épuisé'}
+            {article.stockQuantity > 0 ? 'En stock' : 'Épuisé'}
           </p>
         )}
 
