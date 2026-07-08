@@ -1,12 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
-import { useCart } from '@extracom/site-kit/react';
+import { ShoppingCart, MapPin } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  useCart,
+  useDelivery,
+  useShopContext
+} from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import { AddressForm } from '@/components/site/AddressForm';
 
 export default function PanierPage() {
   return (
@@ -17,7 +24,12 @@ export default function PanierPage() {
 }
 
 function PanierContent() {
-  const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const { cart, isLoading, error, updateLine, removeItem, setDelivery } =
+    useCart();
+  const { options, addAddress } = useDelivery();
+  const { data: context } = useShopContext();
+  const [showAdd, setShowAdd] = useState(false);
+  const deliveryEnabled = context?.capabilities?.deliveryEnabled ?? true;
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -36,10 +48,14 @@ function PanierContent() {
       />
     );
 
+  const addresses = options?.addresses ?? [];
+  const selectedAddress =
+    addresses.find((a) => a.id === cart.deliveryAddressId) ?? null;
+
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
-      <div>
-        <h1 className="mb-6 text-xl font-semibold">Votre panier</h1>
+      <div className="space-y-6">
+        <h1 className="text-xl font-semibold">Votre panier</h1>
         <ul className="card divide-y divide-neutral-100">
           {cart.lines.map((line) => (
             <li key={line.id} className="flex items-center gap-4 p-4">
@@ -79,6 +95,105 @@ function PanierContent() {
             </li>
           ))}
         </ul>
+
+        {deliveryEnabled && (
+          <section className="card p-5">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-[var(--brand-dark)]" aria-hidden="true" />
+              <h2 className="font-medium">Adresse de livraison</h2>
+            </div>
+
+            {selectedAddress ? (
+              <div className="mt-3 flex items-start justify-between gap-3 rounded-lg border border-neutral-200 bg-[var(--brand-light)]/40 p-3 text-sm">
+                <div>
+                  <p className="font-medium">
+                    {selectedAddress.label || 'Adresse de livraison'}
+                  </p>
+                  <p className="text-neutral-600">
+                    {selectedAddress.line1}, {selectedAddress.postalCode}{' '}
+                    {selectedAddress.city}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(true)}
+                  className="shrink-0 text-xs text-[var(--brand-dark)] hover:underline"
+                >
+                  Changer / ajouter
+                </button>
+              </div>
+            ) : addresses.length > 0 ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-sm text-neutral-500">
+                  Choisissez une adresse enregistrée pour la livraison :
+                </p>
+                <ul className="space-y-2">
+                  {addresses.map((a) => (
+                    <li key={a.id}>
+                      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-neutral-200 p-3 text-sm hover:border-neutral-300">
+                        <input
+                          type="radio"
+                          name="delivery"
+                          checked={cart.deliveryAddressId === a.id}
+                          onChange={() =>
+                            setDelivery({ deliveryAddressId: a.id })
+                          }
+                        />
+                        <span>
+                          {a.label ? `${a.label} — ` : ''}
+                          {a.line1}, {a.postalCode} {a.city}
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(true)}
+                  className="text-sm text-[var(--brand-dark)] hover:underline"
+                >
+                  + Ajouter une autre adresse
+                </button>
+              </div>
+            ) : null}
+
+            {(showAdd || addresses.length === 0) && (
+              <div className="mt-3 rounded-lg border border-neutral-200 bg-white p-4">
+                <p className="mb-2 text-sm font-medium">
+                  {addresses.length === 0
+                    ? 'Ajoutez votre première adresse de livraison'
+                    : 'Nouvelle adresse'}
+                </p>
+                <AddressForm
+                  submitLabel="Enregistrer cette adresse"
+                  onCancel={
+                    addresses.length > 0
+                      ? () => setShowAdd(false)
+                      : undefined
+                  }
+                  onSubmit={async (addr) => {
+                    try {
+                      const created = await addAddress(addr);
+                      await setDelivery({ deliveryAddressId: created.id });
+                      setShowAdd(false);
+                      toast.success('Adresse ajoutée à votre panier.');
+                    } catch {
+                      toast.error(
+                        "L'adresse n'a pas pu être ajoutée. Réessayez."
+                      );
+                    }
+                  }}
+                />
+              </div>
+            )}
+
+            {!showAdd && addresses.length === 0 && (
+              <p className="mt-3 text-sm text-neutral-500">
+                Vous n'avez pas encore d'adresse enregistrée.
+              </p>
+            )}
+          </section>
+        )}
       </div>
 
       <aside className="card h-fit p-5">
