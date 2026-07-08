@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import { Lock, PackageSearch } from 'lucide-react';
 import {
@@ -19,6 +18,42 @@ import { ArticleCard } from '@/components/site/ArticleCard';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
+
+/**
+ * Construit la liste des numéros à afficher dans la barre de pagination, avec
+ * des « … » pour sauter les blocs lointains quand il y a beaucoup de pages.
+ * Ex. page 50 sur 125 : 1 … 48 49 50 51 52 … 125.
+ */
+function buildPageNumbers(
+  current: number,
+  total: number
+): (number | 'ellipsis')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const out: (number | 'ellipsis')[] = [1];
+  const start = Math.max(2, current - 2);
+  const end = Math.min(total - 1, current + 2);
+  if (start > 2) out.push('ellipsis');
+  for (let i = start; i <= end; i++) out.push(i);
+  if (end < total - 1) out.push('ellipsis');
+  out.push(total);
+  // Déduplique les numéros adjacents (sécurité si current est proche des bornes).
+  const dedup: (number | 'ellipsis')[] = [];
+  for (const v of out) {
+    const prev = dedup[dedup.length - 1];
+    if (v !== 'ellipsis' && prev === v) continue;
+    dedup.push(v);
+  }
+  return dedup;
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -188,15 +223,54 @@ export default async function CataloguePage({
       )}
 
       {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4 text-sm">
-          {page > 1 && <Link href={pageHref(page - 1)}>← Précédent</Link>}
-          <span className="text-neutral-500">
-            Page {page} / {totalPages}
-          </span>
-          {page < totalPages && (
-            <Link href={pageHref(page + 1)}>Suivant →</Link>
-          )}
-        </div>
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={page > 1 ? pageHref(page - 1) : undefined}
+                aria-disabled={page === 1}
+                className={
+                  page === 1
+                    ? 'pointer-events-none opacity-50'
+                    : undefined
+                }
+              >
+                <span className="hidden sm:block">Précédent</span>
+              </PaginationPrevious>
+            </PaginationItem>
+
+            {buildPageNumbers(page, totalPages).map((n, i) =>
+              n === 'ellipsis' ? (
+                <PaginationItem key={`e-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={n}>
+                  <PaginationLink
+                    href={pageHref(n)}
+                    isActive={n === page}
+                  >
+                    {n}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                href={page < totalPages ? pageHref(page + 1) : undefined}
+                aria-disabled={page === totalPages}
+                className={
+                  page === totalPages
+                    ? 'pointer-events-none opacity-50'
+                    : undefined
+                }
+              >
+                <span className="hidden sm:block">Suivant</span>
+              </PaginationNext>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
