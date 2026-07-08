@@ -85,15 +85,24 @@ function CommandeContent() {
                 ? 'Commande validée'
                 : 'Commande envoyée'}
           </h1>
-          <p className="mt-2 text-sm text-neutral-600">
-            {confirmedRef ? `Référence : ${confirmedRef}. ` : ''}
+          {confirmedRef && (
+            <div className="mx-auto mt-6 inline-block rounded-lg border border-[var(--brand)] bg-[var(--brand-light)] px-6 py-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-[var(--brand-dark)]">
+                {isQuote ? 'Numéro de devis' : 'Numéro de commande'}
+              </p>
+              <p className="mt-1 font-mono text-3xl font-bold text-[var(--brand-dark)]">
+                {confirmedRef}
+              </p>
+            </div>
+          )}
+          <p className="mt-6 text-sm text-neutral-600">
             {isQuote || created
-              ? 'Vous le retrouvez dès maintenant dans votre historique.'
+              ? 'Retrouvez-le dès maintenant dans votre historique.'
               : 'Elle sera validée par un commercial.'}
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <Link href="/compte/commandes" className="btn-primary">
-              Mes commandes
+              {isQuote ? 'Mes devis' : 'Mes commandes'}
             </Link>
             <Link href="/catalogue" className="btn-outline">
               Continuer mes achats
