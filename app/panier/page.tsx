@@ -1,12 +1,18 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  InputGroup,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 
 export default function PanierPage() {
   return (
@@ -42,41 +48,12 @@ function PanierContent() {
         <h1 className="mb-6 text-xl font-semibold">Votre panier</h1>
         <ul className="card divide-y divide-neutral-100">
           {cart.lines.map((line) => (
-            <li key={line.id} className="flex items-center gap-4 p-4">
-              <div className="flex-1">
-                <p className="font-medium">{line.label ?? line.reference}</p>
-                {line.variantLabel && (
-                  <p className="text-xs text-neutral-500">
-                    Déclinaison : {line.variantLabel}
-                  </p>
-                )}
-                <p className="text-sm text-neutral-500">
-                  {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
-                </p>
-              </div>
-              <input
-                type="number"
-                min={1}
-                defaultValue={line.quantity}
-                onBlur={(e) =>
-                  updateLine(line.id, { quantity: Number(e.target.value) })
-                }
-                className="field w-16 text-center"
-              />
-              <div className="w-24 text-right font-medium">
-                {formatPrice(
-                  line.lineTotalInclVat ?? line.unitPrice * line.quantity
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => removeItem(line.id)}
-                aria-label={`Retirer ${line.label ?? line.reference} du panier`}
-                className="text-sm text-neutral-400 hover:text-red-600"
-              >
-                <span aria-hidden="true">✕</span>
-              </button>
-            </li>
+            <PanierLine
+              key={line.id}
+              line={line}
+              onUpdate={(quantity) => updateLine(line.id, { quantity })}
+              onRemove={() => removeItem(line.id)}
+            />
           ))}
         </ul>
       </div>
@@ -100,5 +77,93 @@ function PanierContent() {
         </Link>
       </aside>
     </div>
+  );
+}
+
+interface PanierLineProps {
+  line: {
+    id: string;
+    label?: string | null;
+    reference: string;
+    variantLabel?: string | null;
+    unitPrice: number | null;
+    unit?: string | null;
+    quantity: number;
+    lineTotalInclVat?: number | null;
+  };
+  onUpdate: (quantity: number) => void | Promise<void>;
+  onRemove: () => void | Promise<void>;
+}
+
+function PanierLine({ line, onUpdate, onRemove }: PanierLineProps) {
+  const [value, setValue] = useState(line.quantity);
+
+  // Resynchronise l'affichage quand le panier est mis à jour (ex : après updateLine).
+  useEffect(() => {
+    setValue(line.quantity);
+  }, [line.quantity]);
+
+  const apply = (next: number) => {
+    const safe = Math.max(1, Math.floor(next));
+    setValue(safe);
+    if (safe !== line.quantity) onUpdate(safe);
+  };
+
+  const name = line.label ?? line.reference;
+
+  return (
+    <li className="flex flex-wrap items-center gap-4 p-4">
+      <div className="min-w-0 flex-1">
+        <p className="font-medium">{name}</p>
+        {line.variantLabel && (
+          <p className="text-xs text-neutral-500">
+            Déclinaison : {line.variantLabel}
+          </p>
+        )}
+        <p className="text-sm text-neutral-500">
+          {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
+        </p>
+      </div>
+      <InputGroup className="w-32">
+        <InputGroupButton
+          aria-label={`Diminuer la quantité de ${name}`}
+          onClick={() => apply(value - 1)}
+          disabled={value <= 1}
+        >
+          <Minus />
+        </InputGroupButton>
+        <InputGroupInput
+          type="number"
+          min={1}
+          step={1}
+          value={value}
+          onChange={(e) =>
+            setValue(Math.max(1, Number(e.target.value) || 1))
+          }
+          onBlur={() => apply(value)}
+          aria-label={`Quantité de ${name}`}
+          className="px-2 text-center"
+        />
+        <InputGroupButton
+          aria-label={`Augmenter la quantité de ${name}`}
+          onClick={() => apply(value + 1)}
+        >
+          <Plus />
+        </InputGroupButton>
+      </InputGroup>
+      <div className="w-24 text-right font-medium">
+        {formatPrice(
+          line.lineTotalInclVat ?? line.unitPrice * line.quantity
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`Retirer ${name} du panier`}
+        className="text-sm text-neutral-400 hover:text-red-600"
+      >
+        <span aria-hidden="true">✕</span>
+      </button>
+    </li>
   );
 }
