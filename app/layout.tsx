@@ -7,6 +7,7 @@ import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
+import { AccessibilityMenu } from '@/components/site/AccessibilityMenu';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
 
@@ -69,9 +70,14 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <body>
+        <a href="#main-content" className="skip-link">
+          Aller au contenu principal
+        </a>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
-        <main className="container-x py-10">{children}</main>
+        <main id="main-content" tabIndex={-1} className="container-x py-10">
+          {children}
+        </main>
 
         <footer className="mt-16 border-t border-neutral-200 bg-white">
           <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
@@ -115,6 +121,7 @@ export default async function RootLayout({
           </div>
         </footer>
         <CookieConsent />
+        <AccessibilityMenu />
         <Toaster richColors position="top-center" />
       </body>
     </html>
