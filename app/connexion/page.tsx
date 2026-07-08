@@ -72,6 +72,10 @@ export default function ConnexionPage() {
         >
           {pending ? '…' : 'Se connecter'}
         </button>
+        <p className="text-center text-xs text-neutral-500">
+          Vous restez connecté pendant 7 jours, inutile de vous reconnecter
+          à chaque visite.
+        </p>
       </form>
       {registrationOpen && (
         <p className="mt-4 text-sm text-neutral-600">
