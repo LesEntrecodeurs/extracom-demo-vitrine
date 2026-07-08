@@ -15,8 +15,10 @@ const TYPE_TABS: { code: number; label: string }[] = [
 ];
 
 export default function CommandesPage() {
-  // `undefined` = tous les types (filtre serveur désactivé).
-  const [typeCode, setTypeCode] = useState<number | undefined>(undefined);
+  // Par défaut : l'onglet "Commandes" (code 1) — le client qui arrive sur
+  // cette page veut avant tout retrouver ses anciennes commandes.
+  // `undefined` = tous les types (filtre serveur désactivé, onglet "Tous").
+  const [typeCode, setTypeCode] = useState<number | undefined>(1);
   // Filtres appliqués (texte) — appliqués au submit du formulaire.
   const [applied, setApplied] = useState<{ search?: string; city?: string }>(
     {}
