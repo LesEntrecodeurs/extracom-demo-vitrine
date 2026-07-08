@@ -42,6 +42,9 @@ function CommandeContent() {
   const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
+  // Référence de la commande en attente (status SUBMITTED) créée via
+  // `createOrder`. Une fois définie, le parcours passe à l'étape paiement.
+  const [pendingOrderRef, setPendingOrderRef] = useState<string | null>(null);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
 
@@ -246,9 +249,10 @@ function CommandeContent() {
       )}
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        {/* Devis : disponible dès que le rôle l'autorise (indépendant du
-            paiement). Crée un document de type « devis » (0). */}
-        {canQuote && (
+        {/* Devis : parcours alternatif, disponible tant qu'aucune commande
+            n'a été validée. Une fois la commande en attente, on le masque
+            pour garder un parcours clair. */}
+        {canQuote && pendingOrderRef === null && (
           <button
             type="button"
             onClick={async () => {
@@ -301,21 +305,31 @@ function CommandeContent() {
           >
             {ordering ? '…' : 'Valider la commande'}
           </button>
-        ) : (
-          <>
-            {/* Paiement en ligne affiché uniquement si la vitrine l'autorise
-                (capability dérivée : Axepta configuré pour le shop). */}
-            {paymentEnabled && (
-              <button
-                type="button"
-                onClick={pay}
-                disabled={paying || !deliveryOk}
-                title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
-                className="btn-primary flex-1"
-              >
-                {paying ? '…' : 'Payer'}
-              </button>
-            )}
+        ) : pendingOrderRef === null ? (
+          // Aucune commande en attente : on propose d'abord de valider
+          // (paiement activé) ou de soumettre pour validation commerciale
+          // (paiement désactivé sur la vitrine).
+          paymentEnabled ? (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await persistComment();
+                  const res = await createOrder();
+                  setPendingOrderRef(res?.reference ?? '');
+                } catch {
+                  toast.error(
+                    "La commande n'a pas pu être envoyée. Réessayez."
+                  );
+                }
+              }}
+              disabled={ordering || !deliveryOk}
+              title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
+              className="btn-primary flex-1"
+            >
+              {ordering ? '…' : 'Valider ma commande'}
+            </button>
+          ) : (
             <button
               type="button"
               onClick={async () => {
@@ -336,9 +350,32 @@ function CommandeContent() {
             >
               {ordering ? '…' : 'Soumettre pour validation'}
             </button>
-          </>
+          )
+        ) : (
+          // Commande validée → étape suivante : payer en ligne. Les autres
+          // actions (devis, soumission…) sont déjà masquées plus haut.
+          paymentEnabled && (
+            <button
+              type="button"
+              onClick={pay}
+              disabled={paying || !deliveryOk}
+              title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
+              className="btn-primary flex-1"
+            >
+              {paying ? '…' : 'Payer'}
+            </button>
+          )
         )}
       </div>
+
+      {/* Une fois la commande créée, on indique au client qu'il peut passer
+          au paiement, en gardant la référence visible. */}
+      {pendingOrderRef !== null && paymentEnabled && (
+        <p className="mt-3 text-sm text-neutral-600">
+          Commande <strong>{pendingOrderRef}</strong> enregistrée. Procédez au
+          paiement pour finaliser votre achat.
+        </p>
+      )}
     </div>
   );
 }
