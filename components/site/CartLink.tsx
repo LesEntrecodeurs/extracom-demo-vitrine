@@ -17,7 +17,7 @@ export function CartLink() {
       <span className="relative">
         <CartIcon className="h-5 w-5" />
         {count > 0 && (
-          <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--brand)] px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--brand-accent)] px-1 text-[10px] font-semibold text-white">
             {count > 99 ? '99+' : count}
           </span>
         )}

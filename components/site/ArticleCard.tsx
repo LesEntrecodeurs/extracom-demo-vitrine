@@ -24,7 +24,7 @@ export function ArticleCard({ article }: { article: Article }) {
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
           />
           {hasPromo && (
-            <span className="absolute top-2 left-2 rounded-full bg-[var(--brand)] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm">
+            <span className="absolute top-2 left-2 rounded-full bg-[var(--brand-accent)] px-2.5 py-0.5 text-xs font-medium text-white shadow-sm">
               Promo
             </span>
           )}
