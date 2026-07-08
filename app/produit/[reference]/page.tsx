@@ -59,6 +59,35 @@ export default async function ProduitPage({
     ? await getArticleAction(decodeURIComponent(reference))
     : await cachedAnonArticle(reference);
 
+  // Documents techniques : on préfère `documents` (nom + commentaire par
+  // fichier) quand le backend le fournit, sinon on retombe sur `specSheets`
+  // (liste d'URLs) en dérivant un libellé depuis l'URL.
+  const technicalDocs: {
+    key: string;
+    name: string;
+    comment: string;
+    url: string;
+  }[] =
+    article.documents && article.documents.length > 0
+      ? article.documents.map((d) => ({
+          key: d.url,
+          name: d.name?.trim() || 'Fiche technique',
+          comment: d.comment?.trim() || '',
+          url: d.url
+        }))
+      : (article.specSheets ?? []).map((url) => {
+          const file = url.split('/').pop() || '';
+          const cleaned = decodeURIComponent(file.replace(/\.[a-z0-9]+$/i, ''))
+            .replace(/[-_]+/g, ' ')
+            .trim();
+          return {
+            key: url,
+            name: cleaned || 'Fiche technique',
+            comment: '',
+            url
+          };
+        });
+
   // JSON-LD Product (SEO + GEO). L'offre n'est incluse que si un prix est exposé.
   const productLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -178,19 +207,39 @@ export default async function ProduitPage({
           ))}
 
         {/* Fiches techniques */}
-        {article.specSheets && article.specSheets.length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
-            <ul className="mt-2 space-y-1">
-              {article.specSheets.map((url, i) => (
-                <li key={url}>
+        {technicalDocs.length > 0 && (
+          <div className="mt-6">
+            <h2 className="mb-2 text-sm font-medium text-neutral-700">
+              Documents
+            </h2>
+            <ul className="card divide-y divide-neutral-100 text-sm">
+              {technicalDocs.map((doc) => (
+                <li key={doc.key}>
                   <a
-                    href={url}
+                    href={doc.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-[var(--brand-dark)] underline"
+                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-neutral-50"
                   >
-                    Fiche technique {i + 1}
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded bg-red-50 text-[10px] font-semibold tracking-wide text-red-600">
+                      PDF
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate font-medium text-neutral-800">
+                        {doc.name}
+                      </span>
+                      {doc.comment && (
+                        <span className="truncate text-xs text-neutral-500">
+                          {doc.comment}
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 text-neutral-400"
+                    >
+                      ↗
+                    </span>
                   </a>
                 </li>
               ))}
