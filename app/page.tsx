@@ -17,6 +17,9 @@ import {
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { FaqAccordion } from '@/components/site/FaqAccordion';
+import { JsonLd } from '@/components/site/JsonLd';
+import { faqLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -218,6 +221,113 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section>
+        <h2 className="mb-1 text-xl font-semibold">Questions fréquentes</h2>
+        <p className="mb-6 text-sm text-neutral-500">
+          Tout ce qu'il faut savoir pour commander sur {shopName}.
+        </p>
+        <FaqAccordion
+          items={[
+            {
+              question: `Comment accéder aux tarifs négociés sur ${shopName} ?`,
+              answer: (
+                <>
+                  Les tarifs négociés s'affichent dès que vous êtes connecté à
+                  votre compte professionnel. Si vous n'avez pas encore de
+                  compte, vous pouvez{' '}
+                  <Link
+                    href="/inscription"
+                    className="font-medium text-[var(--brand-dark)] hover:underline"
+                  >
+                    créer un compte professionnel
+                  </Link>{' '}
+                  en quelques minutes — votre inscription est ensuite validée
+                  par notre équipe commerciale.
+                </>
+              )
+            },
+            {
+              question: `Quels sont les délais de livraison de ${shopName} ?`,
+              answer: (
+                <>
+                  Nous expédions les commandes sous 24 à 48 heures ouvrées
+                  depuis notre entrepôt. Le délai de livraison exact dépend du
+                  poids, du volume et de la destination ; il est confirmé dans
+                  votre panier avant le paiement, avec un numéro de suivi dès
+                  l'expédition.
+                </>
+              )
+            },
+            {
+              question: `Comment demander un devis sur ${shopName} ?`,
+              answer: (
+                <>
+                  Ajoutez les références souhaitées à votre panier, puis
+                  choisissez « Demander un devis » au moment de valider. Nous
+                  revenons vers vous sous 24 heures ouvrées avec une offre
+                  adaptée à vos volumes.{' '}
+                  <Link
+                    href="/catalogue"
+                    className="font-medium text-[var(--brand-dark)] hover:underline"
+                  >
+                    Parcourir le catalogue
+                  </Link>
+                  .
+                </>
+              )
+            },
+            {
+              question: 'Qui peut commander sur la boutique ?',
+              answer: (
+                <>
+                  L'accès à la boutique est réservé aux professionnels :
+                  entreprises, artisans, revendeurs, collectivités et
+                  centrales d'achat. L'inscription est gratuite et soumise à
+                  validation par notre équipe commerciale, afin de vous
+                  proposer les conditions les mieux adaptées à votre activité.
+                </>
+              )
+            },
+            {
+              question: 'Le paiement est-il sécurisé ?',
+              answer: (
+                <>
+                  Oui, toutes les transactions sont 100% sécurisées : les
+                  paiements en ligne sont chiffrés et confiés à un prestataire
+                  certifié. Les moyens de paiement disponibles (carte
+                  bancaire, virement, compte client) s'affichent à l'étape de
+                  validation du panier, selon vos droits.
+                </>
+              )
+            }
+          ]}
+        />
+        <JsonLd
+          data={faqLd([
+            {
+              question: `Comment accéder aux tarifs négociés sur ${shopName} ?`,
+              answer: `Les tarifs négociés s'affichent dès que vous êtes connecté à votre compte professionnel. Pour créer un compte, l'inscription se fait en quelques minutes ; elle est ensuite validée par l'équipe commerciale. Une fois connecté, vos prix négociés et conditions B2B s'appliquent automatiquement sur tout le catalogue.`
+            },
+            {
+              question: `Quels sont les délais de livraison de ${shopName} ?`,
+              answer: `${shopName} expédie les commandes sous 24 à 48 heures ouvrées depuis son entrepôt. Le délai de livraison exact dépend du poids, du volume et de la destination ; il est confirmé dans le panier avant le paiement, avec un numéro de suivi dès l'expédition du colis.`
+            },
+            {
+              question: `Comment demander un devis sur ${shopName} ?`,
+              answer: `Ajoutez les références souhaitées à votre panier, puis choisissez « Demander un devis » au moment de valider la commande. ${shopName} revient vers vous sous 24 heures ouvrées avec une offre adaptée à vos volumes et à vos conditions.`
+            },
+            {
+              question: 'Qui peut commander sur la boutique ?',
+              answer: `L'accès à ${shopName} est réservé aux professionnels : entreprises, artisans, revendeurs, collectivités et centrales d'achat. L'inscription est gratuite et soumise à validation par l'équipe commerciale, afin de proposer les conditions les mieux adaptées à l'activité de chaque client.`
+            },
+            {
+              question: 'Le paiement est-il sécurisé ?',
+              answer: `Oui, toutes les transactions sont 100% sécurisées : les paiements en ligne sont chiffrés et confiés à un prestataire certifié. Les moyens de paiement disponibles (carte bancaire, virement, compte client) s'affichent à l'étape de validation du panier, selon les droits du compte.`
+            }
+          ])}
+        />
+      </section>
     </div>
   );
 }
