@@ -5,17 +5,31 @@ import { toast } from 'sonner';
 import {
   useAuth,
   useAccount,
-  useCompany
+  useCompany,
+  useSupport
 } from '@extracom/site-kit/react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 import { PageLoader } from '@/components/site/Loader';
 
 export default function ProfilPage() {
   const { user, isLoading: loadingUser, reload } = useAuth();
   const { activeId } = useCompany();
   const { changePassword, updateProfile, isLoading } = useAccount();
+  const { createTicket, isLoading: sendingDelete } = useSupport();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [err, setErr] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   // Identité éditable : on amorce les champs dès que l'utilisateur est chargé.
   const [name, setName] = useState('');
@@ -197,6 +211,71 @@ export default function ProfilPage() {
             {isLoading ? '…' : 'Mettre à jour le mot de passe'}
           </button>
         </form>
+      </section>
+
+      {/* Zone dangereuse — suppression de compte (via ticket support) */}
+      <section>
+        <h2 className="mb-3 text-sm font-medium">Supprimer mon compte</h2>
+        <div className="card space-y-3 p-5">
+          <p className="text-sm text-neutral-600">
+            Vous pouvez demander la suppression définitive de votre compte et de
+            vos données associées. Cette demande est envoyée à notre équipe qui
+            la traitera dans les meilleurs délais.
+          </p>
+          <p className="text-xs text-neutral-500">
+            Action irréversible : une fois votre compte supprimé, vous ne pourrez
+            plus vous connecter ni accéder à votre historique.
+          </p>
+          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <AlertDialogTrigger asChild>
+              <button type="button" className="btn-outline border-red-300 text-red-700 hover:bg-red-50 hover:border-red-400">
+                Supprimer mon compte
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmer la suppression du compte</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Votre demande sera transmise à notre équipe par ticket de
+                  support. Nous vous contacterons à l'adresse{' '}
+                  <span className="font-medium text-neutral-700">
+                    {user.email}
+                  </span>{' '}
+                  pour confirmer la suppression avant de la rendre définitive.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={sendingDelete}>
+                  Annuler
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={sendingDelete}
+                  className="bg-red-600 text-white hover:bg-red-700"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    try {
+                      await createTicket({
+                        subject: 'Demande de suppression de compte',
+                        description: `Le client ${user.name} (${user.email}, société active ${activeId ?? '—'}) demande la suppression définitive de son compte et de ses données associées.`,
+                        email: user.email
+                      });
+                      setDeleteOpen(false);
+                      toast.success(
+                        'Demande envoyée — notre équipe vous recontactera rapidement.'
+                      );
+                    } catch {
+                      toast.error(
+                        "L'envoi de la demande a échoué. Réessayez ou contactez-nous."
+                      );
+                    }
+                  }}
+                >
+                  {sendingDelete ? 'Envoi…' : 'Envoyer la demande'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </section>
     </div>
   );
