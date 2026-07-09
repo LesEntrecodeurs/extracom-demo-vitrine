@@ -119,39 +119,41 @@ export default function CommandesPage() {
       ) : (
         <ul className="card divide-y divide-neutral-100">
           {docs.map((d) => (
-            <li
-              key={d.id}
-              className="flex items-center justify-between gap-4 p-4"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{d.reference}</span>
-                  <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600">
-                    {d.type}
-                  </span>
-                  {d.status && (
-                    <span className="rounded-full bg-[var(--brand-light)] px-2 py-0.5 text-xs font-medium text-[var(--brand-dark)]">
-                      {d.status}
+            <li key={d.id}>
+              <Link
+                href={`/compte/commandes/${encodeURIComponent(d.id)}${
+                  d.typeCode != null ? `?type=${d.typeCode}` : ''
+                }`}
+                className="flex items-center justify-between gap-4 p-4 transition-colors hover:bg-neutral-50 focus-visible:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{d.reference}</span>
+                    <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600">
+                      {d.type}
                     </span>
-                  )}
+                    {d.status && (
+                      <span className="rounded-full bg-[var(--brand-light)] px-2 py-0.5 text-xs font-medium text-[var(--brand-dark)]">
+                        {d.status}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-sm text-neutral-500">
+                    {formatDate(d.date)}
+                  </p>
                 </div>
-                <p className="mt-0.5 text-sm text-neutral-500">
-                  {formatDate(d.date)}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-4">
-                <span className="font-medium">
-                  {formatPrice(d.totalInclVat ?? null)}
-                </span>
-                <Link
-                  href={`/compte/commandes/${encodeURIComponent(d.id)}${
-                    d.typeCode != null ? `?type=${d.typeCode}` : ''
-                  }`}
-                  className="text-sm font-medium text-[var(--brand-dark)] hover:underline"
-                >
-                  Détail →
-                </Link>
-              </div>
+                <div className="flex shrink-0 items-center gap-4">
+                  <span className="font-medium">
+                    {formatPrice(d.totalInclVat ?? null)}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="text-sm font-medium text-[var(--brand-dark)]"
+                  >
+                    →
+                  </span>
+                </div>
+              </Link>
             </li>
           ))}
         </ul>
