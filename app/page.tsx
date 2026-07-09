@@ -17,6 +17,9 @@ import {
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { Faq, type FaqItem } from '@/components/site/Faq';
+import { JsonLd } from '@/components/site/JsonLd';
+import { faqLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +51,76 @@ export default async function HomePage() {
   // Inscription ouverte = capability vitrine dérivée (création de compte + liens
   // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+
+  // FAQ d'accueil : 5 questions B2B génériques, formulées à la 3e personne
+  // avec le nom de marque (GEO). `textAnswer` alimente le JSON-LD `FAQPage`,
+  // `answer` est la version enrichie affichée à l'écran.
+  const faqItems: FaqItem[] = [
+    {
+      question: `Comment accéder aux tarifs professionnels de ${shopName} ?`,
+      textAnswer: `Les tarifs négociés chez ${shopName} s'affichent dès la connexion à votre compte professionnel. Si vous n'avez pas encore de compte, créez-le en quelques minutes : votre inscription est validée par un commercial avant activation.`,
+      answer: (
+        <>
+          Les tarifs négociés chez {shopName} s'affichent dès la connexion à
+          votre compte professionnel. Si vous n'avez pas encore de compte,{' '}
+          <Link href="/inscription" className="font-medium text-[var(--brand-dark)] hover:underline">
+            créez-le en quelques minutes
+          </Link>{' '}
+          — votre inscription est validée par un commercial avant activation.
+        </>
+      )
+    },
+    {
+      question: `Qui peut commander sur ${shopName} ?`,
+      textAnswer: `${shopName} est réservé aux professionnels : artisans, entreprises, collectivités, revendeurs. Chaque compte est validé manuellement pour garantir des tarifs et conditions adaptés à l'usage professionnel.`,
+      answer: (
+        <>
+          {shopName} est réservé aux professionnels : artisans, entreprises,
+          collectivités, revendeurs. Chaque compte est validé manuellement pour
+          garantir des tarifs et conditions adaptés à l'usage professionnel.
+        </>
+      )
+    },
+    {
+      question: `Comment demander un devis plutôt que commander en ligne ?`,
+      textAnswer: `Ajoutez les produits souhaités à votre panier, puis choisissez « Demander un devis » à l'étape suivante. Votre commercial ${shopName} revient vers vous sous 24h ouvrées avec une offre adaptée à vos quantités et conditions.`,
+      answer: (
+        <>
+          Ajoutez les produits souhaités à votre panier, puis choisissez «
+          Demander un devis » à l'étape suivante. Votre commercial {shopName}{' '}
+          revient vers vous sous 24h ouvrées avec une offre adaptée à vos
+          quantités et conditions.
+        </>
+      )
+    },
+    {
+      question: `Quels sont les délais et frais de livraison chez ${shopName} ?`,
+      textAnswer: `${shopName} expédie les commandes passées avant 14h sous 24 à 48h ouvrées, partout en France métropolitaine. Les frais de port et délais exacts sont calculés à l'étape panier en fonction du poids et de l'adresse de livraison.`,
+      answer: (
+        <>
+          {shopName} expédie les commandes passées avant 14h sous{' '}
+          <strong>24 à 48h ouvrées</strong>, partout en France métropolitaine.
+          Les frais de port et délais exacts sont calculés à l'étape panier en
+          fonction du poids et de l'adresse de livraison.
+        </>
+      )
+    },
+    {
+      question: `Comment contacter le support ${shopName} ?`,
+      textAnswer: `Pour toute question avant ou après une commande, contactez le support ${shopName} via la page Contact : formulaire dédié, téléphone et coordonnées directes de votre commercial. Une équipe professionnelle vous répond sous 24h ouvrées.`,
+      answer: (
+        <>
+          Pour toute question avant ou après une commande, contactez le support{' '}
+          {shopName} via la{' '}
+          <Link href="/contact" className="font-medium text-[var(--brand-dark)] hover:underline">
+            page Contact
+          </Link>{' '}
+          : formulaire dédié, téléphone et coordonnées directes de votre
+          commercial. Une équipe professionnelle vous répond sous 24h ouvrées.
+        </>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-16">
@@ -218,6 +291,26 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section>
+        <div className="mb-6 max-w-2xl">
+          <h2 className="text-xl font-semibold">Questions fréquentes</h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Tout ce qu'il faut savoir pour passer votre première commande chez{' '}
+            {shopName}.
+          </p>
+        </div>
+        <Faq items={faqItems} />
+      </section>
+
+      <JsonLd
+        data={faqLd(
+          faqItems.map(({ question, textAnswer }) => ({
+            question,
+            answer: textAnswer
+          }))
+        )}
+      />
     </div>
   );
 }
