@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
@@ -44,6 +44,31 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+
+  // Garde anti-double-clic SYNCHRONE : avant d'appeler l'action du kit
+  // (start / createOrder / validateWithoutPayment), on attend
+  // persistComment(). Pendant cet await, l'état isLoading du kit n'est
+  // pas encore passé à true, donc le bouton n'est pas visuellement
+  // désactivé — un double-clic rapide pouvait alors déclencher deux
+  // sessions de paiement chez le prestataire (double débit). Le ref
+  // bloque tout re-clic dès le premier, le state busy grise le bouton
+  // visuellement sur le rendu suivant.
+  const [busy, setBusy] = useState(false);
+  const inFlightRef = useRef(false);
+  const runOnce = (fn: () => Promise<void>) => async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+    setBusy(true);
+    try {
+      await fn();
+    } catch {
+      // Les erreurs sont déjà gérées dans fn() (toast). On n'absorbe
+      // ici que pour éviter un rejet non géré remontant du onClick.
+    } finally {
+      setBusy(false);
+      inFlightRef.current = false;
+    }
+  };
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -118,11 +143,56 @@ function CommandeContent() {
   // Si la vitrine n'offre pas de sélection de livraison, on ne bloque pas la
   // finalisation sur le choix d'une adresse.
   const deliveryOk = !deliveryEnabled || hasDelivery;
-  const pay = async () => {
+
+  const submitQuote = runOnce(async () => {
+    try {
+      await persistComment();
+      const res = await validateWithoutPayment({
+        documentType: '0',
+        reference: reference.trim() || undefined
+      });
+      setIsQuote(true);
+      setCreated(true);
+      setConfirmedRef(res?.reference ?? '');
+    } catch {
+      toast.error(
+        'Le devis n’a pas pu être créé. Vérifiez vos droits ou réessayez.'
+      );
+    }
+  });
+
+  const submitOrder = runOnce(async () => {
+    try {
+      await persistComment();
+      const res = await validateWithoutPayment({
+        documentType: '1',
+        reference: reference.trim() || undefined
+      });
+      setCreated(true);
+      setConfirmedRef(res?.reference ?? '');
+    } catch {
+      toast.error(
+        'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
+      );
+    }
+  });
+
+  const pay = runOnce(async () => {
     await persistComment();
     const { redirectUrl } = await start({});
     if (redirectUrl) window.location.href = redirectUrl;
-  };
+  });
+
+  const submitForReview = runOnce(async () => {
+    try {
+      await persistComment();
+      const res = await createOrder();
+      setCreated(false);
+      setConfirmedRef(res?.reference ?? '');
+    } catch {
+      toast.error("La commande n'a pas pu être envoyée. Réessayez.");
+    }
+  });
 
   return (
     <div className="mx-auto max-w-lg">
@@ -251,27 +321,12 @@ function CommandeContent() {
         {canQuote && (
           <button
             type="button"
-            onClick={async () => {
-              try {
-                await persistComment();
-                const res = await validateWithoutPayment({
-                  documentType: '0',
-                  reference: reference.trim() || undefined
-                });
-                setIsQuote(true);
-                setCreated(true);
-                setConfirmedRef(res?.reference ?? '');
-              } catch {
-                toast.error(
-                  'Le devis n’a pas pu être créé. Vérifiez vos droits ou réessayez.'
-                );
-              }
-            }}
-            disabled={ordering || !deliveryOk}
+            onClick={submitQuote}
+            disabled={busy || ordering || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-outline flex-1"
           >
-            {ordering ? '…' : 'Demander un devis'}
+            {busy || ordering ? '…' : 'Demander un devis'}
           </button>
         )}
 
@@ -280,26 +335,12 @@ function CommandeContent() {
           // commande Sage directement (il apparaît dans l'historique).
           <button
             type="button"
-            onClick={async () => {
-              try {
-                await persistComment();
-                const res = await validateWithoutPayment({
-                  documentType: '1',
-                  reference: reference.trim() || undefined
-                });
-                setCreated(true);
-                setConfirmedRef(res?.reference ?? '');
-              } catch {
-                toast.error(
-                  'La commande n’a pas pu être validée. Vérifiez vos droits ou réessayez.'
-                );
-              }
-            }}
-            disabled={ordering || !deliveryOk}
+            onClick={submitOrder}
+            disabled={busy || ordering || !deliveryOk}
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-primary flex-1"
           >
-            {ordering ? '…' : 'Valider la commande'}
+            {busy || ordering ? '…' : 'Valider la commande'}
           </button>
         ) : (
           <>
@@ -309,32 +350,21 @@ function CommandeContent() {
               <button
                 type="button"
                 onClick={pay}
-                disabled={paying || !deliveryOk}
+                disabled={busy || paying || !deliveryOk}
                 title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
                 className="btn-primary flex-1"
               >
-                {paying ? '…' : 'Payer'}
+                {busy || paying ? '…' : 'Payer'}
               </button>
             )}
             <button
               type="button"
-              onClick={async () => {
-                try {
-                  await persistComment();
-                  const res = await createOrder();
-                  setCreated(false);
-                  setConfirmedRef(res?.reference ?? '');
-                } catch {
-                  toast.error(
-                    "La commande n'a pas pu être envoyée. Réessayez."
-                  );
-                }
-              }}
-              disabled={ordering || !deliveryOk}
+              onClick={submitForReview}
+              disabled={busy || ordering || !deliveryOk}
               className="btn-outline"
               title="Soumettre pour validation par un commercial"
             >
-              {ordering ? '…' : 'Soumettre pour validation'}
+              {busy || ordering ? '…' : 'Soumettre pour validation'}
             </button>
           </>
         )}
