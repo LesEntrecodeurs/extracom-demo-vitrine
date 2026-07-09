@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
+import { MobileMenu } from './MobileMenu';
 
 export function Nav({
   context,
@@ -23,10 +24,12 @@ export function Nav({
       </div>
 
       <div className="border-b border-neutral-200">
-        <div className="container-x flex h-16 items-center gap-6">
+        <div className="container-x flex h-16 items-center gap-3 sm:gap-6">
+          <MobileMenu categories={categories} />
+
           <Link
             href="/"
-            className="shrink-0 text-lg font-semibold tracking-tight"
+            className="shrink-0 text-base font-semibold tracking-tight sm:text-lg"
           >
             {title}
           </Link>
@@ -43,7 +46,7 @@ export function Nav({
             </div>
           </form>
 
-          <nav className="ml-auto flex items-center gap-5 text-sm">
+          <nav className="ml-auto flex items-center gap-3 text-sm sm:gap-5">
             <Link
               href="/catalogue"
               className="hidden font-medium text-neutral-700 hover:text-[var(--brand-dark)] sm:inline"
@@ -81,7 +84,9 @@ export function Nav({
           </nav>
         </div>
 
-        <CategoryMenu categories={categories} />
+        <div className="hidden md:block">
+          <CategoryMenu categories={categories} />
+        </div>
       </div>
     </header>
   );
