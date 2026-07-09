@@ -5,20 +5,9 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useDocument, useCart } from '@extracom/site-kit/react';
-import { getDocumentPdfAction } from '@extracom/site-kit/server';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { PageLoader } from '@/components/site/Loader';
-
-async function downloadPdf(documentId: string, type: string, filename: string) {
-  const { base64, contentType } = await getDocumentPdfAction(documentId, type);
-  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-  const url = URL.createObjectURL(new Blob([bytes], { type: contentType }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+import { downloadDocumentPdf } from '@/lib/downloadDocument';
 
 export default function DocumentPage({
   params
@@ -95,7 +84,7 @@ export default function DocumentPage({
           onClick={async () => {
             setDownloading(true);
             try {
-              await downloadPdf(doc.id, typeCode, `${doc.reference}.pdf`);
+              await downloadDocumentPdf(doc.id, typeCode, `${doc.reference}.pdf`);
             } catch {
               toast.error('Le téléchargement du PDF a échoué.');
             } finally {
