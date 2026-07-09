@@ -71,6 +71,20 @@ function CommandeContent() {
   const paymentEnabled = shopCaps?.paymentEnabled ?? false;
   const deliveryEnabled = shopCaps?.deliveryEnabled ?? true;
 
+  // Mode de paiement tel qu'il apparaîtra au client AVANT la validation,
+  // pour qu'il sache à quoi s'attendre en cliquant :
+  //  - 'reception' : commande directe sans paiement (paiement à la livraison
+  //    / sur facture).
+  //  - 'online'    : la vitrine propose le paiement en ligne, le client sera
+  //    redirigé vers le prestataire.
+  //  - 'review'    : aucune des deux ci-dessus, la commande est soumise pour
+  //    validation par un commercial qui confirmera les modalités.
+  const paymentMode: 'reception' | 'online' | 'review' = canOrderDirect
+    ? 'reception'
+    : paymentEnabled
+      ? 'online'
+      : 'review';
+
   if (confirmedRef !== null)
     return (
       <div className="mx-auto max-w-lg">
@@ -244,6 +258,92 @@ function CommandeContent() {
           La commande n'a pas pu être envoyée. Réessayez.
         </p>
       )}
+
+      {/* Encadré « mode de paiement » — affiché juste avant la validation
+          pour que le client sache à quoi s'attendre. Mis à jour si le
+          contexte ou les droits de l'utilisateur changent. */}
+      <div
+        role="status"
+        aria-live="polite"
+        className={`mt-6 flex items-start gap-3 rounded-xl border p-4 ${
+          paymentMode === 'online'
+            ? 'border-[var(--brand)] bg-[var(--brand-light)]'
+            : paymentMode === 'reception'
+              ? 'border-amber-300 bg-amber-50'
+              : 'border-neutral-300 bg-neutral-50'
+        }`}
+      >
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white ${
+            paymentMode === 'online'
+              ? 'bg-[var(--brand)]'
+              : paymentMode === 'reception'
+                ? 'bg-amber-500'
+                : 'bg-neutral-700'
+          }`}
+        >
+          {paymentMode === 'online' && (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <rect x="2" y="5" width="20" height="14" rx="2" />
+              <line x1="2" y1="10" x2="22" y2="10" />
+            </svg>
+          )}
+          {paymentMode === 'reception' && (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path d="M3 7l9 6 9-6" />
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+            </svg>
+          )}
+          {paymentMode === 'review' && (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 7 12 12 15.5 14" />
+            </svg>
+          )}
+        </div>
+        <div className="text-sm">
+          <p className="font-semibold text-neutral-900">
+            {paymentMode === 'online' && 'Paiement en ligne'}
+            {paymentMode === 'reception' && 'Paiement à réception'}
+            {paymentMode === 'review' && 'Validation par notre équipe'}
+          </p>
+          <p className="mt-0.5 text-neutral-600">
+            {paymentMode === 'online' &&
+              'En validant, vous serez redirigé vers notre plateforme sécurisée pour régler votre commande par carte.'}
+            {paymentMode === 'reception' &&
+              'Votre commande est enregistrée tout de suite. Le règlement se fera à la livraison ou sur facture, selon vos conditions habituelles.'}
+            {paymentMode === 'review' &&
+              'Votre demande sera transmise à un commercial qui vous confirmera les délais et les modalités de règlement.'}
+          </p>
+        </div>
+      </div>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {/* Devis : disponible dès que le rôle l'autorise (indépendant du
