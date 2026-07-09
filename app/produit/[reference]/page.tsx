@@ -162,6 +162,9 @@ export default async function ProduitPage({
           />
         </div>
 
+        {/* Partage sur les réseaux sociaux */}
+        <ProductShare title={article.title} />
+
         {/* Caractéristiques */}
         <Specs article={article} />
 
