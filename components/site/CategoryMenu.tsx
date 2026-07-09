@@ -88,10 +88,10 @@ export function CategoryMenu({ categories }: { categories: CatalogNode[] }) {
 
   return (
     <div className="border-t border-neutral-100">
-      <div className="container-x flex flex-wrap items-center gap-x-1 gap-y-1 py-1 text-sm text-neutral-600">
+      <div className="container-x flex flex-nowrap items-center gap-x-1 overflow-x-auto py-1 text-sm text-neutral-600 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:gap-y-1 lg:overflow-visible">
         <Link
           href="/catalogue"
-          className="rounded px-2 py-1.5 font-medium hover:bg-neutral-100 hover:text-[var(--brand-dark)]"
+          className="shrink-0 rounded px-2 py-1.5 font-medium hover:bg-neutral-100 hover:text-[var(--brand-dark)]"
         >
           Tout le catalogue
         </Link>
@@ -101,17 +101,21 @@ export function CategoryMenu({ categories }: { categories: CatalogNode[] }) {
           const hasChildren = children.length > 0;
 
           return (
-            <div key={cat.id} className="group/top relative">
+            <div key={cat.id} className="group/top relative shrink-0">
               <Link
                 href={catHref(cat)}
                 className="flex items-center gap-1 rounded px-2 py-1.5 group-hover/top:text-[var(--brand-dark)] hover:bg-neutral-100 hover:text-[var(--brand-dark)]"
               >
                 {cat.label}
-                {hasChildren && <ChevronDown />}
+                {hasChildren && (
+                  <span className="hidden lg:inline">
+                    <ChevronDown />
+                  </span>
+                )}
               </Link>
 
               {hasChildren && (
-                <div className="absolute top-full left-0 z-30 hidden min-w-[240px] pt-1 group-hover/top:block">
+                <div className="absolute top-full left-0 z-30 hidden min-w-[240px] pt-1 lg:group-hover/top:block">
                   <div className="rounded-lg border border-neutral-200 bg-white p-2 shadow-lg">
                     <Link
                       href={catHref(cat)}
