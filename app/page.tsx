@@ -16,6 +16,7 @@ import {
 } from '@extracom/site-kit/server';
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
+import { ClientDashboard } from '@/components/site/ClientDashboard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
 
 export const dynamic = 'force-dynamic';
@@ -137,6 +138,9 @@ export default async function HomePage() {
           </ol>
         </section>
       )}
+
+      {/* Mini tableau de bord — client connecté uniquement. */}
+      {!isAnonymous && <ClientDashboard />}
 
       <section className="grid gap-4 sm:grid-cols-3">
         {valueProps.map((v) => (
