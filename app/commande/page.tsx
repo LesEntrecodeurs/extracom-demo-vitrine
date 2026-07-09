@@ -339,6 +339,13 @@ function CommandeContent() {
           </>
         )}
       </div>
+
+      {canOrderDirect && (
+        <p className="mt-3 text-center text-sm text-neutral-600">
+          Vous paierez à réception de votre commande, aucun règlement n’est
+          demandé en ligne.
+        </p>
+      )}
     </div>
   );
 }
