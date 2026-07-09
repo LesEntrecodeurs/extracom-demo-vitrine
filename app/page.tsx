@@ -16,7 +16,9 @@ import {
 } from '@extracom/site-kit/server';
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
+import { Faq } from '@/components/site/Faq';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { JsonLd } from '@/components/site/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +50,32 @@ export default async function HomePage() {
   // Inscription ouverte = capability vitrine dérivée (création de compte + liens
   // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+
+  // FAQ contexte B2B (référencement + objection-busting). Voix hybride : questions
+  // en 3e pers. + marque, réponses answer-first (1re phrase = marque en sujet).
+  const faqItems = [
+    {
+      q: `Comment accéder aux tarifs négociés sur ${shopName} ?`,
+      a: `${shopName} affiche les prix négociés dès qu'un professionnel se connecte à son compte. Créez votre compte pro en quelques minutes, ou connectez-vous si vous en avez déjà un, pour voir vos remises et conditions appliquées automatiquement.`,
+      link: registrationOpen
+        ? { label: 'Créer un compte pro', href: '/inscription' }
+        : { label: 'Se connecter', href: '/connexion' }
+    },
+    {
+      q: `Qui peut commander sur ${shopName} ?`,
+      a: `${shopName} est réservée aux professionnels : entreprises, associations et collectivités. L'inscription est validée par notre équipe commerciale avant activation des tarifs. Une fois votre compte approuvé, vous pouvez commander en ligne ou demander un devis selon vos droits.`,
+      link: { label: 'Voir le catalogue', href: '/catalogue' }
+    },
+    {
+      q: `Comment demander un devis sur ${shopName} ?`,
+      a: `Sur ${shopName}, un devis se prépare depuis n'importe quelle fiche produit : ajoutez vos références au panier, puis cliquez sur « Demander un devis » à la place de « Commander ». Nous vous répondons sous 24 heures ouvrées avec le détail tarifaire.`,
+      link: { label: 'Parcourir le catalogue', href: '/catalogue' }
+    },
+    {
+      q: `Quels sont les délais de livraison de ${shopName} ?`,
+      a: `${shopName} expédie les commandes validées sous 24 à 48 heures ouvrées, partout en France métropolitaine. Les délais de transport varient ensuite selon la destination et le poids ; ils vous sont confirmés par e-mail dès l'expédition de votre commande.`
+    }
+  ];
 
   return (
     <div className="space-y-16">
@@ -218,6 +246,26 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <Faq
+        subtitle="Les réponses aux questions que se posent nos clients pros."
+        items={faqItems}
+      />
+
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faqItems.map((item) => ({
+            '@type': 'Question',
+            name: item.q,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: item.a
+            }
+          }))
+        }}
+      />
     </div>
   );
 }
