@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
 import Image from 'next/image';
+import { FileText, Download } from 'lucide-react';
 import {
   getArticleAction,
   getAnonymousArticleAction,
@@ -179,23 +180,63 @@ export default async function ProduitPage({
 
         {/* Fiches techniques */}
         {article.specSheets && article.specSheets.length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
-            <ul className="mt-2 space-y-1">
-              {article.specSheets.map((url, i) => (
-                <li key={url}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-[var(--brand-dark)] underline"
-                  >
-                    Fiche technique {i + 1}
-                  </a>
-                </li>
-              ))}
+          <section
+            aria-label="Fiche technique PDF"
+            className="mt-6 rounded-lg border-2 border-[var(--brand-dark)] bg-white p-4 shadow-sm"
+          >
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600"
+              >
+                <FileText className="h-6 w-6" strokeWidth={2} />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-base font-semibold text-neutral-900">
+                  Fiche technique PDF
+                </h2>
+                <p className="text-xs text-neutral-500">
+                  {article.specSheets.length > 1
+                    ? `${article.specSheets.length} documents à télécharger`
+                    : 'Document à télécharger'}
+                </p>
+              </div>
+            </div>
+
+            <ul className="mt-4 space-y-2">
+              {article.specSheets.map((url, i) => {
+                const filename = url.split('/').pop() || `fiche-technique-${i + 1}.pdf`;
+                const label = filename.replace(/\.pdf$/i, '').replace(/[-_]+/g, ' ');
+                return (
+                  <li key={url}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      download
+                      className="flex items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm font-medium text-neutral-800 transition-colors hover:border-[var(--brand-dark)] hover:bg-white hover:text-[var(--brand-dark)]"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <FileText
+                          aria-hidden="true"
+                          className="h-4 w-4 shrink-0 text-red-600"
+                          strokeWidth={2}
+                        />
+                        <span className="truncate">
+                          {label || `Fiche technique ${i + 1}`}
+                        </span>
+                      </span>
+                      <Download
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-neutral-500"
+                        strokeWidth={2}
+                      />
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
-          </div>
+          </section>
         )}
       </div>
     </div>
