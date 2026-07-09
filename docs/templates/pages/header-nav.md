@@ -56,7 +56,8 @@ Orienter le visiteur, refléter l'état connecté/anonyme, donner accès au cata
 | Nav | `components/site/Nav` | Oui |
 | CategoryMenu | `components/site/CategoryMenu` | Oui |
 | CartLink | `components/site/CartLink` | Oui |
-| CompanySwitcher | `components/site/CompanySwitcher` | Non (multi-société) |
+| CompanySwitcher | `components/site/CompanySwitcher` | Non (multi-société, espace compte) |
+| CompanySwitcherInline | `components/site/CompanySwitcherInline` | Non (multi-société, barre haute) |
 
 ---
 
