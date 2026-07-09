@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Download } from 'lucide-react';
+import { toast } from 'sonner';
 import { useDocuments } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
+import { downloadDocumentPdf } from '@/lib/downloadDocument';
 
 // Types de document proposés au client (code Sage). Fixe : Devis / Commande /
 // Facture — les seuls pertinents côté client.
@@ -23,6 +26,7 @@ export default function CommandesPage() {
   );
   const [searchInput, setSearchInput] = useState('');
   const [cityInput, setCityInput] = useState('');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const { data, isLoading, error } = useDocuments({
     type: typeCode,
     search: applied.search,
@@ -143,6 +147,29 @@ export default function CommandesPage() {
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                <button
+                  type="button"
+                  disabled={downloadingId === d.id}
+                  onClick={async () => {
+                    setDownloadingId(d.id);
+                    try {
+                      await downloadDocumentPdf(
+                        d.id,
+                        d.typeCode?.toString() ?? '',
+                        `${d.reference}.pdf`
+                      );
+                    } catch {
+                      toast.error('Le téléchargement du PDF a échoué.');
+                    } finally {
+                      setDownloadingId(null);
+                    }
+                  }}
+                  aria-label={`Télécharger le PDF de ${d.reference}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-700 hover:border-[var(--brand)] hover:text-[var(--brand-dark)] disabled:opacity-50"
+                >
+                  <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                  {downloadingId === d.id ? 'Préparation…' : 'PDF'}
+                </button>
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
