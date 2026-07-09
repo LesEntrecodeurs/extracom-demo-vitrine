@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
@@ -43,6 +44,15 @@ function PanierContent() {
         <ul className="card divide-y divide-neutral-100">
           {cart.lines.map((line) => (
             <li key={line.id} className="flex items-center gap-4 p-4">
+              <div className="relative size-16 shrink-0 overflow-hidden rounded bg-neutral-100">
+                <Image
+                  src={line.imageUrl || '/placeholder.svg'}
+                  alt={line.label ?? line.reference}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </div>
               <div className="flex-1">
                 <p className="font-medium">{line.label ?? line.reference}</p>
                 {line.variantLabel && (
