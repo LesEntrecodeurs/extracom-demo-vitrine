@@ -78,7 +78,7 @@ export default function DocumentPage({
         <span>{formatPrice(doc.totalInclVat ?? null)}</span>
       </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <button
           type="button"
           onClick={async () => {
@@ -106,6 +106,12 @@ export default function DocumentPage({
         >
           {downloading ? 'Préparation…' : 'Télécharger le PDF'}
         </button>
+        <Link
+          href={`/contact?ref=${encodeURIComponent(doc.reference)}`}
+          className="btn-outline"
+        >
+          Contacter le service client
+        </Link>
       </div>
     </div>
   );
