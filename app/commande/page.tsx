@@ -299,7 +299,7 @@ function CommandeContent() {
             title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
             className="btn-primary flex-1"
           >
-            {ordering ? '…' : 'Valider la commande'}
+            {ordering ? '…' : 'Valider ma commande'}
           </button>
         ) : (
           <>
@@ -313,7 +313,7 @@ function CommandeContent() {
                 title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
                 className="btn-primary flex-1"
               >
-                {paying ? '…' : 'Payer'}
+                {paying ? '…' : 'Valider ma commande'}
               </button>
             )}
             <button
