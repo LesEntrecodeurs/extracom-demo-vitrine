@@ -70,7 +70,15 @@ function PanierContent() {
               </div>
               <button
                 type="button"
-                onClick={() => removeItem(line.id)}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Voulez-vous vraiment retirer « ${line.label ?? line.reference} » du panier ?`
+                    )
+                  ) {
+                    removeItem(line.id);
+                  }
+                }}
                 aria-label={`Retirer ${line.label ?? line.reference} du panier`}
                 className="text-sm text-neutral-400 hover:text-red-600"
               >
