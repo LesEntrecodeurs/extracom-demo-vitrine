@@ -17,10 +17,14 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-2xl font-bold">Nous contacter</h1>
+      <h1 className="text-2xl font-bold">Une question ? Écrivons-nous !</h1>
       <p className="mt-2 text-neutral-600">
-        Une question sur le catalogue, une commande ou votre compte ? Notre
-        équipe vous répond.
+        Que vous soyez client ou simplement de passage, on adore échanger.
+        Parcourez d'abord nos coordonnées ci-dessous — la plupart des demandes
+        trouvent une réponse en un coup de fil ou un mail. Et si vous préférez
+        qu'on garde une trace écrite de votre demande, créez un compte (ou
+        connectez-vous) pour nous écrire depuis votre espace : on vous répond
+        personnellement, en général sous 24 h ouvrées.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

@@ -28,16 +28,25 @@ export function ContactForm() {
   if (!user) {
     return (
       <div className="card mt-8 p-5 text-sm text-neutral-600">
-        <p className="font-medium text-neutral-800">Envoyer un message</p>
+        <p className="font-medium text-neutral-800">Vous préférez nous écrire ?</p>
         <p className="mt-1">
+          Pour qu'on prenne soin de votre demande et qu'on la retrouve facilement
+          si vous revenez vers nous, le mieux est de passer par votre espace
+          personnel.{' '}
           <Link
             href="/connexion?redirect=/contact"
             className="text-[var(--brand-dark)] underline"
           >
             Connectez-vous
           </Link>{' '}
-          pour nous écrire depuis votre espace — nous rattachons votre demande à
-          votre compte pour un suivi plus rapide.
+          ou{' '}
+          <Link
+            href="/inscription?redirect=/contact"
+            className="text-[var(--brand-dark)] underline"
+          >
+            créez un compte
+          </Link>{' '}
+          — c'est rapide, et on pourra vous répondre au bon endroit.
         </p>
       </div>
     );
