@@ -24,7 +24,7 @@ export default async function HomePage() {
   let featured: Article[] = [];
   let context: ShopContext | null = null;
   try {
-    featured = (await getArticlesAction({ limit: 8 })).data;
+    featured = (await getArticlesAction({ limit: 5 })).data;
   } catch {
     featured = [];
   }
@@ -153,7 +153,7 @@ export default async function HomePage() {
       {featured.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between">
-            <h2 className="text-xl font-semibold">Notre sélection</h2>
+            <h2 className="text-xl font-semibold">5 produits mis en avant</h2>
             <Link
               href="/catalogue"
               className="text-sm text-[var(--brand-dark)] hover:underline"
