@@ -14,7 +14,12 @@ export default function AdressesPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="mb-6 text-xl font-semibold">Mes adresses</h1>
+      <h1 className="mb-2 text-xl font-semibold">Mes adresses</h1>
+      <p className="mb-6 text-sm text-neutral-600">
+        Vous pouvez corriger vous-même vos adresses à tout moment&nbsp;:
+        cliquez sur «&nbsp;Modifier&nbsp;» à côté de l'adresse à corriger, ou
+        ajoutez-en une nouvelle si nécessaire.
+      </p>
 
       {isLoading ? (
         <ListSkeleton rows={3} />
