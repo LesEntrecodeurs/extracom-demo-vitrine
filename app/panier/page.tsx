@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@extracom/site-kit/react';
@@ -7,6 +8,7 @@ import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import { QuantityStepper } from '@/components/site/QuantityStepper';
 
 export default function PanierPage() {
   return (
