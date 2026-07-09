@@ -104,9 +104,9 @@ export default async function ProduitPage({
         </p>
 
         <div className="mt-4 flex items-baseline gap-3">
-          <span className="text-xl font-semibold text-[var(--brand-dark)]">
+          <span className="text-3xl font-bold text-[var(--brand-dark)]">
             {article.price == null ? (
-              <span className="text-base text-neutral-500">
+              <span className="text-base font-normal text-neutral-500">
                 Connectez-vous pour voir votre tarif
               </span>
             ) : (
