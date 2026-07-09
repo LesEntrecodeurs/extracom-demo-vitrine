@@ -16,6 +16,7 @@ import { formatPrice } from '@extracom/site-kit';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
+import { SecurePaymentBadge } from '@/components/site/SecurePaymentBadge';
 
 export default function CommandePage() {
   return (
@@ -306,15 +307,18 @@ function CommandeContent() {
             {/* Paiement en ligne affiché uniquement si la vitrine l'autorise
                 (capability dérivée : Axepta configuré pour le shop). */}
             {paymentEnabled && (
-              <button
-                type="button"
-                onClick={pay}
-                disabled={paying || !deliveryOk}
-                title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
-                className="btn-primary flex-1"
-              >
-                {paying ? '…' : 'Payer'}
-              </button>
+              <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={pay}
+                  disabled={paying || !deliveryOk}
+                  title={deliveryOk ? '' : 'Choisissez une adresse de livraison'}
+                  className="btn-primary flex-1"
+                >
+                  {paying ? '…' : 'Payer'}
+                </button>
+                <SecurePaymentBadge />
+              </div>
             )}
             <button
               type="button"
