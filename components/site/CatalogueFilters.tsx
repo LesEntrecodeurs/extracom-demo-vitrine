@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUpDown, Layers, X } from 'lucide-react';
+import { ArrowUpDown, Check, Layers, X } from 'lucide-react';
 import type { ArticleSort, Family } from '@extracom/site-kit';
 import {
   Select,
@@ -23,6 +23,8 @@ interface Current {
   /** Fourchette de prix (sur le prix de base). */
   pmin?: string;
   pmax?: string;
+  /** Filtre client « en stock uniquement » (côté client, voir CatalogueListing). */
+  instock?: string;
 }
 
 const ALL = 'all'; // Radix interdit les <SelectItem value="">.
@@ -66,6 +68,7 @@ export function CatalogueFilters({
     if (next.sort) p.set('sort', next.sort);
     if (next.pmin) p.set('pmin', next.pmin);
     if (next.pmax) p.set('pmax', next.pmax);
+    if (next.instock) p.set('instock', next.instock);
     const qs = p.toString();
     router.push(qs ? `/catalogue?${qs}` : '/catalogue');
   };
@@ -74,7 +77,8 @@ export function CatalogueFilters({
     current.family ||
     current.catalog ||
     current.pmin ||
-    current.pmax
+    current.pmax ||
+    current.instock
   );
 
   return (
