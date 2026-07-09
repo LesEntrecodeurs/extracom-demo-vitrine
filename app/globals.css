@@ -155,6 +155,41 @@
     font-optical-sizing: auto;
     letter-spacing: -0.015em;
   }
+
+  /* ── Lien d'accès rapide au contenu principal ─────────────────────────
+     Caché visuellement, révélé au focus clavier : un malvoyant qui tabule
+     peut sauter le header/footer en une touche. */
+  .skip-link {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 100;
+    padding: 0.625rem 1rem;
+    background: var(--brand-dark);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transform: translateY(-150%);
+    transition: transform 0.15s ease-out;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+    outline: 3px solid white;
+    outline-offset: 2px;
+  }
+
+  /* ── Indicateur de focus toujours visible (étape 2) ───────────────────
+     Anneau marqué sur tout élément interactif qui reçoit le focus clavier,
+     même si le composant n'a pas défini son propre style. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--brand-dark);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  /* Boutons ronds (pill) : ne pas casser leur géométrie avec le radius. */
+  :where(.btn-primary, .btn-outline):focus-visible {
+    outline-offset: 4px;
+  }
 }
 
 @layer components {
