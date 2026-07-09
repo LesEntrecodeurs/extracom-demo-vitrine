@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth, useSupport } from '@extracom/site-kit/react';
 
@@ -10,12 +11,23 @@ import { useAuth, useSupport } from '@extracom/site-kit/react';
  * le ticket au compte de la session). Pour un visiteur anonyme, on invite à se
  * connecter plutôt que d'afficher un champ qui échouerait. L'agent peut restyler
  * librement ; ne pas remplacer l'appel `createTicket` par un `fetch` direct.
+ *
+ * Si l'URL contient `?ref=…` (arrivée depuis une commande), le sujet et le
+ * message sont pré-remplis avec la référence de la commande.
  */
 export function ContactForm() {
   const { user, isLoading: loadingUser } = useAuth();
   const { createTicket, isLoading } = useSupport();
-  const [subject, setSubject] = useState('');
-  const [description, setDescription] = useState('');
+  const searchParams = useSearchParams();
+  const orderRef = searchParams.get('ref')?.trim() || '';
+  const [subject, setSubject] = useState(
+    orderRef ? `Question sur ma commande ${orderRef}` : ''
+  );
+  const [description, setDescription] = useState(
+    orderRef
+      ? `Bonjour,\n\nJe vous contacte au sujet de ma commande ${orderRef} :\n\n`
+      : ''
+  );
   const [email, setEmail] = useState('');
 
   // Pré-remplit l'email de réponse avec celui du compte (modifiable).
