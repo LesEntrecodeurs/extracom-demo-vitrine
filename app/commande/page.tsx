@@ -15,6 +15,7 @@ import {
 import { formatPrice } from '@extracom/site-kit';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
+import { InfoBanner } from '@/components/site/InfoBanner';
 import { CartSkeleton } from '@/components/site/Loader';
 
 export default function CommandePage() {
@@ -44,6 +45,7 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  const [pickupSelected, setPickupSelected] = useState(false);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -116,8 +118,31 @@ function CommandeContent() {
 
   const hasDelivery = !!cart.deliveryAddressId;
   // Si la vitrine n'offre pas de sélection de livraison, on ne bloque pas la
-  // finalisation sur le choix d'une adresse.
-  const deliveryOk = !deliveryEnabled || hasDelivery;
+  // finalisation sur le choix d'une adresse. Le retrait en magasin est aussi
+  // un mode de retrait valide (pas d'adresse requise).
+  const deliveryOk = !deliveryEnabled || pickupSelected || hasDelivery;
+
+  const choosePickup = async () => {
+    if (pickupSelected) return;
+    setPickupSelected(true);
+    // Le kit exige un `deliveryAddressId` (même quand `pickup: true`). On
+    // réutilise l'adresse déjà associée au panier, ou la première du carnet,
+    // pour rester valide côté API.
+    const fallbackId =
+      cart.deliveryAddressId ?? options?.addresses?.[0]?.id ?? '';
+    await setDelivery({ deliveryAddressId: fallbackId, pickup: true });
+  };
+
+  const chooseDelivery = async () => {
+    if (!pickupSelected) return;
+    setPickupSelected(false);
+    if (cart.deliveryAddressId) {
+      await setDelivery({
+        deliveryAddressId: cart.deliveryAddressId,
+        pickup: false
+      });
+    }
+  };
   const pay = async () => {
     await persistComment();
     const { redirectUrl } = await start({});
@@ -150,55 +175,118 @@ function CommandeContent() {
 
       {deliveryEnabled && (
       <section className="mt-6">
-        <h2 className="mb-2 font-medium">Adresse de livraison</h2>
-        <ul className="space-y-2">
-          {(options?.addresses ?? []).map((a) => (
-            <li key={a.id}>
-              <label
-                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm ${
-                  cart.deliveryAddressId === a.id
-                    ? 'border-[var(--brand)] bg-[var(--brand-light)]'
-                    : 'border-neutral-200'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="delivery"
-                  checked={cart.deliveryAddressId === a.id}
-                  onChange={() => setDelivery({ deliveryAddressId: a.id })}
-                />
-                <span>
-                  {a.label ? `${a.label} — ` : ''}
-                  {a.line1}, {a.postalCode} {a.city}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-3">
-          {showAdd ? (
-            <div className="card p-4">
-              <AddressForm
-                submitLabel="Utiliser cette adresse"
-                onCancel={() => setShowAdd(false)}
-                onSubmit={async (addr) => {
-                  const created = await addAddress(addr);
-                  await setDelivery({ deliveryAddressId: created.id });
-                  setShowAdd(false);
-                }}
-              />
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowAdd(true)}
-              className="text-sm text-[var(--brand-dark)] hover:underline"
-            >
-              + Ajouter une adresse
-            </button>
-          )}
+        <h2 className="mb-2 font-medium">Comment recevoir votre commande</h2>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label
+            className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm ${
+              !pickupSelected
+                ? 'border-[var(--brand)] bg-[var(--brand-light)]'
+                : 'border-neutral-200'
+            }`}
+          >
+            <input
+              type="radio"
+              name="pickupMode"
+              className="mt-0.5"
+              checked={!pickupSelected}
+              onChange={chooseDelivery}
+            />
+            <span>
+              <span className="block font-medium">Livraison</span>
+              <span className="block text-neutral-600">
+                Recevez votre commande à l'adresse de votre choix.
+              </span>
+            </span>
+          </label>
+          <label
+            className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm ${
+              pickupSelected
+                ? 'border-[var(--brand)] bg-[var(--brand-light)]'
+                : 'border-neutral-200'
+            }`}
+          >
+            <input
+              type="radio"
+              name="pickupMode"
+              className="mt-0.5"
+              checked={pickupSelected}
+              onChange={choosePickup}
+            />
+            <span>
+              <span className="block font-medium">Retrait en magasin</span>
+              <span className="block text-neutral-600">
+                Venez récupérer votre commande directement chez nous.
+              </span>
+            </span>
+          </label>
         </div>
+
+        {pickupSelected ? (
+          <div className="mt-3">
+            <InfoBanner tone="muted" icon={<span aria-hidden>🏬</span>}>
+              Votre commande sera préparée et vous pourrez la retirer
+              directement en magasin. Nous vous confirmerons le créneau dès
+              qu'elle sera prête.
+            </InfoBanner>
+          </div>
+        ) : (
+          <>
+            <h3 className="mb-2 mt-4 font-medium">Adresse de livraison</h3>
+            <ul className="space-y-2">
+              {(options?.addresses ?? []).map((a) => (
+                <li key={a.id}>
+                  <label
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm ${
+                      cart.deliveryAddressId === a.id
+                        ? 'border-[var(--brand)] bg-[var(--brand-light)]'
+                        : 'border-neutral-200'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="delivery"
+                      checked={cart.deliveryAddressId === a.id}
+                      onChange={() =>
+                        setDelivery({ deliveryAddressId: a.id, pickup: false })
+                      }
+                    />
+                    <span>
+                      {a.label ? `${a.label} — ` : ''}
+                      {a.line1}, {a.postalCode} {a.city}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-3">
+              {showAdd ? (
+                <div className="card p-4">
+                  <AddressForm
+                    submitLabel="Utiliser cette adresse"
+                    onCancel={() => setShowAdd(false)}
+                    onSubmit={async (addr) => {
+                      const created = await addAddress(addr);
+                      await setDelivery({
+                        deliveryAddressId: created.id,
+                        pickup: false
+                      });
+                      setShowAdd(false);
+                    }}
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(true)}
+                  className="text-sm text-[var(--brand-dark)] hover:underline"
+                >
+                  + Ajouter une adresse
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </section>
       )}
 
