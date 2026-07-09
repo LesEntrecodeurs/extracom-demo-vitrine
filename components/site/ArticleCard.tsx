@@ -31,7 +31,7 @@ export function ArticleCard({ article }: { article: Article }) {
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col p-3">
+      <div className="flex flex-1 flex-col p-4">
         <Link href={href}>
           <h3 className="line-clamp-2 text-sm leading-snug font-medium hover:text-[var(--brand-dark)]">
             {article.title}
