@@ -25,7 +25,16 @@ export default function MotDePasseOubliePage() {
       <h1 className="mb-2 text-2xl font-bold">Mot de passe oublié</h1>
       <p className="mb-6 text-sm text-neutral-500">
         {step === 'email' && 'Recevez un code de réinitialisation par email.'}
-        {step === 'code' && 'Saisissez le code reçu par email.'}
+        {step === 'code' && (
+          <>
+            Votre demande a bien été enregistrée. Un code de réinitialisation
+            vient d'être envoyé à{' '}
+            <span className="font-medium text-neutral-900">{email}</span>.
+            Vérifiez votre boîte de réception et vos courriers indésirables,
+            puis saisissez ce code ci-dessous pour définir un nouveau mot de
+            passe.
+          </>
+        )}
         {step === 'password' && 'Choisissez un nouveau mot de passe.'}
       </p>
 
