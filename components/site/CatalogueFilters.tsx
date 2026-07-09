@@ -34,6 +34,16 @@ const SORTS: { value: ArticleSort; label: string }[] = [
   { value: 'ref_desc', label: 'Référence (Z → A)' }
 ];
 
+const PRICE_RANGES: {
+  label: string;
+  pmin?: string;
+  pmax?: string;
+}[] = [
+  { label: 'Moins de 50 €', pmax: '50' },
+  { label: '50-100 €', pmin: '50', pmax: '100' },
+  { label: 'Plus de 100 €', pmin: '100' }
+];
+
 /**
  * Filtres catalogue : famille + tri. Le filtre par catalogue se fait désormais
  * via le menu de la navbar (depth 1 → depth 2 au survol), qui pose `?catalog`
@@ -76,6 +86,10 @@ export function CatalogueFilters({
     current.pmin ||
     current.pmax
   );
+
+  const isActivePriceRange = (range: (typeof PRICE_RANGES)[number]) =>
+    (current.pmin ?? '') === (range.pmin ?? '') &&
+    (current.pmax ?? '') === (range.pmax ?? '');
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2.5">
@@ -148,6 +162,29 @@ export function CatalogueFilters({
           OK
         </Button>
       </form>
+
+      <div className="flex flex-wrap items-center gap-1">
+        {PRICE_RANGES.map((range) => {
+          const active = isActivePriceRange(range);
+
+          return (
+            <Button
+              key={range.label}
+              type="button"
+              variant={active ? 'default' : 'outline'}
+              size="sm"
+              aria-pressed={active}
+              onClick={() => {
+                setPmin(range.pmin ?? '');
+                setPmax(range.pmax ?? '');
+                apply({ pmin: range.pmin, pmax: range.pmax });
+              }}
+            >
+              {range.label}
+            </Button>
+          );
+        })}
+      </div>
 
       {/* Tri — toujours disponible */}
       <Select
