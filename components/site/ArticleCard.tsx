@@ -49,12 +49,12 @@ export function ArticleCard({ article }: { article: Article }) {
                 {formatPrice(article.price)}
               </span>
               {hasPromo && (
-                <span className="text-xs text-neutral-400 line-through">
+                <span className="text-xs text-neutral-600 line-through">
                   {formatPrice(article.basePrice)}
                 </span>
               )}
               {article.unit && (
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-600">
                   / {article.unit}
                 </span>
               )}

@@ -116,7 +116,7 @@ export default async function ProduitPage({
           {article.price != null &&
             article.basePrice != null &&
             article.basePrice > article.price && (
-              <span className="text-sm text-neutral-400 line-through">
+              <span className="text-sm text-neutral-600 line-through">
                 {formatPrice(article.basePrice)}
               </span>
             )}
@@ -126,7 +126,7 @@ export default async function ProduitPage({
             </span>
           )}
           {typeof article.vatRate === 'number' && (
-            <span className="text-xs text-neutral-400">
+            <span className="text-xs text-neutral-600">
               TVA {article.vatRate}%
             </span>
           )}

@@ -69,9 +69,14 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <body>
+        <a href="#contenu-principal" className="skip-link">
+          Aller au contenu principal
+        </a>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
-        <main className="container-x py-10">{children}</main>
+        <main id="contenu-principal" className="container-x py-10">
+          {children}
+        </main>
 
         <footer className="mt-16 border-t border-neutral-200 bg-white">
           <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
@@ -131,7 +136,7 @@ function FooterCol({
   return (
     <div>
       <p className="text-sm font-medium">{title}</p>
-      <ul className="mt-2 space-y-1.5 text-sm text-neutral-500">
+      <ul className="mt-2 space-y-1.5 text-sm text-neutral-700">
         {links.map(([label, href]) => (
           <li key={href}>
             <Link href={href} className="hover:text-neutral-900">

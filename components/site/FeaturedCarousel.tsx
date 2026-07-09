@@ -16,7 +16,11 @@ import {
  */
 export function FeaturedCarousel({ items }: { items: ReactNode[] }) {
   return (
-    <Carousel opts={{ align: 'start', loop: false }} className="w-full">
+    <Carousel
+      opts={{ align: 'start', loop: false }}
+      aria-label="Notre sélection d'articles"
+      className="w-full"
+    >
       <CarouselContent className="-ml-4">
         {items.map((item, i) => (
           <CarouselItem
@@ -28,8 +32,14 @@ export function FeaturedCarousel({ items }: { items: ReactNode[] }) {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="hidden sm:flex" />
-      <CarouselNext className="hidden sm:flex" />
+      <CarouselPrevious
+        aria-label="Article précédent"
+        className="hidden sm:flex"
+      />
+      <CarouselNext
+        aria-label="Article suivant"
+        className="hidden sm:flex"
+      />
     </Carousel>
   );
 }

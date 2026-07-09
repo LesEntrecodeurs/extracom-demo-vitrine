@@ -144,7 +144,7 @@ export default async function HomePage() {
             <span className="text-[var(--brand)]">{v.icon}</span>
             <div>
               <p className="text-sm font-medium">{v.title}</p>
-              <p className="text-sm text-neutral-500">{v.text}</p>
+              <p className="text-sm text-neutral-700">{v.text}</p>
             </div>
           </div>
         ))}
