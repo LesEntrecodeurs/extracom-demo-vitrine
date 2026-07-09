@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
   useCart,
@@ -38,10 +39,11 @@ function CommandeContent() {
   const { user } = useAuth();
   const { activeId } = useCompany();
   const { data: context } = useShopContext();
+  const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
-  const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
-  const [created, setCreated] = useState(false);
-  const [isQuote, setIsQuote] = useState(false);
+  // Destination de la page Merci une fois la commande finalisée. Calculée
+  // après l'appel API, puis consommée par un effet pour rediriger.
+  const [thanks, setThanks] = useState<string | null>(null);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
 
@@ -71,35 +73,17 @@ function CommandeContent() {
   const paymentEnabled = shopCaps?.paymentEnabled ?? false;
   const deliveryEnabled = shopCaps?.deliveryEnabled ?? true;
 
-  if (confirmedRef !== null)
+  // Une fois la commande finalisée, on bascule sur la page Merci dédiée
+  // (récap + numéro de commande + lien vers l'historique).
+  useEffect(() => {
+    if (thanks) router.push(thanks);
+  }, [thanks, router]);
+  if (thanks)
     return (
-      <div className="mx-auto max-w-lg">
-        <div className="card p-10 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-light)] text-2xl text-[var(--brand-dark)]">
-            ✓
-          </div>
-          <h1 className="text-xl font-semibold">
-            {isQuote
-              ? 'Devis créé'
-              : created
-                ? 'Commande validée'
-                : 'Commande envoyée'}
-          </h1>
-          <p className="mt-2 text-sm text-neutral-600">
-            {confirmedRef ? `Référence : ${confirmedRef}. ` : ''}
-            {isQuote || created
-              ? 'Vous le retrouvez dès maintenant dans votre historique.'
-              : 'Elle sera validée par un commercial.'}
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link href="/compte/commandes" className="btn-primary">
-              Mes commandes
-            </Link>
-            <Link href="/catalogue" className="btn-outline">
-              Continuer mes achats
-            </Link>
-          </div>
-        </div>
+      <div className="mx-auto max-w-lg py-16 text-center">
+        <p className="text-sm text-neutral-500">
+          Ouverture de votre confirmation…
+        </p>
       </div>
     );
 
@@ -258,9 +242,12 @@ function CommandeContent() {
                   documentType: '0',
                   reference: reference.trim() || undefined
                 });
-                setIsQuote(true);
-                setCreated(true);
-                setConfirmedRef(res?.reference ?? '');
+                const ref = res?.reference ?? '';
+                setThanks(
+                  ref
+                    ? `/commande/merci?ref=${encodeURIComponent(ref)}&type=0&status=quote`
+                    : '/commande/merci?status=quote'
+                );
               } catch {
                 toast.error(
                   'Le devis n’a pas pu être créé. Vérifiez vos droits ou réessayez.'
