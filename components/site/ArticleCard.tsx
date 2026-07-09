@@ -6,11 +6,14 @@ import { AddToCart } from './AddToCart';
 export function ArticleCard({ article }: { article: Article }) {
   const href = `/produit/${encodeURIComponent(article.reference)}`;
   const hasVariants = (article.gammes ?? []).some((g) => g.items.length > 0);
-  const hasPromo =
-    article.promotion != null &&
+  // Une réduction existe dès que le prix de base est supérieur au prix affiché
+  // (tarif négocié, remise, promo…). Le badge « Promo » ne s'affiche, lui, que
+  // lorsqu'une promotion nommée est rattachée à l'article.
+  const hasDiscount =
     article.basePrice != null &&
     article.price != null &&
     article.basePrice > article.price;
+  const hasPromo = article.promotion != null && hasDiscount;
 
   return (
     <div className="group card flex flex-col overflow-hidden">
