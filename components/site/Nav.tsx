@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
+import { CompanySwitcherInline } from './CompanySwitcherInline';
 
 export function Nav({
   context,
@@ -133,6 +134,11 @@ function CartIcon({ className }: { className?: string }) {
         d="M2 3h3l2.4 12.4a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L21 7H6"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+d"
       />
     </svg>
   );
