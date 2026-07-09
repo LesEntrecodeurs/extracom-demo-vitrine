@@ -72,9 +72,9 @@ function PanierContent() {
                 type="button"
                 onClick={() => removeItem(line.id)}
                 aria-label={`Retirer ${line.label ?? line.reference} du panier`}
-                className="text-sm text-neutral-400 hover:text-red-600"
+                className="btn-outline !py-1.5 !px-3 !text-xs hover:!border-red-300 hover:!bg-red-50 hover:!text-red-700"
               >
-                <span aria-hidden="true">✕</span>
+                Retirer
               </button>
             </li>
           ))}
