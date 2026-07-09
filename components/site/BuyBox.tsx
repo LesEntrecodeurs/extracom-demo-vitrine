@@ -1,17 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ShoppingCart, Check, Loader2 } from 'lucide-react';
-import { useAddToCart } from '@extracom/site-kit/react';
+import { ShoppingCart, Check, Loader2, FileText } from 'lucide-react';
+import { useAddToCart, useAuth, useCompany, useShopContext } from '@extracom/site-kit/react';
 import { formatPrice, type Gamme } from '@extracom/site-kit';
 import { Button } from '@/components/ui/button';
 
 /**
  * Bloc d'achat de la fiche produit : sélection de déclinaison (gamme) +
- * ajout au panier. Si l'article a des déclinaisons, l'ajout est **bloqué**
- * tant qu'aucune n'est choisie ; le `variantId` envoyé est l'id de la
- * déclinaison sélectionnée.
+ * ajout au panier OU demande de devis. Si l'article a des déclinaisons,
+ * l'ajout est **bloqué** tant qu'aucune n'est choisie ; le `variantId`
+ * envoyé est l'id de la déclinaison sélectionnée.
+ *
+ * Le bouton « Demander un devis » n'apparaît que pour les clients dont le
+ * rôle autorise la création de devis (`membership.capabilities.canQuote`).
+ * Au clic : on ajoute l'article au panier puis on envoie le client sur la
+ * page de validation, qui propose alors de finaliser en mode devis.
  */
 export function BuyBox({
   reference,
@@ -25,10 +31,26 @@ export function BuyBox({
   const axes = (gammes ?? []).filter((g) => g.items.length > 0);
   const hasVariants = axes.length > 0;
   const { addItem, isLoading } = useAddToCart();
+  const { user } = useAuth();
+  const { activeId } = useCompany();
+  const { data: context } = useShopContext();
+  const router = useRouter();
   const [variantId, setVariantId] = useState<number | null>(null);
   const [added, setAdded] = useState(false);
+  const [quoting, setQuoting] = useState(false);
+
+  // Capacité « peut créer un devis » = booléen PAR utilisateur, dérivé du
+  // rôle côté serveur (l'API revérifie). Un visiteur anonyme n'a pas de
+  // membership → pas de bouton devis.
+  const activeMembership = user?.memberships.find(
+    (m) =>
+      m.customerId === activeId &&
+      (!context?.shopName || m.shopName === context.shopName)
+  );
+  const canQuote = activeMembership?.capabilities?.canQuote ?? false;
 
   const canAdd = !priceHidden && (!hasVariants || variantId != null);
+  const canQuoteClick = canQuote && canAdd;
 
   return (
     <div className="max-w-sm space-y-4">
@@ -102,6 +124,40 @@ export function BuyBox({
               ? 'Choisissez une déclinaison'
               : 'Ajouter au panier'}
       </Button>
+
+      {canQuote && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!canQuoteClick || quoting}
+          className="w-full"
+          onClick={async () => {
+            try {
+              setQuoting(true);
+              await addItem({
+                reference,
+                quantity: 1,
+                variantId: variantId ?? undefined
+              });
+              router.push('/commande');
+            } catch {
+              toast.error("Impossible d'ajouter au panier pour devis");
+              setQuoting(false);
+            }
+          }}
+        >
+          {quoting ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <FileText className="size-4" />
+          )}
+          {quoting
+            ? '…'
+            : hasVariants && variantId == null
+              ? 'Choisissez une déclinaison pour devis'
+              : 'Demander un devis'}
+        </Button>
+      )}
     </div>
   );
 }
