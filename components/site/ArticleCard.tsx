@@ -92,7 +92,7 @@ export function ArticleCard({ article }: { article: Article }) {
             // → renvoi vers la fiche pour sélectionner la déclinaison.
             <Link
               href={href}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--brand)] px-4 py-2 text-sm font-medium text-[var(--brand-dark)] hover:bg-[var(--brand-light)]"
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-[var(--brand)] px-4 py-2 text-sm font-medium text-[var(--brand-dark)] hover:bg-[var(--brand-light)]"
             >
               Choisir une déclinaison
             </Link>

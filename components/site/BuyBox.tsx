@@ -48,7 +48,7 @@ export function BuyBox({
                   key={it.id}
                   type="button"
                   onClick={() => setVariantId(it.id)}
-                  className={`rounded-lg border px-3 py-1.5 text-sm transition ${
+                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
                     selected
                       ? 'border-[var(--brand)] bg-[var(--brand-light)] text-[var(--brand-dark)]'
                       : 'border-neutral-200 hover:border-neutral-300'
