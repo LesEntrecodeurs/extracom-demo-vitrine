@@ -18,7 +18,7 @@ export function Nav({
     <header className="sticky top-0 z-20 bg-white">
       <div className="bg-[var(--brand-dark)] text-center text-xs text-white">
         <div className="container-x py-1.5">
-          Livraison rapide · Tarifs négociés pour les professionnels
+          Livraison rapide · Retrait en magasin · Tarifs négociés pour les professionnels
         </div>
       </div>
 
