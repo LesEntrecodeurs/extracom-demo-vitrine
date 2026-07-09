@@ -50,6 +50,12 @@ export function Nav({
             >
               Catalogue
             </Link>
+            <Link
+              href="/contact"
+              className="hidden font-medium text-neutral-700 hover:text-[var(--brand-dark)] sm:inline"
+            >
+              Contact
+            </Link>
 
             {user ? (
               <CartLink />

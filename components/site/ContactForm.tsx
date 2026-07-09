@@ -5,12 +5,6 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { useAuth, useSupport } from '@extracom/site-kit/react';
 
-/**
- * Formulaire de contact → ticket support. **Réservé au connecté** (le kit attache
- * le ticket au compte de la session). Pour un visiteur anonyme, on invite à se
- * connecter plutôt que d'afficher un champ qui échouerait. L'agent peut restyler
- * librement ; ne pas remplacer l'appel `createTicket` par un `fetch` direct.
- */
 export function ContactForm() {
   const { user, isLoading: loadingUser } = useAuth();
   const { createTicket, isLoading } = useSupport();
@@ -18,41 +12,61 @@ export function ContactForm() {
   const [description, setDescription] = useState('');
   const [email, setEmail] = useState('');
 
-  // Pré-remplit l'email de réponse avec celui du compte (modifiable).
   useEffect(() => {
-    if (user) setEmail((e) => e || user.email);
+    if (user) setEmail((current) => current || user.email);
   }, [user]);
 
-  if (loadingUser) return null;
+  if (loadingUser) {
+    return (
+      <div className="card flex min-h-[360px] items-center justify-center p-6 text-sm text-neutral-500 md:p-8">
+        Chargement du formulaire…
+      </div>
+    );
+  }
 
   if (!user) {
     return (
-      <div className="card mt-8 p-5 text-sm text-neutral-600">
-        <p className="font-medium text-neutral-800">Envoyer un message</p>
-        <p className="mt-1">
-          <Link
-            href="/connexion?redirect=/contact"
-            className="text-[var(--brand-dark)] underline"
-          >
-            Connectez-vous
-          </Link>{' '}
-          pour nous écrire depuis votre espace — nous rattachons votre demande à
-          votre compte pour un suivi plus rapide.
+      <div className="card flex min-h-[360px] flex-col justify-center p-6 md:p-8">
+        <p className="text-xs font-semibold tracking-[0.2em] text-[var(--brand-dark)] uppercase">
+          Formulaire
         </p>
+        <h2 className="mt-3 text-2xl font-semibold text-neutral-900">
+          Connectez-vous pour nous écrire
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+          Le formulaire de contact est réservé aux comptes professionnels
+          connectés. Cela permet de rattacher votre message à votre société et de
+          retrouver plus vite vos commandes ou vos tarifs.
+        </p>
+        <Link
+          href="/connexion?redirect=/contact"
+          className="btn-primary mt-6 inline-flex w-fit"
+        >
+          Se connecter
+        </Link>
       </div>
     );
   }
 
   return (
     <form
-      className="card mt-8 space-y-4 p-5"
-      onSubmit={async (e) => {
-        e.preventDefault();
+      className="card space-y-5 p-6 md:p-8"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        const cleanSubject = subject.trim();
+        const cleanDescription = description.trim();
+        const cleanEmail = email.trim();
+
+        if (!cleanSubject || !cleanDescription || !cleanEmail) {
+          toast.error('Complétez tous les champs avant d’envoyer.');
+          return;
+        }
+
         try {
           await createTicket({
-            subject: subject.trim(),
-            description: description.trim(),
-            email: email.trim()
+            subject: cleanSubject,
+            description: cleanDescription,
+            email: cleanEmail
           });
           setSubject('');
           setDescription('');
@@ -62,19 +76,31 @@ export function ContactForm() {
         }
       }}
     >
-      <p className="font-medium">Envoyer un message</p>
-      <label className="block space-y-1">
+      <div>
+        <p className="text-xs font-semibold tracking-[0.2em] text-[var(--brand-dark)] uppercase">
+          Formulaire
+        </p>
+        <h2 className="mt-3 text-2xl font-semibold text-neutral-900">
+          Envoyer un message
+        </h2>
+        <p className="mt-2 text-sm text-neutral-600">
+          Décrivez votre demande : nous la transmettons à l’équipe support.
+        </p>
+      </div>
+
+      <label className="block space-y-1.5">
         <span className="text-xs font-medium text-neutral-500">Objet</span>
         <input
           type="text"
           required
           value={subject}
-          onChange={(e) => setSubject(e.target.value)}
+          onChange={(event) => setSubject(event.target.value)}
           className="field"
           placeholder="Ex. Question sur ma commande"
         />
       </label>
-      <label className="block space-y-1">
+
+      <label className="block space-y-1.5">
         <span className="text-xs font-medium text-neutral-500">
           Email de réponse
         </span>
@@ -82,23 +108,26 @@ export function ContactForm() {
           type="email"
           required
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(event) => setEmail(event.target.value)}
           className="field"
+          placeholder="vous@entreprise.fr"
         />
       </label>
-      <label className="block space-y-1">
+
+      <label className="block space-y-1.5">
         <span className="text-xs font-medium text-neutral-500">Message</span>
         <textarea
           required
-          rows={5}
+          rows={6}
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(event) => setDescription(event.target.value)}
           className="field resize-y"
           placeholder="Décrivez votre demande…"
         />
       </label>
+
       <button type="submit" disabled={isLoading} className="btn-primary">
-        {isLoading ? 'Envoi…' : 'Envoyer'}
+        {isLoading ? 'Envoi…' : 'Envoyer le message'}
       </button>
     </form>
   );
