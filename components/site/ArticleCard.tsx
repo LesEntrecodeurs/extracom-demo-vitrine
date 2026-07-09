@@ -13,7 +13,7 @@ export function ArticleCard({ article }: { article: Article }) {
     article.basePrice > article.price;
 
   return (
-    <div className="group card flex flex-col overflow-hidden">
+    <div className="group card flex flex-col overflow-hidden hover:-translate-y-1 hover:shadow-[0_18px_45px_-15px_rgb(0_0_0/0.2)]">
       <Link href={href} className="block">
         <div className="relative aspect-square w-full overflow-hidden bg-neutral-100">
           <Image
