@@ -83,7 +83,7 @@ export default async function ProduitPage({
   };
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
+    <div className="grid gap-8 md:grid-cols-[3fr_2fr]">
       <JsonLd data={productLd} />
 
       <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-neutral-100">
@@ -91,7 +91,7 @@ export default async function ProduitPage({
           src={article.imageUrl || '/placeholder.svg'}
           alt={article.title}
           fill
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 768px) 100vw, 60vw"
           className="object-cover"
           priority
         />
