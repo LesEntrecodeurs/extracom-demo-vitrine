@@ -1,18 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import {
   useAuth,
   useAccount,
-  useCompany
+  useCompany,
+  useDocuments
 } from '@extracom/site-kit/react';
+import { formatPrice } from '@extracom/site-kit';
 import { PageLoader } from '@/components/site/Loader';
 
 export default function ProfilPage() {
   const { user, isLoading: loadingUser, reload } = useAuth();
   const { activeId } = useCompany();
   const { changePassword, updateProfile, isLoading } = useAccount();
+  const { data: ordersData, isLoading: loadingOrders } = useDocuments({
+    type: 1
+  });
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [err, setErr] = useState<string | null>(null);
@@ -42,8 +48,25 @@ export default function ProfilPage() {
     .join('')
     .toUpperCase();
 
+  const orders = ordersData?.data ?? [];
+  const orderCount = orders.length;
+  const totalSpent = orders.reduce(
+    (sum, o) => sum + (o.totalInclVat ?? 0),
+    0
+  );
+
   return (
-    <div className="max-w-lg space-y-8">
+    <div className="max-w-2xl space-y-8">
+      {/* Résumé de l'activité — commandes passées + montant total */}
+      <section>
+        <h2 className="mb-3 text-sm font-medium">Votre activité</h2>
+        <OrderSummary
+          orderCount={orderCount}
+          totalSpent={totalSpent}
+          loading={loadingOrders}
+        />
+      </section>
+
       {/* Identité — éditable (self-service) */}
       <div>
         <h1 className="mb-6 text-xl font-semibold">Profil</h1>
@@ -198,6 +221,64 @@ export default function ProfilPage() {
           </button>
         </form>
       </section>
+    </div>
+  );
+}
+
+function OrderSummary({
+  orderCount,
+  totalSpent,
+  loading
+}: {
+  orderCount: number;
+  totalSpent: number;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="card grid grid-cols-1 gap-4 p-5 sm:grid-cols-2">
+        <div className="h-16 animate-pulse rounded bg-neutral-100" />
+        <div className="h-16 animate-pulse rounded bg-neutral-100" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="card divide-y divide-neutral-100 sm:divide-y-0 sm:divide-x">
+      <div className="grid grid-cols-1 sm:grid-cols-2">
+        <div className="flex flex-col gap-1 p-5">
+          <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+            Commandes passées
+          </span>
+          <span className="text-3xl font-semibold text-[var(--brand-dark)]">
+            {orderCount}
+          </span>
+          {orderCount === 0 && (
+            <Link
+              href="/catalogue"
+              className="mt-1 text-sm font-medium text-[var(--brand-dark)] hover:underline"
+            >
+              Découvrir le catalogue →
+            </Link>
+          )}
+        </div>
+        <div className="flex flex-col gap-1 p-5">
+          <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+            Montant total dépensé
+          </span>
+          <span className="text-3xl font-semibold text-[var(--brand-dark)]">
+            {formatPrice(totalSpent)}
+          </span>
+          {orderCount > 0 && (
+            <Link
+              href="/compte/commandes"
+              className="mt-1 text-sm font-medium text-[var(--brand-dark)] hover:underline"
+            >
+              Voir mes commandes →
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
