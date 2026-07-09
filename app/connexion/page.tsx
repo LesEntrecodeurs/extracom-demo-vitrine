@@ -68,7 +68,7 @@ export default function ConnexionPage() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded bg-[var(--brand)] py-2 text-white disabled:opacity-50"
+          className="w-full rounded bg-[var(--button)] py-2 text-white disabled:opacity-50"
         >
           {pending ? '…' : 'Se connecter'}
         </button>

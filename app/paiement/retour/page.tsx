@@ -22,7 +22,7 @@ export default async function RetourPaiementPage({
       </p>
       <Link
         href={success ? '/compte' : '/panier'}
-        className="mt-8 inline-block rounded bg-[var(--brand)] px-6 py-3 text-white"
+        className="mt-8 inline-block rounded bg-[var(--button)] px-6 py-3 text-white"
       >
         {success ? 'Voir mon compte' : 'Retour au panier'}
       </Link>

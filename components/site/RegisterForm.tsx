@@ -204,7 +204,7 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
       <button
         type="submit"
         disabled={isLoading || !accept}
-        className="w-full rounded bg-[var(--brand)] py-2 text-white disabled:opacity-50"
+        className="w-full rounded bg-[var(--button)] py-2 text-white disabled:opacity-50"
       >
         {isLoading ? '…' : 'Créer mon compte'}
       </button>
