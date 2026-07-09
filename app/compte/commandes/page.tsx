@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useDocuments } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
+import { Badge } from '@/components/ui/badge';
 
 // Types de document proposés au client (code Sage). Fixe : Devis / Commande /
 // Facture — les seuls pertinents côté client.
@@ -130,9 +131,7 @@ export default function CommandesPage() {
                     {d.type}
                   </span>
                   {d.status && (
-                    <span className="rounded-full bg-[var(--brand-light)] px-2 py-0.5 text-xs font-medium text-[var(--brand-dark)]">
-                      {d.status}
-                    </span>
+                    <Badge variant={statusVariant(d.status)}>{d.status}</Badge>
                   )}
                 </div>
                 <p className="mt-0.5 text-sm text-neutral-500">
@@ -182,4 +181,43 @@ function Tab({
       {label}
     </button>
   );
+}
+
+// Sage renvoie `status` en chaîne libre (français / anglais, accents/casse
+// variables) : on normalise puis on associe un variant de badge selon le sens.
+// Toute valeur non reconnue tombe sur `outline` (neutre, lisible).
+function statusVariant(status: string): 'pending' | 'info' | 'success' | 'outline' {
+  const s = status
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '');
+
+  if (
+    s.includes('cours') ||
+    s.includes('attent') ||
+    s.includes('prepar') ||
+    s.includes('pending') ||
+    s.includes('processing')
+  ) {
+    return 'pending';
+  }
+  if (
+    s.includes('expedi') ||
+    s.includes('shipped') ||
+    s.includes('envoy') ||
+    s.includes('transit') ||
+    s.includes('achemin')
+  ) {
+    return 'info';
+  }
+  if (
+    s.includes('livr') ||
+    s.includes('delivered') ||
+    s.includes('recu') ||
+    s.includes('receptionn')
+  ) {
+    return 'success';
+  }
+  return 'outline';
 }
