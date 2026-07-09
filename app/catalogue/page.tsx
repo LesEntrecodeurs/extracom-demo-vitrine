@@ -15,7 +15,10 @@ import type {
   ArticleSort,
   CatalogNode
 } from '@extracom/site-kit';
-import { ArticleCard } from '@/components/site/ArticleCard';
+import {
+  CatalogueResults,
+  parseCatalogueView
+} from '@/components/site/CatalogueResults';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
@@ -63,6 +66,7 @@ export default async function CataloguePage({
     sort?: string;
     pmin?: string;
     pmax?: string;
+    view?: string;
   }>;
 }) {
   const sp = await searchParams;
@@ -72,6 +76,7 @@ export default async function CataloguePage({
   const sort = (sp.sort as ArticleSort | undefined) || undefined;
   const minPrice = sp.pmin ? Number(sp.pmin) : undefined;
   const maxPrice = sp.pmax ? Number(sp.pmax) : undefined;
+  const view = parseCatalogueView(sp.view);
 
   const articlesQuery: ArticleListQuery = {
     search,
@@ -115,6 +120,7 @@ export default async function CataloguePage({
     if (sp.sort) params.set('sort', sp.sort);
     if (sp.pmin) params.set('pmin', sp.pmin);
     if (sp.pmax) params.set('pmax', sp.pmax);
+    if (sp.view && sp.view !== 'grid') params.set('view', sp.view);
     params.set('page', String(p));
     return `/catalogue?${params.toString()}`;
   };
@@ -137,6 +143,9 @@ export default async function CataloguePage({
         {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
         {sp.pmin && <input type="hidden" name="pmin" value={sp.pmin} />}
         {sp.pmax && <input type="hidden" name="pmax" value={sp.pmax} />}
+        {sp.view && sp.view !== 'grid' && (
+          <input type="hidden" name="view" value={sp.view} />
+        )}
       </form>
 
       {/* Onboarding visiteur anonyme : les tarifs s'affichent après connexion. */}
@@ -161,7 +170,8 @@ export default async function CataloguePage({
           clevel: sp.clevel,
           sort: sp.sort,
           pmin: sp.pmin,
-          pmax: sp.pmax
+          pmax: sp.pmax,
+          view: sp.view
         }}
       />
 
@@ -180,11 +190,7 @@ export default async function CataloguePage({
           action={{ label: 'Réinitialiser', href: '/catalogue' }}
         />
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {res.data.map((a) => (
-            <ArticleCard key={a.reference} article={a} />
-          ))}
-        </div>
+        <CatalogueResults initialView={view} articles={res.data} />
       )}
 
       {totalPages > 1 && (

@@ -7,6 +7,7 @@ export default function Loading() {
       <div className="mb-6 flex gap-3">
         <Skeleton className="h-9 w-40" />
         <Skeleton className="h-9 w-40" />
+        <Skeleton className="ml-auto h-9 w-20" />
       </div>
       <ProductGridSkeleton count={8} />
     </div>
