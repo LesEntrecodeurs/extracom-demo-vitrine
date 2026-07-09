@@ -52,7 +52,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-16">
       <section className="hero-mesh grain relative overflow-hidden rounded-3xl border border-[var(--brand)]/15">
-        <div className="relative z-10 px-6 py-14 sm:px-10 md:px-14 md:py-20">
+        <div className="relative z-10 px-6 py-10 sm:px-10 md:px-14 md:py-14">
           <p className="reveal reveal-1 text-xs font-semibold tracking-[0.2em] text-[var(--brand-dark)] uppercase">
             {shopName} · Espace professionnel
           </p>
