@@ -74,7 +74,7 @@ export default async function RootLayout({
         <main className="container-x py-10">{children}</main>
 
         <footer className="mt-16 border-t border-neutral-200 bg-white">
-          <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
+          <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-5">
             <div>
               <p className="font-semibold">{title}</p>
               <p className="mt-2 text-sm text-neutral-500">
@@ -104,7 +104,15 @@ export default async function RootLayout({
               title="Aide"
               links={[
                 ['Nous contacter', '/contact'],
+                ['Newsletter', '/contact'],
                 ['Mentions légales', '/mentions-legales']
+              ]}
+            />
+            <FooterCol
+              title="Suivez-nous"
+              links={[
+                ['Instagram', 'https://www.instagram.com/maboutique'],
+                ['Facebook', 'https://www.facebook.com/maboutique']
               ]}
             />
           </div>
@@ -128,17 +136,31 @@ function FooterCol({
   title: string;
   links: [string, string][];
 }) {
+  const isExternal = (href: string) => /^https?:\/\//.test(href);
   return (
     <div>
       <p className="text-sm font-medium">{title}</p>
       <ul className="mt-2 space-y-1.5 text-sm text-neutral-500">
-        {links.map(([label, href]) => (
-          <li key={href}>
-            <Link href={href} className="hover:text-neutral-900">
-              {label}
-            </Link>
-          </li>
-        ))}
+        {links.map(([label, href]) =>
+          isExternal(href) ? (
+            <li key={href}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-neutral-900"
+              >
+                {label}
+              </a>
+            </li>
+          ) : (
+            <li key={href}>
+              <Link href={href} className="hover:text-neutral-900">
+                {label}
+              </Link>
+            </li>
+          )
+        )}
       </ul>
     </div>
   );
