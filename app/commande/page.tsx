@@ -13,7 +13,6 @@ import {
   useShopContext
 } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
-import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 
@@ -26,8 +25,8 @@ export default function CommandePage() {
 }
 
 function CommandeContent() {
-  const { cart, isLoading, setDelivery, setComment } = useCart();
-  const { options, addAddress } = useDelivery();
+  const { cart, isLoading, setComment } = useCart();
+  const { options } = useDelivery();
   const { start, isLoading: paying, error: payError } = usePayment();
   const {
     createOrder,
@@ -38,7 +37,6 @@ function CommandeContent() {
   const { user } = useAuth();
   const { activeId } = useCompany();
   const { data: context } = useShopContext();
-  const [showAdd, setShowAdd] = useState(false);
   const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
@@ -148,59 +146,44 @@ function CommandeContent() {
         </div>
       </div>
 
-      {deliveryEnabled && (
-      <section className="mt-6">
-        <h2 className="mb-2 font-medium">Adresse de livraison</h2>
-        <ul className="space-y-2">
-          {(options?.addresses ?? []).map((a) => (
-            <li key={a.id}>
-              <label
-                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm ${
-                  cart.deliveryAddressId === a.id
-                    ? 'border-[var(--brand)] bg-[var(--brand-light)]'
-                    : 'border-neutral-200'
-                }`}
+      {deliveryEnabled && (() => {
+        const selected = (options?.addresses ?? []).find(
+          (a) => a.id === cart.deliveryAddressId
+        );
+        return (
+          <section className="mt-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-medium">Adresse de livraison</h2>
+              <Link
+                href="/panier"
+                className="text-sm text-[var(--brand-dark)] hover:underline"
               >
-                <input
-                  type="radio"
-                  name="delivery"
-                  checked={cart.deliveryAddressId === a.id}
-                  onChange={() => setDelivery({ deliveryAddressId: a.id })}
-                />
-                <span>
-                  {a.label ? `${a.label} — ` : ''}
-                  {a.line1}, {a.postalCode} {a.city}
-                </span>
-              </label>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-3">
-          {showAdd ? (
-            <div className="card p-4">
-              <AddressForm
-                submitLabel="Utiliser cette adresse"
-                onCancel={() => setShowAdd(false)}
-                onSubmit={async (addr) => {
-                  const created = await addAddress(addr);
-                  await setDelivery({ deliveryAddressId: created.id });
-                  setShowAdd(false);
-                }}
-              />
+                {selected ? 'Modifier' : 'Choisir une adresse'}
+              </Link>
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowAdd(true)}
-              className="text-sm text-[var(--brand-dark)] hover:underline"
-            >
-              + Ajouter une adresse
-            </button>
-          )}
-        </div>
-      </section>
-      )}
+            <div className="card mt-2 p-4 text-sm">
+              {selected ? (
+                <>
+                  {selected.label ? (
+                    <p className="font-medium">{selected.label}</p>
+                  ) : null}
+                  <p className="text-neutral-600">
+                    {selected.line1}
+                    {selected.line2 ? `, ${selected.line2}` : ''}
+                    <br />
+                    {selected.postalCode} {selected.city} ({selected.country})
+                  </p>
+                </>
+              ) : (
+                <p className="text-neutral-600">
+                  Aucune adresse sélectionnée. Ajoutez-en une depuis votre
+                  panier.
+                </p>
+              )}
+            </div>
+          </section>
+        );
+      })()}
 
       <section className="mt-6 space-y-3">
         <h2 className="font-medium">Informations complémentaires</h2>
