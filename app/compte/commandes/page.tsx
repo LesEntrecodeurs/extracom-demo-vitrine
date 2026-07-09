@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useDocuments } from '@extracom/site-kit/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useDocuments, useCart } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
 
@@ -30,6 +32,11 @@ export default function CommandesPage() {
   });
 
   const docs = data?.data ?? [];
+  const { reorder } = useCart();
+  const router = useRouter();
+  // Anti-double-clic : on mémorise la référence de la commande en cours de
+  // recommandation pour désactiver le bouton pendant l'appel.
+  const [reorderingRef, setReorderingRef] = useState<string | null>(null);
 
   const submitFilters = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +150,31 @@ export default function CommandesPage() {
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                {d.typeCode === 1 && (
+                  <button
+                    type="button"
+                    disabled={reorderingRef !== null}
+                    aria-label={`Recommander la commande ${d.reference}`}
+                    onClick={async () => {
+                      const ref = d.orderReference ?? d.reference;
+                      setReorderingRef(ref);
+                      try {
+                        await reorder(ref);
+                        toast.success('Commande ajoutée à votre panier.');
+                        router.push('/panier');
+                      } catch {
+                        toast.error('La recommandation a échoué. Réessayez.');
+                      } finally {
+                        setReorderingRef(null);
+                      }
+                    }}
+                    className="rounded-md border border-[var(--brand)] px-3 py-1.5 text-sm font-medium text-[var(--brand-dark)] hover:bg-[var(--brand-light)] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {reorderingRef === (d.orderReference ?? d.reference)
+                      ? 'Recommandation…'
+                      : 'Recommander'}
+                  </button>
+                )}
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
