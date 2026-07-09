@@ -106,12 +106,12 @@ function CommandeContent() {
   if (isLoading) return <CartSkeleton />;
   if (!cart || cart.lines.length === 0)
     return (
-      <p>
-        Panier vide.{' '}
-        <Link href="/catalogue" className="text-[var(--brand-dark)] underline">
-          Catalogue
-        </Link>
-      </p>
+      <EmptyState
+        icon={<ShoppingCart className="size-8" />}
+        title="Votre panier est vide"
+        description="Ajoutez des articles depuis le catalogue avant de passer commande."
+        action={{ label: 'Voir le catalogue', href: '/catalogue' }}
+      />
     );
 
   const hasDelivery = !!cart.deliveryAddressId;
