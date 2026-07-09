@@ -20,7 +20,7 @@ export function AddToCart({
     <Button
       type="button"
       disabled={disabled || isLoading}
-      className="w-full"
+      className="btn-primary w-full"
       onClick={async () => {
         try {
           await addItem({ reference, quantity: 1 });

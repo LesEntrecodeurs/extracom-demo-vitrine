@@ -71,7 +71,7 @@ export function BuyBox({
       <Button
         type="button"
         disabled={!canAdd || isLoading}
-        className="w-full"
+        className="btn-primary w-full"
         onClick={async () => {
           try {
             await addItem({
