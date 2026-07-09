@@ -66,6 +66,7 @@ export function CatalogueFilters({
     if (next.sort) p.set('sort', next.sort);
     if (next.pmin) p.set('pmin', next.pmin);
     if (next.pmax) p.set('pmax', next.pmax);
+    if (next.view && next.view !== 'grid') p.set('view', next.view);
     const qs = p.toString();
     router.push(qs ? `/catalogue?${qs}` : '/catalogue');
   };
@@ -188,6 +189,10 @@ export function CatalogueFilters({
           Réinitialiser
         </Button>
       )}
+    </div>
+  );
+}
+
     </div>
   );
 }
