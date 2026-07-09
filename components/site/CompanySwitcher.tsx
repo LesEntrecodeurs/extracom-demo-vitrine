@@ -1,12 +1,15 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useCompany, useShopContext } from '@extracom/site-kit/react';
 import { Spinner } from '@/components/site/Loader';
 
 /**
  * Sélecteur d'entreprise (compte client). N'apparaît que si l'utilisateur est
  * rattaché à plusieurs sociétés sur cette boutique. Changer de société recharge
- * la page → prix, panier et commandes suivent la société choisie.
+ * la page → prix, panier et commandes suivent la société choisie. Une
+ * notification (toast) confirme visuellement la société active avant le
+ * rechargement.
  */
 export function CompanySwitcher() {
   const { data: context } = useShopContext();
@@ -18,6 +21,17 @@ export function CompanySwitcher() {
     : companies;
 
   if (list.length <= 1) return null;
+
+  const handleSwitch = (customerId: string) => {
+    if (customerId === activeId) return;
+    const target = list.find((c) => c.customerId === customerId);
+    const name = target?.companyName?.trim() || target?.customerId || 'la nouvelle société';
+    void toast.promise(switchTo(customerId), {
+      loading: `Changement vers « ${name} »…`,
+      success: `Société active : ${name}`,
+      error: "Impossible de changer de société. Réessayez."
+    });
+  };
 
   return (
     <div className="card p-3">
@@ -33,7 +47,7 @@ export function CompanySwitcher() {
           list.find((c) => c.customerId === activeId)?.companyName ??
           undefined
         }
-        onChange={(e) => switchTo(e.target.value)}
+        onChange={(e) => handleSwitch(e.target.value)}
       >
         {list.map((c) => (
           <option
