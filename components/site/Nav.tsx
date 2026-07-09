@@ -29,6 +29,9 @@ export function Nav({
             className="shrink-0 text-lg font-semibold tracking-tight"
           >
             {title}
+            <span className="ml-2 text-xs font-normal text-neutral-500">
+              Boutique officielle
+            </span>
           </Link>
 
           <form action="/catalogue" className="hidden flex-1 md:block">
