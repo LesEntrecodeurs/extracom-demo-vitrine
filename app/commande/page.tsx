@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
@@ -43,7 +43,12 @@ function CommandeContent() {
   const [created, setCreated] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
-  const [comment, setCommentValue] = useState('');
+  const [comment, setCommentValue] = useState(cart?.note ?? '');
+  // Reprend la valeur du panier si elle a été saisie/modifiée depuis la page
+  // panier (le commentaire global du panier persiste jusqu'à la validation).
+  useEffect(() => {
+    setCommentValue(cart?.note ?? '');
+  }, [cart?.note]);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@extracom/site-kit/react';
@@ -7,6 +8,8 @@ import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+
+const COMMENT_MAX = 69;
 
 export default function PanierPage() {
   return (
@@ -17,7 +20,8 @@ export default function PanierPage() {
 }
 
 function PanierContent() {
-  const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const { cart, isLoading, error, updateLine, removeItem, setComment } =
+    useCart();
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -79,6 +83,11 @@ function PanierContent() {
             </li>
           ))}
         </ul>
+
+        <CommentField
+          value={cart.note ?? ''}
+          onSave={(v) => setComment(v)}
+        />
       </div>
 
       <aside className="card h-fit p-5">
@@ -100,5 +109,42 @@ function PanierContent() {
         </Link>
       </aside>
     </div>
+  );
+}
+
+// Champ remarque global du panier — pré-rempli depuis le panier, sauvegardé
+// à la sortie du champ (aligné sur le comportement du champ quantité). La
+// valeur est conservée jusqu'à la validation, sur la page commande.
+function CommentField({
+  value,
+  onSave
+}: {
+  value: string;
+  onSave: (v: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+
+  return (
+    <section className="mt-6">
+      <h2 className="font-medium">Remarque</h2>
+      <p className="mt-1 text-xs text-neutral-500">
+        Indication pour la préparation de votre commande (visible jusqu'à la
+        validation).
+      </p>
+      <textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value.slice(0, COMMENT_MAX))}
+        onBlur={() => {
+          if (draft !== value) onSave(draft);
+        }}
+        placeholder="Note pour la préparation (69 caractères max)"
+        rows={2}
+        maxLength={COMMENT_MAX}
+        className="field mt-2 resize-none"
+      />
+      <p className="mt-0.5 text-right text-xs text-neutral-400">
+        {draft.length}/{COMMENT_MAX}
+      </p>
+    </section>
   );
 }
