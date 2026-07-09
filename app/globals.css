@@ -146,14 +146,33 @@
     @apply bg-neutral-50 text-neutral-900 antialiased;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   }
-  /* Titres en display éditorial (pile serif système). */
+  /* Titres en display éditorial (pile serif système). Fondations typographiques
+     appliquées partout : poids, interligne et serrage garants d'un contraste net
+     avec le corps de texte. Les classes utilitaires (text-*, font-*, leading-*)
+     restent surchargeables au cas par cas. */
   h1,
   h2,
   h3,
   .font-display {
     font-family: var(--font-display), Georgia, serif;
     font-optical-sizing: auto;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.025em;
+    color: var(--foreground);
+  }
+  h1 {
+    font-weight: 800 !important;
+    line-height: 1.05 !important;
+  }
+  h2 {
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+  }
+  h3 {
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+  }
+  .font-display {
+    font-weight: 700 !important;
   }
 }
 
