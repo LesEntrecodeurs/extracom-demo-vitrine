@@ -1,18 +1,35 @@
 'use client';
 
 import Link from 'next/link';
-import { useCart } from '@extracom/site-kit/react';
+import { useCart, useCompany } from '@extracom/site-kit/react';
 
-/** Lien panier avec compteur d'articles (somme des quantités). Connecté seul. */
+/**
+ * Lien panier avec compteur d'articles. Affiche, sous le libellé "Panier",
+ * la société à laquelle le panier est rattaché : la panier suit toujours la
+ * société active (re-scellement de session par le kit), donc cette mention
+ * confirme d'un coup d'œil que le panier est bien pour la bonne société.
+ */
 export function CartLink() {
   const { cart } = useCart();
+  const { companies, activeId } = useCompany();
+
   const count =
     cart?.lines?.reduce((n, l) => n + (l.quantity ?? 0), 0) ?? 0;
+
+  const activeCompany = companies.find((c) => c.customerId === activeId);
+  const companyName = activeCompany?.companyName?.trim() || null;
+
+  const cartLabel =
+    count > 1 ? `Panier (${count} articles)` : `Panier (${count} article)`;
+  const fullLabel = companyName
+    ? `${cartLabel} pour ${companyName}`
+    : cartLabel;
 
   return (
     <Link
       href="/panier"
-      className="relative flex items-center gap-1.5 text-neutral-700 hover:text-neutral-900"
+      aria-label={fullLabel}
+      className="group flex items-center gap-2 text-neutral-700 hover:text-neutral-900"
     >
       <span className="relative">
         <CartIcon className="h-5 w-5" />
@@ -22,7 +39,14 @@ export function CartLink() {
           </span>
         )}
       </span>
-      <span className="hidden sm:inline">Panier</span>
+      <span className="hidden flex-col leading-tight sm:flex">
+        <span className="text-sm font-medium">Panier</span>
+        {companyName && (
+          <span className="text-[11px] text-neutral-500 group-hover:text-neutral-700">
+            pour {companyName}
+          </span>
+        )}
+      </span>
     </Link>
   );
 }
