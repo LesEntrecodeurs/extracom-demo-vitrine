@@ -7,7 +7,10 @@ import {
   BadgeEuro,
   ClipboardCheck,
   Search,
-  ArrowRight
+  ArrowRight,
+  Package,
+  ShoppingCart,
+  MapPin
 } from 'lucide-react';
 import {
   getArticlesAction,
@@ -34,7 +37,7 @@ export default async function HomePage() {
     context = null;
   }
   // État connecté → on adapte l'onboarding (un client connecté n'a pas besoin
-  // du « comment ça marche » ni du CTA inscription).
+  // du « comment ça marche » ni du CTA inscription.
   let user: User | null = null;
   try {
     user = await meAction();
@@ -45,8 +48,6 @@ export default async function HomePage() {
   const categories = context?.catalogTree?.slice(0, 6) ?? [];
   const firstName = user?.name?.split(' ')[0];
   const shopName = context?.branding?.name ?? context?.shopName ?? 'Boutique';
-  // Inscription ouverte = capability vitrine dérivée (création de compte + liens
-  // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
 
   return (
@@ -58,10 +59,10 @@ export default async function HomePage() {
           </p>
           <h1 className="reveal reveal-2 mt-4 max-w-3xl text-4xl leading-[1.05] font-semibold text-neutral-900 md:text-6xl">
             {firstName ? (
-              <>Bonjour {firstName}, vos tarifs vous attendent.</>
+              <>{`Bonjour ${firstName}, vos tarifs vous attendent.`}</>
             ) : (
               <>
-                Votre catalogue professionnel,{' '}
+                {`Votre catalogue professionnel, `}
                 <span className="text-[var(--brand-dark)] italic">
                   au juste prix.
                 </span>
@@ -74,7 +75,6 @@ export default async function HomePage() {
               : 'Retrouvez vos tarifs négociés, votre historique et passez vos commandes en quelques clics.'}
           </p>
 
-          {/* Recherche intégrée à la hero — entrée directe dans le catalogue. */}
           <form
             action="/catalogue"
             className="reveal reveal-3 mt-7 flex max-w-lg items-center gap-2 rounded-full border border-neutral-200 bg-white/80 p-1.5 shadow-sm backdrop-blur"
@@ -96,11 +96,10 @@ export default async function HomePage() {
               href="/connexion"
               className="reveal reveal-4 mt-4 inline-block text-sm font-medium text-[var(--brand-dark)] hover:underline"
             >
-              Déjà client ? Connectez-vous →
+              {`Déjà client ? Connectez-vous →`}
             </Link>
           )}
 
-          {/* Signaux de confiance. */}
           <dl className="reveal reveal-4 mt-10 flex flex-wrap gap-x-10 gap-y-4 border-t border-[var(--brand)]/15 pt-6">
             {trust.map((t) => (
               <div key={t.label}>
@@ -116,7 +115,35 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Onboarding visiteur B2B — comment fonctionne la commande pro. */}
+      {!isAnonymous && (
+        <section aria-label="Raccourcis vers votre espace client">
+          <h2 className="mb-1 text-xl font-semibold">Vos raccourcis</h2>
+          <p className="mb-6 text-sm text-neutral-500">
+            Accédez en un clic à vos commandes, votre panier et vos adresses.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {quickLinks.map((q) => (
+              <Link
+                key={q.href}
+                href={q.href}
+                className="group card flex items-start gap-3 p-5 transition-colors hover:border-[var(--brand)]/40"
+              >
+                <span className="text-[var(--brand)]">{q.icon}</span>
+                <span className="flex-1">
+                  <span className="flex items-center justify-between gap-2 font-medium">
+                    {q.title}
+                    <ArrowRight className="size-4 shrink-0 text-neutral-400 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[var(--brand-dark)]" />
+                  </span>
+                  <span className="mt-1 block text-sm text-neutral-500">
+                    {q.text}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {isAnonymous && (
         <section>
           <h2 className="mb-1 text-xl font-semibold">Comment ça marche</h2>
@@ -158,7 +185,7 @@ export default async function HomePage() {
               href="/catalogue"
               className="text-sm text-[var(--brand-dark)] hover:underline"
             >
-              Tout voir →
+              {`Tout voir →`}
             </Link>
           </div>
           <FeaturedCarousel
@@ -222,14 +249,12 @@ export default async function HomePage() {
   );
 }
 
-// Signaux de confiance affichés dans la hero (personnalisables).
 const trust = [
   { value: '24–48h', label: 'Livraison' },
   { value: '100%', label: 'Tarifs négociés' },
   { value: 'Devis', label: 'En 1 clic' }
 ];
 
-// Étapes d'onboarding du parcours B2B (accueil, visiteur anonyme).
 const steps = [
   {
     title: 'Créez votre compte',
@@ -263,5 +288,26 @@ const valueProps = [
     title: 'Support dédié',
     text: 'Une équipe à votre écoute',
     icon: <MessageCircle className="size-6" />
+  }
+];
+
+const quickLinks = [
+  {
+    title: 'Mes commandes',
+    text: 'Suivez vos commandes en cours et votre historique.',
+    href: '/compte/commandes',
+    icon: <Package className="size-6" />
+  },
+  {
+    title: 'Mon panier',
+    text: 'Reprenez votre panier là où vous l’aviez laissé.',
+    href: '/panier',
+    icon: <ShoppingCart className="size-6" />
+  },
+  {
+    title: 'Mes adresses',
+    text: 'Gérez vos adresses de livraison et de facturation.',
+    href: '/compte/adresses',
+    icon: <MapPin className="size-6" />
   }
 ];
