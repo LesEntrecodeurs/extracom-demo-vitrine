@@ -173,12 +173,21 @@ export default async function CataloguePage({
       )}
 
       {res.data.length === 0 ? (
-        <EmptyState
-          icon={<PackageSearch className="size-8" />}
-          title="Aucun article"
-          description="Aucun article ne correspond à votre recherche. Essayez d'autres filtres."
-          action={{ label: 'Réinitialiser', href: '/catalogue' }}
-        />
+        search ? (
+          <EmptyState
+            icon={<PackageSearch className="size-8" />}
+            title={`Aucun résultat pour « ${search} »`}
+            description="Vérifiez l'orthographe, essayez avec d'autres mots-clés ou retirez quelques filtres pour élargir la recherche."
+            action={{ label: 'Voir tout le catalogue', href: '/catalogue' }}
+          />
+        ) : (
+          <EmptyState
+            icon={<PackageSearch className="size-8" />}
+            title="Aucun article"
+            description="Aucun article ne correspond aux filtres sélectionnés. Essayez de les élargir pour voir plus de résultats."
+            action={{ label: 'Réinitialiser', href: '/catalogue' }}
+          />
+        )
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {res.data.map((a) => (
