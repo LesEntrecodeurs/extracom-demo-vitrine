@@ -70,6 +70,7 @@ export default async function RootLayout({
     <html lang="fr">
       <body>
         <JsonLd data={orgLd} />
+        <SaleBanner message="Soldes d'été — Profitez de nos offres sur une sélection de produits" />
         <Nav context={context} user={user} />
         <main className="container-x py-10">{children}</main>
 
