@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useDocuments } from '@extracom/site-kit/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useDocuments, useCart } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
 
@@ -23,6 +25,10 @@ export default function CommandesPage() {
   );
   const [searchInput, setSearchInput] = useState('');
   const [cityInput, setCityInput] = useState('');
+  // Document en cours de « recommandation » : anti-double-clic + spinner ciblé.
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+  const { reorder } = useCart();
+  const router = useRouter();
   const { data, isLoading, error } = useDocuments({
     type: typeCode,
     search: applied.search,
@@ -143,6 +149,26 @@ export default function CommandesPage() {
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                <button
+                  type="button"
+                  disabled={reorderingId !== null}
+                  aria-label={`Recommander la commande ${d.reference} en un clic`}
+                  onClick={async () => {
+                    setReorderingId(d.id);
+                    try {
+                      await reorder(d.orderReference ?? d.reference);
+                      router.push('/panier');
+                    } catch {
+                      toast.error(
+                        'La recommandation a échoué. Réessayez depuis le détail.'
+                      );
+                      setReorderingId(null);
+                    }
+                  }}
+                  className="btn-outline !py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {reorderingId === d.id ? 'Ajout…' : 'Recommander'}
+                </button>
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
