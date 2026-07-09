@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
-import { Lock, PackageSearch } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, PackageSearch } from 'lucide-react';
 import {
   getArticlesAction,
   getContextAction,
@@ -19,6 +18,14 @@ import { ArticleCard } from '@/components/site/ArticleCard';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink
+} from '@/components/ui/pagination';
+import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -188,15 +195,56 @@ export default async function CataloguePage({
       )}
 
       {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4 text-sm">
-          {page > 1 && <Link href={pageHref(page - 1)}>← Précédent</Link>}
-          <span className="text-neutral-500">
-            Page {page} / {totalPages}
-          </span>
-          {page < totalPages && (
-            <Link href={pageHref(page + 1)}>Suivant →</Link>
-          )}
-        </div>
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationLink
+                href={page > 1 ? pageHref(page - 1) : '#'}
+                aria-label="Page précédente"
+                aria-disabled={page <= 1}
+                className={cn(
+                  'gap-1 px-2.5',
+                  page <= 1 && 'pointer-events-none opacity-50'
+                )}
+              >
+                <ChevronLeft className="size-4" />
+                <span className="hidden sm:block">Précédent</span>
+              </PaginationLink>
+            </PaginationItem>
+
+            {getPageNumbers(page, totalPages).map((p, i) =>
+              p === 'ellipsis' ? (
+                <PaginationItem key={`ellipsis-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    href={pageHref(p)}
+                    isActive={p === page}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            <PaginationItem>
+              <PaginationLink
+                href={page < totalPages ? pageHref(page + 1) : '#'}
+                aria-label="Page suivante"
+                aria-disabled={page >= totalPages}
+                className={cn(
+                  'gap-1 px-2.5',
+                  page >= totalPages && 'pointer-events-none opacity-50'
+                )}
+              >
+                <span className="hidden sm:block">Suivant</span>
+                <ChevronRight className="size-4" />
+              </PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
@@ -215,4 +263,34 @@ function findCatalogLabel(
     if (child) return child;
   }
   return undefined;
+}
+
+/**
+ * Calcule les numéros de page à afficher, avec « … » quand il y a un trou.
+ * On garde toujours la 1ère, la dernière, et ±1 autour de la page courante.
+ * Ex. total=125, current=50 → [1, '…', 49, 50, 51, '…', 125].
+ */
+function getPageNumbers(
+  current: number,
+  total: number
+): (number | 'ellipsis')[] {
+  const delta = 1;
+  const range: number[] = [];
+  for (let i = 1; i <= total; i++) {
+    if (
+      i === 1 ||
+      i === total ||
+      (i >= current - delta && i <= current + delta)
+    ) {
+      range.push(i);
+    }
+  }
+  const pages: (number | 'ellipsis')[] = [];
+  let last = 0;
+  for (const i of range) {
+    if (last && i - last > 1) pages.push('ellipsis');
+    pages.push(i);
+    last = i;
+  }
+  return pages;
 }
