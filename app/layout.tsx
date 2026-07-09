@@ -2,6 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Space_Grotesk } from 'next/font/google';
 import { getContextAction, meAction } from '@extracom/site-kit/server';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
@@ -9,6 +10,15 @@ import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
+
+// Police « display » des titres — sans-serif géométrique moderne, auto-hébergée
+// au build (zéro requête réseau au runtime, pas de CDN, conforme RGPD).
+const displayFont = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-display',
+  display: 'swap'
+});
 
 // Rendu au runtime : la vitrine lit des données live → pas de pré-rendu au build
 // (CI-safe : le build ne touche pas le backend).
@@ -67,7 +77,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="fr">
+    <html lang="fr" className={displayFont.variable}>
       <body>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
