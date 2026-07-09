@@ -2,6 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Inter } from 'next/font/google';
 import { getContextAction, meAction } from '@extracom/site-kit/server';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
@@ -9,6 +10,15 @@ import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
+
+// Police des titres — auto-hébergée au build par next/font, sans requête
+// réseau au runtime (RGPD-friendly). Sa variable CSS est reprise par
+// --font-display dans globals.css pour habiller h1/h2/h3.
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter'
+});
 
 // Rendu au runtime : la vitrine lit des données live → pas de pré-rendu au build
 // (CI-safe : le build ne touche pas le backend).
@@ -67,7 +77,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="fr">
+    <html lang="fr" className={inter.variable}>
       <body>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
