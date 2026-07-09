@@ -16,6 +16,24 @@ export function Nav({
 
   return (
     <header className="sticky top-0 z-20 bg-white">
+      <Link
+        href="/catalogue"
+        className="block bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-center text-xs font-medium text-white transition hover:brightness-105 sm:text-sm"
+        aria-label="Soldes d'été : jusqu'à -50% sur une sélection d'articles, voir le catalogue"
+      >
+        <span className="container-x flex items-center justify-center gap-2 py-2">
+          <span aria-hidden="true">☀</span>
+          <span>
+            <strong className="font-semibold">Soldes d'été</strong> — Jusqu'à
+            <strong className="font-semibold"> -50 %</strong> sur une sélection
+            d'articles
+          </span>
+          <span className="hidden sm:inline" aria-hidden="true">→</span>
+          <span className="hidden underline-offset-2 hover:underline sm:inline">
+            Voir le catalogue
+          </span>
+        </span>
+      </Link>
       <div className="bg-[var(--brand-dark)] text-center text-xs text-white">
         <div className="container-x py-1.5">
           Livraison rapide · Tarifs négociés pour les professionnels
