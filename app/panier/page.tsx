@@ -1,12 +1,15 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function PanierPage() {
   return (
@@ -54,14 +57,9 @@ function PanierContent() {
                   {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
                 </p>
               </div>
-              <input
-                type="number"
-                min={1}
-                defaultValue={line.quantity}
-                onBlur={(e) =>
-                  updateLine(line.id, { quantity: Number(e.target.value) })
-                }
-                className="field w-16 text-center"
+              <QuantityStepper
+                value={line.quantity}
+                onChange={(quantity) => updateLine(line.id, { quantity })}
               />
               <div className="w-24 text-right font-medium">
                 {formatPrice(
@@ -99,6 +97,65 @@ function PanierContent() {
           Commander
         </Link>
       </aside>
+    </div>
+  );
+}
+
+function QuantityStepper({
+  value,
+  onChange
+}: {
+  value: number;
+  onChange: (quantity: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = (raw: string) => {
+    const parsed = Math.max(1, Math.floor(Number(raw) || 1));
+    setDraft(String(parsed));
+    if (parsed !== value) onChange(parsed);
+  };
+
+  return (
+    <div className="inline-flex items-center rounded-full border border-neutral-300 bg-white">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => commit(String(value - 1))}
+        disabled={value <= 1}
+        aria-label="Diminuer la quantité"
+      >
+        <Minus className="size-3.5" />
+      </Button>
+      <Input
+        type="number"
+        min={1}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={(e) => commit(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        aria-label="Quantité"
+        className="h-8 w-14 rounded-none border-0 bg-transparent text-center shadow-none focus-visible:ring-0"
+      />
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => commit(String(value + 1))}
+        aria-label="Augmenter la quantité"
+      >
+        <Plus className="size-3.5" />
+      </Button>
     </div>
   );
 }
