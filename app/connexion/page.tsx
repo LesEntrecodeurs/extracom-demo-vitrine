@@ -92,6 +92,27 @@ export default function ConnexionPage() {
           Mot de passe oublié ?
         </Link>
       </p>
+      {context?.terms && context.terms.length > 0 && (
+        <p className="mt-4 text-xs text-neutral-500">
+          {context.terms.map((t, i) => (
+            <span key={t.id}>
+              {i > 0 && ' · '}
+              {t.url ? (
+                <a
+                  href={t.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--brand-dark)] underline"
+                >
+                  {t.type}
+                </a>
+              ) : (
+                t.type
+              )}
+            </span>
+          ))}
+        </p>
+      )}
     </div>
   );
 }
