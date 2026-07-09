@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
+import { logoutAction } from '@extracom/site-kit/server';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
 
@@ -64,15 +65,27 @@ export function Nav({
             )}
 
             {user ? (
-              <Link
-                href="/compte"
-                className="flex items-center gap-1.5 text-neutral-700 hover:text-neutral-900"
-              >
-                <UserIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">
-                  {firstName ? `Bonjour, ${firstName}` : 'Mon compte'}
-                </span>
-              </Link>
+              <>
+                <Link
+                  href="/compte"
+                  className="flex items-center gap-1.5 text-neutral-700 hover:text-neutral-900"
+                >
+                  <UserIcon className="h-5 w-5" />
+                  <span className="hidden sm:inline">
+                    {firstName ? `Bonjour, ${firstName}` : 'Mon compte'}
+                  </span>
+                </Link>
+                <form action={logoutAction}>
+                  <button
+                    type="submit"
+                    className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"
+                    title="Se déconnecter"
+                  >
+                    <LogoutIcon className="h-5 w-5" />
+                    <span className="hidden sm:inline">Se déconnecter</span>
+                  </button>
+                </form>
+              </>
             ) : (
               <Link href="/connexion" className="btn-primary !px-4 !py-2">
                 Connexion
@@ -134,6 +147,26 @@ function CartIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+function LogoutIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path
+        d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M10 17l-5-5 5-5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 12h12" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
