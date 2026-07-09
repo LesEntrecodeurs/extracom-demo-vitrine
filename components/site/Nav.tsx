@@ -13,6 +13,7 @@ export function Nav({
   const title = context?.branding?.name ?? context?.shopName ?? 'Boutique';
   const categories = context?.catalogTree?.slice(0, 8) ?? [];
   const firstName = user?.name?.split(' ')[0];
+  const registrationOpen = context?.capabilities?.registrationOpen ?? false;
 
   return (
     <header className="sticky top-0 z-20 bg-white">
@@ -74,9 +75,26 @@ export function Nav({
                 </span>
               </Link>
             ) : (
-              <Link href="/connexion" className="btn-primary !px-4 !py-2">
-                Connexion
-              </Link>
+              <div className="flex items-center gap-2">
+                {registrationOpen && (
+                  <Link
+                    href="/inscription"
+                    className="btn-primary !px-3 !py-2 sm:!px-4"
+                  >
+                    Créer un compte
+                  </Link>
+                )}
+                <Link
+                  href="/connexion"
+                  className={
+                    registrationOpen
+                      ? 'hidden text-neutral-700 hover:text-neutral-900 md:inline'
+                      : 'btn-primary !px-4 !py-2'
+                  }
+                >
+                  Connexion
+                </Link>
+              </div>
             )}
           </nav>
         </div>
