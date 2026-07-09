@@ -23,9 +23,8 @@
      une Google Font via next/font/google dans layout.tsx (auto-hébergée au build,
      sans réseau runtime ni RGPD) et remplacer ces piles par sa CSS variable.
      Pas de <link> CDN ni de .woff2 manuel. */
-  --font-display:
-    ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua',
-    Georgia, serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body:
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
