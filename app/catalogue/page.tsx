@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { unstable_cache } from 'next/cache';
 import { Lock, PackageSearch } from 'lucide-react';
 import {
@@ -19,6 +19,7 @@ import { ArticleCard } from '@/components/site/ArticleCard';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
+import { CataloguePagination } from '@/components/site/CataloguePagination';
 
 export const dynamic = 'force-dynamic';
 
