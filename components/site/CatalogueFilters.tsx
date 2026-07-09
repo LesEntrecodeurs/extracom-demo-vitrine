@@ -192,7 +192,3 @@ export function CatalogueFilters({
     </div>
   );
 }
-
-    </div>
-  );
-}
