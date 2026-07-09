@@ -7,6 +7,7 @@ import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
+import { CookiePreferencesLink } from '@/components/site/CookiePreferencesLink';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
 
@@ -109,8 +110,11 @@ export default async function RootLayout({
             />
           </div>
           <div className="border-t border-neutral-100">
-            <div className="container-x py-4 text-center text-xs text-neutral-400">
-              © {new Date().getFullYear()} {title} — Propulsé par Extracom
+            <div className="container-x flex flex-col items-center justify-between gap-2 py-4 text-xs text-neutral-400 sm:flex-row">
+              <span>
+                © {new Date().getFullYear()} {title} — Propulsé par Extracom
+              </span>
+              <CookiePreferencesLink />
             </div>
           </div>
         </footer>
