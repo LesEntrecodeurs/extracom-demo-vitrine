@@ -80,6 +80,14 @@ export default async function RootLayout({
               <p className="mt-2 text-sm text-neutral-500">
                 Votre boutique professionnelle en ligne.
               </p>
+              <p className="mt-3 text-sm text-neutral-500">
+                <a href="tel:+33145789213" className="hover:text-neutral-900">
+                  01 45 78 92 13
+                </a>
+              </p>
+              <p className="mt-1 text-sm text-neutral-500">
+                28 rue du Marché, 75001 Paris
+              </p>
             </div>
             <FooterCol
               title="Boutique"

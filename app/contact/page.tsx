@@ -61,13 +61,13 @@ const coordonnees = [
   },
   {
     label: 'Téléphone',
-    value: '01 23 45 67 89',
-    href: 'tel:+33123456789',
+    value: '01 45 78 92 13',
+    href: 'tel:+33145789213',
     icon: <Phone className="size-6" />
   },
   {
     label: 'Adresse',
-    value: '1 rue de l’Exemple, 75000 Paris',
+    value: '28 rue du Marché, 75001 Paris',
     href: undefined,
     icon: <MapPin className="size-6" />
   }
