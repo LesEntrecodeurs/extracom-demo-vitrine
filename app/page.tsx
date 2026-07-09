@@ -16,7 +16,10 @@ import {
 } from '@extracom/site-kit/server';
 import type { Article, ShopContext, User } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
+import { FaqBlock, type FaqItem } from '@/components/site/FaqBlock';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
+import { JsonLd } from '@/components/site/JsonLd';
+import { faqLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +51,97 @@ export default async function HomePage() {
   // Inscription ouverte = capability vitrine dérivée (création de compte + liens
   // légaux). Quand fermée, on masque les entrées « Créer un compte ».
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+
+  // Bloc FAQ de l'accueil — questions en 3e personne + marque (GEO), réponses
+  // answer-first (40-60 mots) avec liens internes vers les pages clés. Chaque
+  // entrée porte un `answerText` (texte brut) réutilisé dans le JSON-LD
+  // FAQPage pour que les assistants IA puissent citer les réponses.
+  const faqItems: FaqItem[] = [
+    {
+      question: `Comment accéder aux tarifs de ${shopName} ?`,
+      answer: (
+        <>
+          {shopName} affiche automatiquement vos tarifs négociés dès que vous
+          êtes connecté à votre compte professionnel. Pour en profiter,
+          identifiez-vous sur la page{' '}
+          <Link href="/connexion" className="font-medium text-[var(--brand-dark)] hover:underline">
+            Connexion
+          </Link>{' '}
+          si vous êtes déjà client, ou créez un compte via la page{' '}
+          <Link href="/inscription" className="font-medium text-[var(--brand-dark)] hover:underline">
+            Inscription
+          </Link>
+          . L'inscription est ensuite validée par un commercial avant
+          l'activation de vos conditions tarifaires personnalisées.
+        </>
+      ),
+      answerText: `${shopName} affiche automatiquement les tarifs négociés dès la connexion à un compte professionnel. Pour en profiter, identifiez-vous sur la page Connexion (/connexion) si vous êtes déjà client, ou créez un compte via la page Inscription (/inscription). L'inscription est ensuite validée par un commercial avant l'activation des conditions tarifaires personnalisées.`
+    },
+    {
+      question: `Qui peut commander sur ${shopName} ?`,
+      answer: (
+        <>
+          {shopName} est une boutique B2B réservée aux professionnels :
+          entreprises, artisans, revendeurs et collectivités. L'accès au
+          catalogue complet et aux tarifs négociés se fait après inscription,
+          validée par notre équipe commerciale afin de garantir des conditions
+          adaptées à chaque activité.
+        </>
+      ),
+      answerText: `${shopName} est une boutique B2B réservée aux professionnels : entreprises, artisans, revendeurs et collectivités. L'accès au catalogue complet et aux tarifs négociés se fait après inscription, validée par l'équipe commerciale afin de garantir des conditions adaptées à chaque activité professionnelle.`
+    },
+    {
+      question: `Comment se passe une commande chez ${shopName} ?`,
+      answer: (
+        <>
+          Le parcours se fait en trois étapes simples : parcourez le{' '}
+          <Link href="/catalogue" className="font-medium text-[var(--brand-dark)] hover:underline">
+            catalogue
+          </Link>
+          , ajoutez vos références au panier, puis validez votre commande ou
+          demandez un devis selon vos droits. Le suivi est ensuite accessible à
+          tout moment depuis votre{' '}
+          <Link href="/compte" className="font-medium text-[var(--brand-dark)] hover:underline">
+            espace compte
+          </Link>
+          .
+        </>
+      ),
+      answerText: `Le parcours de commande chez ${shopName} se fait en trois étapes simples : parcourez le catalogue (/catalogue), ajoutez vos références au panier, puis validez votre commande ou demandez un devis selon vos droits. Le suivi est ensuite accessible à tout moment depuis votre espace compte (/compte).`
+    },
+    {
+      question: `Comment demander un devis à ${shopName} ?`,
+      answer: (
+        <>
+          {shopName} permet à ses clients professionnels de demander un devis
+          plutôt que de commander directement en ligne. Si votre compte dispose
+          de cette option, « Demander un devis » apparaît au moment de valider
+          votre panier : vous décrivez votre besoin et notre équipe commerciale
+          vous répond avec une offre personnalisée.
+        </>
+      ),
+      answerText: `${shopName} permet à ses clients professionnels de demander un devis plutôt que de commander directement en ligne. Si votre compte dispose de cette option, « Demander un devis » apparaît au moment de valider le panier : le client décrit son besoin et l'équipe commerciale répond avec une offre personnalisée.`
+    },
+    {
+      question: `Comment contacter le support ${shopName} ?`,
+      answer: (
+        <>
+          Le support {shopName} est joignable via la{' '}
+          <Link href="/contact" className="font-medium text-[var(--brand-dark)] hover:underline">
+            page Contact
+          </Link>{' '}
+          pour toute question commerciale, technique ou de suivi de commande,
+          par e-mail, téléphone ou via le formulaire de la page. Les clients
+          connectés disposent en plus d'un espace d'échange direct depuis leur{' '}
+          <Link href="/compte" className="font-medium text-[var(--brand-dark)] hover:underline">
+            espace compte
+          </Link>
+          .
+        </>
+      ),
+      answerText: `Le support ${shopName} est joignable via la page Contact (/contact) pour toute question commerciale, technique ou de suivi de commande, par e-mail, téléphone ou via le formulaire de la page. Les clients connectés disposent en plus d'un espace d'échange direct depuis leur espace compte (/compte).`
+    }
+  ];
 
   return (
     <div className="space-y-16">
@@ -195,6 +289,12 @@ export default async function HomePage() {
         </section>
       )}
 
+      <FaqBlock
+        heading={`Questions fréquentes sur ${shopName}`}
+        description="Les réponses que les assistants et nos clients nous posent le plus souvent."
+        items={faqItems}
+      />
+
       {isAnonymous && (
         <section className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
           <h2 className="text-xl font-semibold">Un compte professionnel ?</h2>
@@ -218,6 +318,15 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <JsonLd
+        data={faqLd(
+          faqItems.map(({ question, answerText }) => ({
+            question,
+            answer: answerText
+          }))
+        )}
+      />
     </div>
   );
 }
