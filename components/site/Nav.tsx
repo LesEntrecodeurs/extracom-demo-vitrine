@@ -31,15 +31,26 @@ export function Nav({
             {title}
           </Link>
 
-          <form action="/catalogue" className="hidden flex-1 md:block">
+          <form
+            action="/catalogue"
+            className="hidden flex-1 md:block"
+            role="search"
+          >
             <div className="relative max-w-md">
               <SearchIcon className="pointer-events-none absolute top-2.5 left-3 h-4 w-4 text-neutral-400" />
               <input
                 name="q"
-                placeholder="Rechercher un article…"
-                aria-label="Rechercher un article"
-                className="field pl-9"
+                placeholder="Rechercher par nom ou référence…"
+                aria-label="Rechercher un article par nom ou référence"
+                className="field pl-9 pr-10"
               />
+              <button
+                type="submit"
+                aria-label="Lancer la recherche"
+                className="absolute top-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand)] text-white transition hover:bg-[var(--brand-dark)]"
+              >
+                <SearchIcon className="h-3.5 w-3.5" />
+              </button>
             </div>
           </form>
 
@@ -80,6 +91,29 @@ export function Nav({
             )}
           </nav>
         </div>
+
+        <form
+          action="/catalogue"
+          className="border-t border-neutral-200 px-4 py-2 md:hidden"
+          role="search"
+        >
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute top-2.5 left-3 h-4 w-4 text-neutral-400" />
+            <input
+              name="q"
+              placeholder="Rechercher par nom ou référence…"
+              aria-label="Rechercher un article par nom ou référence"
+              className="field pl-9 pr-10"
+            />
+            <button
+              type="submit"
+              aria-label="Lancer la recherche"
+              className="absolute top-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand)] text-white transition hover:bg-[var(--brand-dark)]"
+            >
+              <SearchIcon className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </form>
 
         <CategoryMenu categories={categories} />
       </div>
