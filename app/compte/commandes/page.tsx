@@ -14,6 +14,12 @@ const TYPE_TABS: { code: number; label: string }[] = [
   { code: 6, label: 'Factures' }
 ];
 
+const PERIOD_TABS: { id: 'all' | 'thisMonth' | 'thisYear'; label: string }[] = [
+  { id: 'all', label: 'Tout' },
+  { id: 'thisMonth', label: 'Ce mois-ci' },
+  { id: 'thisYear', label: 'Cette année' }
+];
+
 export default function CommandesPage() {
   // `undefined` = tous les types (filtre serveur désactivé).
   const [typeCode, setTypeCode] = useState<number | undefined>(undefined);
@@ -23,13 +29,28 @@ export default function CommandesPage() {
   );
   const [searchInput, setSearchInput] = useState('');
   const [cityInput, setCityInput] = useState('');
+  // Filtre période — appliqué côté client (le hook fourni par le kit n'expose
+  // pas de filtre par date).
+  const [period, setPeriod] = useState<'all' | 'thisMonth' | 'thisYear'>('all');
   const { data, isLoading, error } = useDocuments({
     type: typeCode,
     search: applied.search,
     deliveryCity: applied.city
   });
 
-  const docs = data?.data ?? [];
+  // Bornes de la période choisie (mois ou année en cours).
+  const periodStart = (() => {
+    const now = new Date();
+    if (period === 'thisMonth') return new Date(now.getFullYear(), now.getMonth(), 1);
+    if (period === 'thisYear') return new Date(now.getFullYear(), 0, 1);
+    return null;
+  })();
+
+  const docs = (data?.data ?? []).filter((d) => {
+    if (!periodStart) return true;
+    const t = new Date(d.date).getTime();
+    return Number.isFinite(t) && t >= periodStart.getTime();
+  });
 
   const submitFilters = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +82,22 @@ export default function CommandesPage() {
             label={t.label}
             active={typeCode === t.code}
             onClick={() => setTypeCode(t.code)}
+          />
+        ))}
+      </div>
+
+      <div
+        className="mb-4 flex flex-wrap items-center gap-2"
+        role="group"
+        aria-label="Filtrer par période"
+      >
+        <span className="text-sm text-neutral-500">Période :</span>
+        {PERIOD_TABS.map((p) => (
+          <Tab
+            key={p.id}
+            label={p.label}
+            active={period === p.id}
+            onClick={() => setPeriod(p.id)}
           />
         ))}
       </div>
@@ -104,7 +141,7 @@ export default function CommandesPage() {
           Impossible de charger l'historique. Réessayez plus tard.
         </p>
       ) : docs.length === 0 ? (
-        typeCode === undefined ? (
+        typeCode === undefined && period === 'all' ? (
           <div className="card p-10 text-center">
             <p className="text-neutral-600">
               Vous n'avez pas encore de document.
@@ -114,7 +151,20 @@ export default function CommandesPage() {
             </Link>
           </div>
         ) : (
-          <p className="text-sm text-neutral-500">Aucun document de ce type.</p>
+          <div className="card p-6 text-center">
+            <p className="text-sm text-neutral-500">
+              Aucun document sur cette période.
+            </p>
+            {period !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setPeriod('all')}
+                className="mt-3 text-sm font-medium text-[var(--brand-dark)] hover:underline"
+              >
+                Voir toutes les périodes
+              </button>
+            )}
+          </div>
         )
       ) : (
         <ul className="card divide-y divide-neutral-100">
