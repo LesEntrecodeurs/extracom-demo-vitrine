@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
@@ -44,6 +44,11 @@ function CommandeContent() {
   const [isQuote, setIsQuote] = useState(false);
   const [reference, setReference] = useState('');
   const [comment, setCommentValue] = useState('');
+  // Verrou anti-double-clic synchrone (le drapeau interne du kit se libère
+  // entre la résolution de la promesse et la redirection vers le paiement :
+  // un second clic passé dans cette fenêtre déclencherait une deuxième
+  // session côté serveur).
+  const finalizingRef = useRef(false);
 
   // Enregistre le commentaire (si saisi) avant de finaliser la commande.
   const persistComment = async () => {
@@ -119,9 +124,19 @@ function CommandeContent() {
   // finalisation sur le choix d'une adresse.
   const deliveryOk = !deliveryEnabled || hasDelivery;
   const pay = async () => {
-    await persistComment();
-    const { redirectUrl } = await start({});
-    if (redirectUrl) window.location.href = redirectUrl;
+    if (finalizingRef.current) return;
+    finalizingRef.current = true;
+    try {
+      await persistComment();
+      const { redirectUrl } = await start({});
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        finalizingRef.current = false;
+      }
+    } catch {
+      finalizingRef.current = false;
+    }
   };
 
   return (
@@ -252,6 +267,8 @@ function CommandeContent() {
           <button
             type="button"
             onClick={async () => {
+              if (finalizingRef.current) return;
+              finalizingRef.current = true;
               try {
                 await persistComment();
                 const res = await validateWithoutPayment({
@@ -262,6 +279,7 @@ function CommandeContent() {
                 setCreated(true);
                 setConfirmedRef(res?.reference ?? '');
               } catch {
+                finalizingRef.current = false;
                 toast.error(
                   'Le devis n’a pas pu être créé. Vérifiez vos droits ou réessayez.'
                 );
