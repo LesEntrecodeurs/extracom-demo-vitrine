@@ -3,7 +3,13 @@ import Image from 'next/image';
 import { formatPrice, type Article } from '@extracom/site-kit';
 import { AddToCart } from './AddToCart';
 
-export function ArticleCard({ article }: { article: Article }) {
+export function ArticleCard({
+  article,
+  priority = false
+}: {
+  article: Article;
+  priority?: boolean;
+}) {
   const href = `/produit/${encodeURIComponent(article.reference)}`;
   const hasVariants = (article.gammes ?? []).some((g) => g.items.length > 0);
   const hasPromo =
@@ -21,6 +27,7 @@ export function ArticleCard({ article }: { article: Article }) {
             alt={article.title}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
+            priority={priority}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
           />
           {hasPromo && (

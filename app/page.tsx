@@ -15,32 +15,26 @@ import {
   meAction
 } from '@extracom/site-kit/server';
 import type { Article, ShopContext, User } from '@extracom/site-kit';
-import { ArticleCard } from '@/components/site/ArticleCard';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  let featured: Article[] = [];
-  let context: ShopContext | null = null;
-  try {
-    featured = (await getArticlesAction({ limit: 8 })).data;
-  } catch {
-    featured = [];
-  }
-  try {
-    context = await getContextAction();
-  } catch {
-    context = null;
-  }
+  // Les 3 appels serveur sont indépendants → on les lance en parallèle pour
+  // ne pas additionner les temps de réponse (impact fort sur mobile/4G).
+  const [featuredRes, contextRes, userRes] = await Promise.allSettled([
+    getArticlesAction({ limit: 8 }),
+    getContextAction(),
+    meAction()
+  ]);
+  const featured: Article[] =
+    featuredRes.status === 'fulfilled' ? featuredRes.value.data : [];
+  const context: ShopContext | null =
+    contextRes.status === 'fulfilled' ? contextRes.value : null;
   // État connecté → on adapte l'onboarding (un client connecté n'a pas besoin
   // du « comment ça marche » ni du CTA inscription).
-  let user: User | null = null;
-  try {
-    user = await meAction();
-  } catch {
-    user = null;
-  }
+  const user: User | null =
+    userRes.status === 'fulfilled' ? userRes.value : null;
   const isAnonymous = !user;
   const categories = context?.catalogTree?.slice(0, 6) ?? [];
   const firstName = user?.name?.split(' ')[0];
@@ -161,11 +155,7 @@ export default async function HomePage() {
               Tout voir →
             </Link>
           </div>
-          <FeaturedCarousel
-            items={featured.map((a) => (
-              <ArticleCard key={a.reference} article={a} />
-            ))}
-          />
+          <FeaturedCarousel articles={featured} />
         </section>
       )}
 
