@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
+import { SearchBox } from './SearchBox';
 
 export function Nav({
   context,
@@ -31,19 +32,9 @@ export function Nav({
             {title}
           </Link>
 
-          <form action="/catalogue" className="hidden flex-1 md:block">
-            <div className="relative max-w-md">
-              <SearchIcon className="pointer-events-none absolute top-2.5 left-3 h-4 w-4 text-neutral-400" />
-              <input
-                name="q"
-                placeholder="Rechercher un article…"
-                aria-label="Rechercher un article"
-                className="field pl-9"
-              />
-            </div>
-          </form>
+          <SearchBox />
 
-          <nav className="ml-auto flex items-center gap-5 text-sm">
+          <nav className="ml-auto flex items-center gap-3 text-sm sm:gap-5">
             <Link
               href="/catalogue"
               className="hidden font-medium text-neutral-700 hover:text-[var(--brand-dark)] sm:inline"
@@ -87,21 +78,6 @@ export function Nav({
   );
 }
 
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden="true"
-    >
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" strokeLinecap="round" />
-    </svg>
-  );
-}
 function UserIcon({ className }: { className?: string }) {
   return (
     <svg
