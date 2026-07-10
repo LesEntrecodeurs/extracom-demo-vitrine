@@ -103,6 +103,7 @@ export default async function RootLayout({
             <FooterCol
               title="Aide"
               links={[
+                ['Notre entreprise', '/notre-entreprise'],
                 ['Nous contacter', '/contact'],
                 ['Mentions légales', '/mentions-legales']
               ]}
