@@ -2,10 +2,16 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { ShoppingCart, Check, Loader2 } from 'lucide-react';
+import { ShoppingCart, Check, Loader2, HelpCircle } from 'lucide-react';
 import { useAddToCart } from '@extracom/site-kit/react';
 import { formatPrice, type Gamme } from '@extracom/site-kit';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 /**
  * Bloc d'achat de la fiche produit : sélection de déclinaison (gamme) +
@@ -32,6 +38,35 @@ export function BuyBox({
 
   return (
     <div className="max-w-sm space-y-4">
+      <div className="flex items-center gap-1.5 text-sm font-medium text-neutral-700">
+        <span>Déclinaisons</span>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="En savoir plus sur les déclinaisons"
+                className="inline-flex size-4 items-center justify-center rounded-full text-neutral-400 transition hover:text-[var(--brand-dark)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+              >
+                <HelpCircle className="size-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              sideOffset={6}
+              className="max-w-xs text-left leading-relaxed"
+            >
+              <p>
+                Les <strong>tailles</strong> et les <strong>couleurs</strong> sont
+                des déclinaisons du produit. Chaque combinaison (ex. Taille M +
+                Bleu) correspond à une référence précise, avec son propre prix et
+                sa disponibilité. C&apos;est cette combinaison qui sera ajoutée
+                au panier.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
       {axes.map((axis) => (
         <div key={axis.id}>
           <p className="mb-1.5 text-sm font-medium text-neutral-700">
