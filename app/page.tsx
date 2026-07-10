@@ -12,10 +12,19 @@ import {
 import {
   getArticlesAction,
   getContextAction,
+  getDocumentAction,
+  getDocumentsAction,
+  getArticleAction,
   meAction
 } from '@extracom/site-kit/server';
-import type { Article, ShopContext, User } from '@extracom/site-kit';
+import type {
+  Article,
+  DocumentSummary,
+  ShopContext,
+  User
+} from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
+import { ClientShortcuts } from '@/components/site/ClientShortcuts';
 import { FeaturedCarousel } from '@/components/site/FeaturedCarousel';
 
 export const dynamic = 'force-dynamic';
