@@ -245,7 +245,7 @@ export default async function ProduitPage({
         </div>
       </section>
     )}
-  </div>
+    </>
   );
 }
 
@@ -279,5 +279,8 @@ function Specs({ article }: { article: Article }) {
         ))}
       </dl>
     </div>
+  );
+}
+
   );
 }
