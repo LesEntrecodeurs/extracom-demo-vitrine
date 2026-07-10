@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ShopContext, User } from '@extracom/site-kit';
+import { ThemeToggle } from './ThemeToggle';
 import { CartLink } from './CartLink';
 import { CategoryMenu } from './CategoryMenu';
 
@@ -43,13 +44,15 @@ export function Nav({
             </div>
           </form>
 
-          <nav className="ml-auto flex items-center gap-5 text-sm">
+          <nav className="ml-auto flex items-center gap-3 text-sm sm:gap-5">
             <Link
               href="/catalogue"
               className="hidden font-medium text-neutral-700 hover:text-[var(--brand-dark)] sm:inline"
             >
               Catalogue
             </Link>
+
+            <ThemeToggle />
 
             {user ? (
               <CartLink />
