@@ -32,15 +32,26 @@ export function Nav({
             {title}
           </Link>
 
-          <form action="/catalogue" className="hidden flex-1 md:block">
-            <div className="relative max-w-md">
-              <SearchIcon className="pointer-events-none absolute top-2.5 left-3 h-4 w-4 text-neutral-400" />
+          <form
+            action="/catalogue"
+            role="search"
+            className="flex flex-1"
+          >
+            <div className="relative w-full max-w-md">
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
               <input
                 name="q"
-                placeholder="Rechercher un article…"
-                aria-label="Rechercher un article"
-                className="field pl-9"
+                placeholder="Rechercher par nom ou référence…"
+                aria-label="Rechercher un article par nom ou référence"
+                className="field !rounded-r-none pl-9 pr-10"
               />
+              <button
+                type="submit"
+                aria-label="Lancer la recherche"
+                className="absolute top-1/2 right-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-neutral-500 transition hover:bg-[var(--brand-light)] hover:text-[var(--brand-dark)]"
+              >
+                <ArrowRightIcon className="h-4 w-4" />
+              </button>
             </div>
           </form>
 
@@ -102,6 +113,24 @@ function SearchIcon({ className }: { className?: string }) {
     >
       <circle cx="11" cy="11" r="7" />
       <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+function ArrowRightIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path
+        d="M5 12h14m-6-6 6 6-6 6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
