@@ -38,19 +38,20 @@ export function Nav({
             role="search"
             className="flex flex-1"
           >
-            <div className="relative w-full max-w-md">
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <div className="relative w-full max-w-2xl">
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-[var(--brand-dark)]" />
               <input
                 name="q"
                 placeholder="Rechercher par nom ou référence…"
                 aria-label="Rechercher un article par nom ou référence"
-                className="field !rounded-r-none pl-9 pr-10"
+                className="field !rounded-full !border-[var(--brand)]/40 !bg-[var(--brand-light)]/70 h-12 pl-12 pr-32 text-base shadow-sm placeholder:text-neutral-500"
               />
               <button
                 type="submit"
                 aria-label="Lancer la recherche"
-                className="absolute top-1/2 right-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-neutral-500 transition hover:bg-[var(--brand-light)] hover:text-[var(--brand-dark)]"
+                className="absolute top-1/2 right-1.5 flex h-9 -translate-y-1/2 items-center gap-1.5 rounded-full bg-[var(--brand)] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[var(--brand-dark)]"
               >
+                <span className="hidden sm:inline">Rechercher</span>
                 <ArrowRightIcon className="h-4 w-4" />
               </button>
             </div>
