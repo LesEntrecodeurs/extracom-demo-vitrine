@@ -7,6 +7,7 @@ import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
+import { ThemeProvider } from '@/components/site/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
 
@@ -67,55 +68,57 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body>
-        <JsonLd data={orgLd} />
-        <Nav context={context} user={user} />
-        <main className="container-x py-10">{children}</main>
+        <ThemeProvider>
+          <JsonLd data={orgLd} />
+          <Nav context={context} user={user} />
+          <main className="container-x py-10">{children}</main>
 
-        <footer className="mt-16 border-t border-neutral-200 bg-white">
-          <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
-            <div>
-              <p className="font-semibold">{title}</p>
-              <p className="mt-2 text-sm text-neutral-500">
-                Votre boutique professionnelle en ligne.
-              </p>
+          <footer className="mt-16 border-t border-neutral-200 bg-white">
+            <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
+              <div>
+                <p className="font-semibold">{title}</p>
+                <p className="mt-2 text-sm text-neutral-500">
+                  Votre boutique professionnelle en ligne.
+                </p>
+              </div>
+              <FooterCol
+                title="Boutique"
+                links={[
+                  ['Catalogue', '/catalogue'],
+                  ['Mon panier', '/panier']
+                ]}
+              />
+              <FooterCol
+                title="Compte"
+                links={[
+                  ['Connexion', '/connexion'],
+                  // Lien d'inscription masqué quand la vitrine n'ouvre pas la
+                  // création de compte (capability dérivée).
+                  ...(context?.capabilities?.registrationOpen
+                    ? [['Créer un compte', '/inscription'] as [string, string]]
+                    : []),
+                  ['Mon compte', '/compte']
+                ]}
+              />
+              <FooterCol
+                title="Aide"
+                links={[
+                  ['Nous contacter', '/contact'],
+                  ['Mentions légales', '/mentions-legales']
+                ]}
+              />
             </div>
-            <FooterCol
-              title="Boutique"
-              links={[
-                ['Catalogue', '/catalogue'],
-                ['Mon panier', '/panier']
-              ]}
-            />
-            <FooterCol
-              title="Compte"
-              links={[
-                ['Connexion', '/connexion'],
-                // Lien d'inscription masqué quand la vitrine n'ouvre pas la
-                // création de compte (capability dérivée).
-                ...(context?.capabilities?.registrationOpen
-                  ? [['Créer un compte', '/inscription'] as [string, string]]
-                  : []),
-                ['Mon compte', '/compte']
-              ]}
-            />
-            <FooterCol
-              title="Aide"
-              links={[
-                ['Nous contacter', '/contact'],
-                ['Mentions légales', '/mentions-legales']
-              ]}
-            />
-          </div>
-          <div className="border-t border-neutral-100">
-            <div className="container-x py-4 text-center text-xs text-neutral-400">
-              © {new Date().getFullYear()} {title} — Propulsé par Extracom
+            <div className="border-t border-neutral-100">
+              <div className="container-x py-4 text-center text-xs text-neutral-400">
+                © {new Date().getFullYear()} {title} — Propulsé par Extracom
+              </div>
             </div>
-          </div>
-        </footer>
-        <CookieConsent />
-        <Toaster richColors position="top-center" />
+          </footer>
+          <CookieConsent />
+          <Toaster richColors position="top-center" />
+        </ThemeProvider>
       </body>
     </html>
   );
