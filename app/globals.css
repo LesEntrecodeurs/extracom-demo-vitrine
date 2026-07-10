@@ -5,18 +5,20 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    THÈME DE LA VITRINE — ZONE ÉDITABLE
-   Change l'identité visuelle du site en éditant ces 3 variables. Tout le
+   Change l'identité visuelle du site en éditant ces variables. Tout le
    template (boutons, liens actifs, puces, accents) en dérive — pas besoin de
    chercher des couleurs ailleurs dans le code.
      --brand        : couleur principale (boutons, accents)
-     --brand-dark   : variante foncée (hover, texte de prix, titres actifs)
+     --brand-dark   : variante foncée (hover, titres actifs, prix)
+     --brand-text   : variante très foncée pour petits textes (contraste AA/AAA)
      --brand-light  : variante claire (fonds de puce, surfaces douces)
-   Garde un contraste suffisant : --brand-dark lisible sur blanc, texte blanc
-   lisible sur --brand. Le reste de la palette (neutres) suit Tailwind.
+   Garde un contraste suffisant : --brand-text très lisible sur blanc, texte
+   blanc lisible sur --brand. Le reste de la palette (neutres) suit Tailwind.
    ──────────────────────────────────────────────────────────────────────── */
 :root {
   --brand: #1d9e75;
-  --brand-dark: #0f6e56;
+  --brand-dark: #0a5641;
+  --brand-text: #073d2e;
   --brand-light: #e1f5ee;
 
   /* Typo (éditable). Piles système par défaut. Pour une vraie identité, brancher
@@ -155,6 +157,73 @@
     font-optical-sizing: auto;
     letter-spacing: -0.015em;
   }
+
+  /* ── Accessibilité — focus clavier très visible ────────────────────────
+     S'ajoute par-dessus les éventuels focus:ring-* déjà présents
+     (utilisent box-shadow → aucune collision avec outline). */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  [role='button']:focus-visible,
+  [role='link']:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid var(--brand-text);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  /* Inputs : contour très visible aussi, par-dessus le ring existant. */
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid var(--brand-text);
+    outline-offset: 2px;
+  }
+
+  /* ── Mode contraste élevé (déclenché par le menu d'accessibilité) ─────
+     Couleurs noir pur sur jaune pâle + vert très sombre pour les accents.
+     Surcharge tout, y compris les classes Tailwind qui utilisaient
+     neutral-200 / neutral-50. */
+  html[data-contrast='high'] body {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  html[data-contrast='high'] {
+    --brand: #003822;
+    --brand-dark: #001f14;
+    --brand-text: #001f14;
+    --brand-light: #fff3a3;
+  }
+  html[data-contrast='high'] .border-neutral-100,
+  html[data-contrast='high'] .border-neutral-200,
+  html[data-contrast='high'] .border-neutral-200\/80,
+  html[data-contrast='high'] .border-neutral-300 {
+    border-color: #000000 !important;
+  }
+  html[data-contrast='high'] .bg-neutral-50 {
+    background-color: #ffffff !important;
+  }
+  html[data-contrast='high'] .bg-white {
+    background-color: #ffffff !important;
+  }
+  html[data-contrast='high'] .text-neutral-500,
+  html[data-contrast='high'] .text-neutral-400 {
+    color: #000000 !important;
+  }
+  html[data-contrast='high'] .shadow-\[0_10px_40px_-12px_rgb\(0_0_0\/0\.12\)\],
+  html[data-contrast='high'] .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  /* ── Tailles de texte adaptatives (déclenchées par le menu) ─────────────
+     On agit sur la taille de base de <html> ; tout le reste (en rem) suit. */
+  html[data-text-size='lg'] {
+    font-size: 17px;
+  }
+  html[data-text-size='xl'] {
+    font-size: 19px;
+  }
+
+  /* Respect du mouvement réduit pour les reveals (déjà géré) — centralisé. */
 }
 
 @layer components {
