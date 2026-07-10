@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
@@ -17,7 +19,26 @@ export default function PanierPage() {
 }
 
 function PanierContent() {
-  const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const { cart, isLoading, error, updateLine, removeItem, setComment } = useCart();
+  // Brouillon local de la remarque, synchronisé avec la valeur serveur
+  // (cart.note). On n'envoie la valeur qu'à la sortie du champ pour éviter
+  // un appel API par frappe — l'API est de toute façon plafonnée à 69 car.
+  const [commentDraft, setCommentDraft] = useState(cart?.note ?? '');
+  const [savingComment, setSavingComment] = useState(false);
+  useEffect(() => {
+    setCommentDraft(cart?.note ?? '');
+  }, [cart?.note]);
+  const persistComment = async (next: string) => {
+    const trimmed = next.slice(0, 69);
+    setSavingComment(true);
+    try {
+      await setComment(trimmed);
+    } catch {
+      toast.error('La remarque n’a pas pu être enregistrée.');
+    } finally {
+      setSavingComment(false);
+    }
+  };
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -79,6 +100,52 @@ function PanierContent() {
             </li>
           ))}
         </ul>
+
+        {/* Remarque globale du panier — visible et éditable avant validation.
+            Sauvegardée à la sortie du champ (ou via le bouton) pour ne pas
+            spammer l'API. */}
+        <section className="card mt-4 p-5">
+          <div className="flex items-baseline justify-between gap-2">
+            <label
+              htmlFor="cart-comment"
+              className="text-sm font-medium text-neutral-700"
+            >
+              Remarque pour la préparation
+            </label>
+            <span
+              className={`text-xs ${
+                savingComment ? 'text-neutral-500' : 'text-neutral-400'
+              }`}
+            >
+              {savingComment ? 'Enregistrement…' : `${commentDraft.length}/69`}
+            </span>
+          </div>
+          <textarea
+            id="cart-comment"
+            value={commentDraft}
+            onChange={(e) => setCommentDraft(e.target.value.slice(0, 69))}
+            onBlur={() => {
+              if (commentDraft !== (cart?.note ?? '')) {
+                void persistComment(commentDraft);
+              }
+            }}
+            placeholder="Une précision à transmettre au préparateur (livraison, références internes…)"
+            rows={3}
+            className="field mt-2 resize-none"
+          />
+          <div className="mt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={() => void persistComment(commentDraft)}
+              disabled={
+                savingComment || commentDraft === (cart?.note ?? '')
+              }
+              className="btn-outline text-sm"
+            >
+              {savingComment ? '…' : 'Enregistrer la remarque'}
+            </button>
+          </div>
+        </section>
       </div>
 
       <aside className="card h-fit p-5">
