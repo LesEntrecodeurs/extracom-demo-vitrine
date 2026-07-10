@@ -140,11 +140,25 @@ export default async function ProduitPage({
         </p>
 
         {typeof article.stockQuantity === 'number' && (
-          <p className="mt-2 text-sm text-neutral-600">
-            {article.stockQuantity > 0
-              ? `En stock (${article.stockQuantity})`
-              : 'Rupture de stock'}
-          </p>
+          <div className="mt-3">
+            {article.stockQuantity > 0 ? (
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                </span>
+                En stock
+                <span className="font-normal text-emerald-600">
+                  ({article.stockQuantity} disponible{article.stockQuantity > 1 ? 's' : ''})
+                </span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-700 ring-1 ring-red-200">
+                <span className="size-2 rounded-full bg-red-500" />
+                Rupture de stock
+              </span>
+            )}
+          </div>
         )}
 
         {article.description && (
