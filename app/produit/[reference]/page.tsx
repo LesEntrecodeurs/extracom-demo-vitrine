@@ -4,9 +4,12 @@ import Image from 'next/image';
 import {
   getArticleAction,
   getAnonymousArticleAction,
+  getAnonymousArticlesAction,
+  getArticlesAction,
   isAuthenticatedAction
 } from '@extracom/site-kit/server';
 import { formatPrice, type Article } from '@extracom/site-kit';
+import { ArticleCard } from '@/components/site/ArticleCard';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
 
@@ -17,6 +20,20 @@ export const dynamic = 'force-dynamic';
 const cachedAnonArticle = unstable_cache(
   (reference: string) => getAnonymousArticleAction(decodeURIComponent(reference)),
   ['product-anon'],
+  { revalidate: 300, tags: ['catalogue'] }
+);
+
+// Produits de la même famille pour les visiteurs anonymes (ISR). On demande
+// volontairement plus que `RELATED_LIMIT` car l'article courant peut en faire
+// partie et sera filtré côté composant.
+const RELATED_LIMIT = 4;
+const cachedAnonFamilyArticles = unstable_cache(
+  (familyCode: string) =>
+    getAnonymousArticlesAction({
+      familyCode,
+      limit: RELATED_LIMIT + 1
+    }),
+  ['product-family-anon'],
   { revalidate: 300, tags: ['catalogue'] }
 );
 
@@ -58,6 +75,18 @@ export default async function ProduitPage({
   const article = authed
     ? await getArticleAction(decodeURIComponent(reference))
     : await cachedAnonArticle(reference);
+
+  // Produits « complémentaires » : autres articles de la même famille (le kit
+  // n'expose pas de relation manuelle entre articles). Caché pour les anonymes.
+  const familyCode = article.family?.code;
+  const relatedArticles = familyCode
+    ? authed
+      ? await getArticlesAction({ familyCode, limit: RELATED_LIMIT + 1 })
+      : await cachedAnonFamilyArticles(familyCode)
+    : { data: [], pagination: { page: 1, limit: 0, total: 0 } };
+  const related = relatedArticles.data
+    .filter((a) => a.reference !== article.reference)
+    .slice(0, RELATED_LIMIT);
 
   // JSON-LD Product (SEO + GEO). L'offre n'est incluse que si un prix est exposé.
   const productLd: Record<string, unknown> = {
@@ -199,6 +228,24 @@ export default async function ProduitPage({
         )}
       </div>
     </div>
+
+    {/* Produits complémentaires : autres articles de la même famille. */}
+    {related.length > 0 && article.family && (
+      <section className="mt-12 border-t border-neutral-200 pt-8">
+        <div className="mb-4 flex items-baseline justify-between gap-4">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Produits complémentaires
+          </h2>
+          <p className="text-sm text-neutral-500">{article.family.label}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {related.map((a) => (
+            <ArticleCard key={a.reference} article={a} />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
   );
 }
 
