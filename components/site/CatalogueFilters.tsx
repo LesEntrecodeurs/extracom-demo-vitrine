@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUpDown, Layers, X } from 'lucide-react';
 import type { ArticleSort, Family } from '@extracom/site-kit';
@@ -34,6 +34,12 @@ const SORTS: { value: ArticleSort; label: string }[] = [
   { value: 'ref_desc', label: 'Référence (Z → A)' }
 ];
 
+const PRICE_RANGES: { label: string; pmin?: string; pmax?: string }[] = [
+  { label: 'Moins de 50€', pmax: '50' },
+  { label: '50–100€', pmin: '50', pmax: '100' },
+  { label: 'Plus de 100€', pmin: '100' }
+];
+
 /**
  * Filtres catalogue : famille + tri. Le filtre par catalogue se fait désormais
  * via le menu de la navbar (depth 1 → depth 2 au survol), qui pose `?catalog`
@@ -53,6 +59,11 @@ export function CatalogueFilters({
   const router = useRouter();
   const [pmin, setPmin] = useState(current.pmin ?? '');
   const [pmax, setPmax] = useState(current.pmax ?? '');
+
+  useEffect(() => {
+    setPmin(current.pmin ?? '');
+    setPmax(current.pmax ?? '');
+  }, [current.pmin, current.pmax]);
 
   const apply = (patch: Partial<Current>) => {
     const next = { ...current, ...patch };
@@ -148,6 +159,30 @@ export function CatalogueFilters({
           OK
         </Button>
       </form>
+
+      <div className="flex flex-wrap items-center gap-1.5" aria-label="Tranches de prix rapides">
+        {PRICE_RANGES.map((range) => {
+          const isActive =
+            (current.pmin ?? '') === (range.pmin ?? '') &&
+            (current.pmax ?? '') === (range.pmax ?? '');
+
+          return (
+            <Button
+              key={range.label}
+              type="button"
+              variant={isActive ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setPmin(range.pmin ?? '');
+                setPmax(range.pmax ?? '');
+                apply({ pmin: range.pmin, pmax: range.pmax });
+              }}
+            >
+              {range.label}
+            </Button>
+          );
+        })}
+      </div>
 
       {/* Tri — toujours disponible */}
       <Select
