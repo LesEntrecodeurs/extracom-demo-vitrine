@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import {
   useAuth,
   useAccount,
-  useCompany
+  useCompany,
+  useDocuments
 } from '@extracom/site-kit/react';
+import { formatPrice } from '@extracom/site-kit';
 import { PageLoader } from '@/components/site/Loader';
 
 export default function ProfilPage() {
@@ -34,6 +36,18 @@ export default function ProfilPage() {
   const identityChanged =
     name.trim() !== user.name || email.trim() !== user.email;
 
+  // Résumé d'activité : on ne compte que les commandes (type 1 côté Sage,
+  // devis/factures exclus).
+  const { data: ordersData, isLoading: loadingOrders } = useDocuments({
+    type: 1
+  });
+  const orders = ordersData?.data ?? [];
+  const orderCount = orders.length;
+  const totalSpent = useMemo(
+    () => orders.reduce((sum, o) => sum + (o.totalInclVat ?? 0), 0),
+    [orders]
+  );
+
   const initials = user.name
     .split(' ')
     .map((p) => p[0])
@@ -47,6 +61,35 @@ export default function ProfilPage() {
       {/* Identité — éditable (self-service) */}
       <div>
         <h1 className="mb-6 text-xl font-semibold">Profil</h1>
+
+        {/* Résumé d'activité : nombre de commandes et montant total dépensé */}
+        <div className="card mb-6 grid grid-cols-2 gap-4 p-5">
+          <div>
+            {loadingOrders ? (
+              <span className="block h-7 w-12 animate-pulse rounded bg-neutral-100" />
+            ) : (
+              <p className="text-2xl font-semibold tabular-nums">
+                {orderCount}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-neutral-500">
+              {orderCount > 1
+                ? 'Commandes passées'
+                : 'Commande passée'}
+            </p>
+          </div>
+          <div>
+            {loadingOrders ? (
+              <span className="block h-7 w-20 animate-pulse rounded bg-neutral-100" />
+            ) : (
+              <p className="text-2xl font-semibold tabular-nums">
+                {formatPrice(totalSpent || null)}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-neutral-500">Montant total dépensé</p>
+          </div>
+        </div>
+
         <form
           className="card space-y-4 p-5"
           onSubmit={async (e) => {
