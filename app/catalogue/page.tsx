@@ -104,6 +104,16 @@ export default async function CataloguePage({
 
   const families = context?.families ?? [];
   const total = res.pagination.total;
+
+  // Remonter les articles en stock en haut de chaque page (le kit ne propose
+  // pas de tri natif par stock). Tri stable : l'ordre du serveur est conservé
+  // entre articles de même disponibilité.
+  const sortedArticles = [...res.data].sort((a, b) => {
+    const aInStock = (a.stockQuantity ?? 0) > 0;
+    const bInStock = (b.stockQuantity ?? 0) > 0;
+    if (aInStock === bInStock) return 0;
+    return aInStock ? -1 : 1;
+  });
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
   // Libellé du catalogue actif (posé via le menu navbar) → puce dans les filtres.
@@ -204,13 +214,13 @@ export default async function CataloguePage({
         />
       ) : view === 'list' ? (
         <div className="flex flex-col gap-2">
-          {res.data.map((a) => (
+          {sortedArticles.map((a) => (
             <ArticleRow key={a.reference} article={a} />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {res.data.map((a) => (
+          {sortedArticles.map((a) => (
             <ArticleCard key={a.reference} article={a} />
           ))}
         </div>
