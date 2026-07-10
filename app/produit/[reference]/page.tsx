@@ -197,6 +197,11 @@ export default async function ProduitPage({
             </ul>
           </div>
         )}
+
+        <ShareLinks
+          url={absoluteUrl(`/produit/${encodeURIComponent(article.reference)}`)}
+          title={article.title}
+        />
       </div>
     </div>
   );
