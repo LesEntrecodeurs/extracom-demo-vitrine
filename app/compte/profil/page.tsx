@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import {
   useAuth,
   useAccount,
-  useCompany
+  useCompany,
+  useDocuments
 } from '@extracom/site-kit/react';
+import { formatPrice } from '@extracom/site-kit';
 import { PageLoader } from '@/components/site/Loader';
 
 export default function ProfilPage() {
@@ -28,6 +30,16 @@ export default function ProfilPage() {
     }
   }, [user]);
 
+  const { data: ordersData, isLoading: loadingOrders } = useDocuments({
+    type: 1
+  });
+  const ordersStats = useMemo(() => {
+    const list = ordersData?.data ?? [];
+    const total = list.reduce((sum, d) => sum + (d.totalInclVat ?? 0), 0);
+    const count = ordersData?.pagination?.total ?? list.length;
+    return { count, total };
+  }, [ordersData]);
+
   if (loadingUser) return <PageLoader label="Chargement du profil…" />;
   if (!user) return null;
 
@@ -44,9 +56,30 @@ export default function ProfilPage() {
 
   return (
     <div className="max-w-lg space-y-8">
+      <h1 className="text-xl font-semibold">Profil</h1>
+
+      {/* Résumé activité — nombre de commandes et total dépensé */}
+      <dl className="card grid grid-cols-2 divide-x divide-neutral-100 p-0">
+        <div className="p-5">
+          <dt className="text-xs font-medium text-neutral-500">
+            Commandes passées
+          </dt>
+          <dd className="mt-1 text-2xl font-semibold">
+            {loadingOrders ? '…' : ordersStats.count}
+          </dd>
+        </div>
+        <div className="p-5">
+          <dt className="text-xs font-medium text-neutral-500">
+            Total dépensé
+          </dt>
+          <dd className="mt-1 text-2xl font-semibold">
+            {loadingOrders ? '…' : formatPrice(ordersStats.total)}
+          </dd>
+        </div>
+      </dl>
+
       {/* Identité — éditable (self-service) */}
       <div>
-        <h1 className="mb-6 text-xl font-semibold">Profil</h1>
         <form
           className="card space-y-4 p-5"
           onSubmit={async (e) => {
