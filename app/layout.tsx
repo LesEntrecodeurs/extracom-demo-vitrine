@@ -93,13 +93,13 @@ export default async function RootLayout({
               <FooterCol
                 title="Compte"
                 links={[
-                  ['Connexion', '/connexion'],
+                  ...(!user ? [['Connexion', '/connexion'] as [string, string]] : []),
                   // Lien d'inscription masqué quand la vitrine n'ouvre pas la
                   // création de compte (capability dérivée).
-                  ...(context?.capabilities?.registrationOpen
+                  ...(!user && context?.capabilities?.registrationOpen
                     ? [['Créer un compte', '/inscription'] as [string, string]]
                     : []),
-                  ['Mon compte', '/compte']
+                  ...(user ? [['Mon compte', '/compte'] as [string, string]] : [])
                 ]}
               />
               <FooterCol

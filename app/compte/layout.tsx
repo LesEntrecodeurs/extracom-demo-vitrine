@@ -1,8 +1,8 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@extracom/site-kit/react';
 import { CompanySwitcher } from '@/components/site/CompanySwitcher';
 import { PageLoader } from '@/components/site/Loader';
@@ -17,20 +17,15 @@ const NAV: [string, string][] = [
 export default function CompteLayout({ children }: { children: ReactNode }) {
   const { user, isLoading, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
 
-  if (isLoading) return <PageLoader label="Chargement de votre compte…" />;
-  if (!user)
-    return (
-      <p>
-        Vous n'êtes pas connecté.{' '}
-        <Link
-          href={`/connexion?redirect=${encodeURIComponent(pathname)}`}
-          className="text-[var(--brand-dark)] underline"
-        >
-          Se connecter
-        </Link>
-      </p>
-    );
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace(`/connexion?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [isLoading, pathname, router, user]);
+
+  if (isLoading || !user) return <PageLoader label="Chargement de votre compte…" />;
 
   return (
     <div className="grid gap-8 md:grid-cols-[220px_1fr]">
