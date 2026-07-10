@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { unstable_cache } from 'next/cache';
 import { Lock, PackageSearch } from 'lucide-react';
 import {
@@ -24,6 +24,7 @@ import {
   ViewToggle,
   type CatalogueView
 } from '@/components/site/ViewToggle';
+import { CataloguePagination } from '@/components/site/CataloguePagination';
 
 export const dynamic = 'force-dynamic';
 
