@@ -69,12 +69,17 @@ export default async function CataloguePage({
     pmin?: string;
     pmax?: string;
     view?: string;
+    inStock?: string;
   }>;
 }) {
   const sp = await searchParams;
   const search = sp.q || undefined;
   const page = sp.page ? Math.max(1, Number(sp.page)) : 1;
-  const limit = 24;
+  // Avec le filtre « en stock », on récupère une fenêtre large (puis filtrage
+  // mémoire + re-pagination) pour que la pagination affichée reste cohérente.
+  const pageSize = 24;
+  const inStock = sp.inStock === '1';
+  const limit = inStock ? 200 : pageSize;
   const sort = (sp.sort as ArticleSort | undefined) || undefined;
   const minPrice = sp.pmin ? Number(sp.pmin) : undefined;
   const maxPrice = sp.pmax ? Number(sp.pmax) : undefined;
@@ -103,8 +108,23 @@ export default async function CataloguePage({
   ]);
 
   const families = context?.families ?? [];
-  const total = res.pagination.total;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  // Filtre « en stock » : appliqué côté serveur après la requête, sur l'attribut
+  // `stockQuantity` exposé par article. On garde les articles sans info de stock
+  // (le back ne l'a pas fourni) plutôt que de les exclure par prudence.
+  const filteredData = inStock
+    ? res.data.filter(
+        (a) => a.stockQuantity == null || a.stockQuantity > 0
+      )
+    : res.data;
+
+  // Avec le filtre stock on re-pagine en mémoire sur la fenêtre récupérée,
+  // sinon on garde la pagination serveur normale.
+  const total = inStock ? filteredData.length : res.pagination.total;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const pageData = inStock
+    ? filteredData.slice((page - 1) * pageSize, page * pageSize)
+    : filteredData;
 
   // Libellé du catalogue actif (posé via le menu navbar) → puce dans les filtres.
   const activeCatalogId = sp.catalog ? Number(sp.catalog) : undefined;
@@ -122,6 +142,7 @@ export default async function CataloguePage({
     if (sp.sort) params.set('sort', sp.sort);
     if (sp.pmin) params.set('pmin', sp.pmin);
     if (sp.pmax) params.set('pmax', sp.pmax);
+    if (inStock) params.set('inStock', '1');
     if (view === 'list') params.set('view', 'list');
     params.set('page', String(p));
     return `/catalogue?${params.toString()}`;
@@ -145,6 +166,7 @@ export default async function CataloguePage({
         {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
         {sp.pmin && <input type="hidden" name="pmin" value={sp.pmin} />}
         {sp.pmax && <input type="hidden" name="pmax" value={sp.pmax} />}
+        {inStock && <input type="hidden" name="inStock" value="1" />}
       </form>
 
       {/* Onboarding visiteur anonyme : les tarifs s'affichent après connexion. */}
@@ -170,7 +192,8 @@ export default async function CataloguePage({
           sort: sp.sort,
           pmin: sp.pmin,
           pmax: sp.pmax,
-          view: sp.view
+          view: sp.view,
+          inStock
         }}
       />
 
@@ -189,7 +212,8 @@ export default async function CataloguePage({
               family: sp.family,
               sort: sp.sort,
               pmin: sp.pmin,
-              pmax: sp.pmax
+              pmax: sp.pmax,
+              inStock: inStock ? '1' : undefined
             }}
           />
         </div>
