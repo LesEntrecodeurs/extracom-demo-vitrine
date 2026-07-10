@@ -1,12 +1,24 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function PanierPage() {
   return (
@@ -18,6 +30,10 @@ export default function PanierPage() {
 
 function PanierContent() {
   const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const [pendingRemoval, setPendingRemoval] = useState<{
+    id: string;
+    label: string;
+  } | null>(null);
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -70,7 +86,12 @@ function PanierContent() {
               </div>
               <button
                 type="button"
-                onClick={() => removeItem(line.id)}
+                onClick={() =>
+                  setPendingRemoval({
+                    id: line.id,
+                    label: line.label ?? line.reference,
+                  })
+                }
                 aria-label={`Retirer ${line.label ?? line.reference} du panier`}
                 className="text-sm text-neutral-400 hover:text-red-600"
               >
@@ -99,6 +120,49 @@ function PanierContent() {
           Commander
         </Link>
       </aside>
+
+      <AlertDialog
+        open={pendingRemoval !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingRemoval(null);
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Retirer cet article&nbsp;?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Voulez-vous vraiment retirer
+              {pendingRemoval ? (
+                <>
+                  {' '}
+                  <strong>{pendingRemoval.label}</strong>{' '}
+                </>
+              ) : (
+                ' cet article '
+              )}
+              de votre panier&nbsp;? Vous pourrez le rajouter à tout moment.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                if (pendingRemoval) {
+                  const label = pendingRemoval.label;
+                  removeItem(pendingRemoval.id);
+                  setPendingRemoval(null);
+                  toast.success('Article retiré du panier.', {
+                    description: label,
+                  });
+                }
+              }}
+            >
+              Retirer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
