@@ -17,7 +17,8 @@ export default function PanierPage() {
 }
 
 function PanierContent() {
-  const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const { cart, isLoading, error, updateLine, removeItem, setComment } =
+    useCart();
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -79,6 +80,30 @@ function PanierContent() {
             </li>
           ))}
         </ul>
+
+        <div className="card mt-6 p-5">
+          <label htmlFor="cart-comment" className="block text-sm font-medium">
+            Remarque pour votre commande
+          </label>
+          <p className="mt-1 text-xs text-neutral-500">
+            Indiquez ici une précision à transmettre avant la validation
+            (optionnel).
+          </p>
+          <textarea
+            id="cart-comment"
+            rows={3}
+            maxLength={69}
+            defaultValue={cart.comment ?? ''}
+            onBlur={(e) => {
+              const value = e.target.value;
+              if (value !== (cart.comment ?? '')) setComment(value);
+            }}
+            className="field mt-3 w-full"
+          />
+          <p className="mt-1 text-right text-xs text-neutral-400">
+            {(cart.comment?.length ?? 0)}/69
+          </p>
+        </div>
       </div>
 
       <aside className="card h-fit p-5">
