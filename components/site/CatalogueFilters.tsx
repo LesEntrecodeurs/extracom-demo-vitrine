@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUpDown, Layers, X } from 'lucide-react';
+import { ArrowUpDown, Layers, Wallet, X } from 'lucide-react';
 import type { ArticleSort, Family } from '@extracom/site-kit';
 import {
   Select,
@@ -163,7 +163,14 @@ export function CatalogueFilters({
         </Button>
       </form>
 
-      <div className="flex flex-wrap items-center gap-1.5" aria-label="Tranches de prix rapides">
+      <div
+        className="flex flex-wrap items-center gap-1.5 rounded-full border border-neutral-200 bg-white/60 px-2 py-1"
+        aria-label="Tranches de prix rapides"
+      >
+        <span className="inline-flex items-center gap-1 px-2 text-xs font-medium tracking-wide text-neutral-500 uppercase">
+          <Wallet className="size-3.5" />
+          Prix
+        </span>
         {PRICE_RANGES.map((range) => {
           const isActive =
             (current.pmin ?? '') === (range.pmin ?? '') &&
@@ -175,6 +182,7 @@ export function CatalogueFilters({
               type="button"
               variant={isActive ? 'default' : 'outline'}
               size="sm"
+              aria-pressed={isActive}
               onClick={() => {
                 setPmin(range.pmin ?? '');
                 setPmax(range.pmax ?? '');
