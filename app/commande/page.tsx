@@ -245,6 +245,40 @@ function CommandeContent() {
         </p>
       )}
 
+      {/* Mode de paiement effectif — affiché AVANT les boutons pour que
+          le client sache, au moment de valider, comment il réglera sa
+          commande. Le libellé suit exactement le bouton rendu juste en
+          dessous. */}
+      <div
+        role="status"
+        aria-live="polite"
+        className="mt-6 flex items-start gap-3 rounded-xl border border-[var(--brand)]/30 bg-[var(--brand-light)] p-4 text-sm text-[var(--brand-dark)]"
+      >
+        {canOrderDirect ? (
+          <Banknote aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+        ) : paymentEnabled ? (
+          <CreditCard aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+        ) : (
+          <Clock aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+        )}
+        <div>
+          <p className="font-semibold">
+            {canOrderDirect
+              ? 'Paiement à la réception'
+              : paymentEnabled
+                ? 'Paiement en ligne sécurisé'
+                : 'Validation par notre équipe avant paiement'}
+          </p>
+          <p className="mt-0.5 text-xs opacity-80">
+            {canOrderDirect
+              ? 'Aucun règlement maintenant : vous payez à la livraison de votre commande.'
+              : paymentEnabled
+                ? 'Vous serez redirigé vers notre prestataire pour régler par carte en toute sécurité.'
+                : 'Votre commande sera examinée par un commercial ; le règlement vous sera demandé ensuite.'}
+          </p>
+        </div>
+      </div>
+
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {/* Devis : disponible dès que le rôle l'autorise (indépendant du
             paiement). Crée un document de type « devis » (0). */}
