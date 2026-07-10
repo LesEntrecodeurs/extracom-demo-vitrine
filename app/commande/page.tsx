@@ -16,6 +16,7 @@ import { formatPrice } from '@extracom/site-kit';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
+import { SecurePaymentBadge } from '@/components/site/SecurePaymentBadge';
 
 export default function CommandePage() {
   return (
