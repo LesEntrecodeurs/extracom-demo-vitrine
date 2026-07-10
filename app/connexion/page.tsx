@@ -9,6 +9,13 @@ export default function ConnexionPage() {
   const { login } = useAuth();
   const { data: context } = useShopContext();
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+  const terms = context?.terms ?? [];
+  const cgv = terms.find(
+    (t) => /cgv|conditions/i.test(t.type) && !!t.url
+  );
+  const privacy = terms.find(
+    (t) => /confidentialit|privacy/i.test(t.type) && !!t.url
+  );
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -92,6 +99,31 @@ export default function ConnexionPage() {
           Mot de passe oublié ?
         </Link>
       </p>
+      {(cgv || privacy) && (
+        <p className="mt-6 text-xs text-neutral-500">
+          {cgv && (
+            <a
+              href={cgv.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--brand-dark)] underline"
+            >
+              {cgv.type}
+            </a>
+          )}
+          {cgv && privacy && ' · '}
+          {privacy && (
+            <a
+              href={privacy.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--brand-dark)] underline"
+            >
+              {privacy.type}
+            </a>
+          )}
+        </p>
+      )}
     </div>
   );
 }
