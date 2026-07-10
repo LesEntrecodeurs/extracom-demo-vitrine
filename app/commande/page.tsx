@@ -15,6 +15,7 @@ import {
 import { formatPrice } from '@extracom/site-kit';
 import { AddressForm } from '@/components/site/AddressForm';
 import { AuthGate } from '@/components/site/AuthGate';
+import { EmptyState } from '@/components/site/EmptyState';
 import { CartSkeleton } from '@/components/site/Loader';
 
 export default function CommandePage() {
@@ -106,12 +107,11 @@ function CommandeContent() {
   if (isLoading) return <CartSkeleton />;
   if (!cart || cart.lines.length === 0)
     return (
-      <p>
-        Panier vide.{' '}
-        <Link href="/catalogue" className="text-[var(--brand-dark)] underline">
-          Catalogue
-        </Link>
-      </p>
+      <EmptyState
+        title="Votre panier est vide"
+        description="Ajoutez au moins un article avant de passer commande."
+        action={{ label: 'Voir le catalogue', href: '/catalogue' }}
+      />
     );
 
   const hasDelivery = !!cart.deliveryAddressId;
