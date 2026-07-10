@@ -27,7 +27,7 @@ export default function CommandePage() {
 
 function CommandeContent() {
   const { cart, isLoading, setDelivery, setComment } = useCart();
-  const { options, addAddress } = useDelivery();
+  const { options, addAddress, updateAddress } = useDelivery();
   const { start, isLoading: paying, error: payError } = usePayment();
   const {
     createOrder,
@@ -39,6 +39,7 @@ function CommandeContent() {
   const { activeId } = useCompany();
   const { data: context } = useShopContext();
   const [showAdd, setShowAdd] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
   const [isQuote, setIsQuote] = useState(false);
@@ -152,28 +153,71 @@ function CommandeContent() {
       <section className="mt-6">
         <h2 className="mb-2 font-medium">Adresse de livraison</h2>
         <ul className="space-y-2">
-          {(options?.addresses ?? []).map((a) => (
-            <li key={a.id}>
-              <label
-                className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm ${
+          {(options?.addresses ?? []).map((a) =>
+            editId === a.id ? (
+              <li key={a.id}>
+                <div className="rounded-lg border border-[var(--brand)] bg-[var(--brand-light)] p-4">
+                  <AddressForm
+                    submitLabel="Enregistrer"
+                    initial={{
+                      label: a.label,
+                      line1: a.line1,
+                      line2: a.line2,
+                      postalCode: a.postalCode,
+                      city: a.city,
+                      country: a.country,
+                      contactName: a.contactName,
+                      phone: a.phone
+                    }}
+                    onCancel={() => setEditId(null)}
+                    onSubmit={async (data) => {
+                      await toast.promise(
+                        updateAddress({ id: a.id, ...data }),
+                        {
+                          loading: 'Mise à jour…',
+                          success: 'Adresse mise à jour',
+                          error: "Impossible de modifier l'adresse"
+                        }
+                      );
+                      setEditId(null);
+                    }}
+                  />
+                </div>
+              </li>
+            ) : (
+              <li
+                key={a.id}
+                className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-sm ${
                   cart.deliveryAddressId === a.id
                     ? 'border-[var(--brand)] bg-[var(--brand-light)]'
                     : 'border-neutral-200'
                 }`}
               >
-                <input
-                  type="radio"
-                  name="delivery"
-                  checked={cart.deliveryAddressId === a.id}
-                  onChange={() => setDelivery({ deliveryAddressId: a.id })}
-                />
-                <span>
-                  {a.label ? `${a.label} — ` : ''}
-                  {a.line1}, {a.postalCode} {a.city}
-                </span>
-              </label>
-            </li>
-          ))}
+                <label className="flex flex-1 cursor-pointer items-center gap-3">
+                  <input
+                    type="radio"
+                    name="delivery"
+                    checked={cart.deliveryAddressId === a.id}
+                    onChange={() => setDelivery({ deliveryAddressId: a.id })}
+                  />
+                  <span>
+                    {a.label ? `${a.label} — ` : ''}
+                    {a.line1}, {a.postalCode} {a.city}
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdd(false);
+                    setEditId(a.id);
+                  }}
+                  className="shrink-0 text-sm text-[var(--brand-dark)] hover:underline"
+                >
+                  Modifier
+                </button>
+              </li>
+            )
+          )}
         </ul>
 
         <div className="mt-3">
