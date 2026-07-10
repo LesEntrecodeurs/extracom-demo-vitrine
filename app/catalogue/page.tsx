@@ -16,9 +16,14 @@ import type {
   CatalogNode
 } from '@extracom/site-kit';
 import { ArticleCard } from '@/components/site/ArticleCard';
+import { ArticleRow } from '@/components/site/ArticleRow';
 import { CatalogueFilters } from '@/components/site/CatalogueFilters';
 import { InfoBanner } from '@/components/site/InfoBanner';
 import { EmptyState } from '@/components/site/EmptyState';
+import {
+  ViewToggle,
+  type CatalogueView
+} from '@/components/site/ViewToggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,6 +68,7 @@ export default async function CataloguePage({
     sort?: string;
     pmin?: string;
     pmax?: string;
+    view?: string;
   }>;
 }) {
   const sp = await searchParams;
@@ -72,6 +78,7 @@ export default async function CataloguePage({
   const sort = (sp.sort as ArticleSort | undefined) || undefined;
   const minPrice = sp.pmin ? Number(sp.pmin) : undefined;
   const maxPrice = sp.pmax ? Number(sp.pmax) : undefined;
+  const view: CatalogueView = sp.view === 'list' ? 'list' : 'grid';
 
   const articlesQuery: ArticleListQuery = {
     search,
@@ -115,6 +122,7 @@ export default async function CataloguePage({
     if (sp.sort) params.set('sort', sp.sort);
     if (sp.pmin) params.set('pmin', sp.pmin);
     if (sp.pmax) params.set('pmax', sp.pmax);
+    if (view === 'list') params.set('view', 'list');
     params.set('page', String(p));
     return `/catalogue?${params.toString()}`;
   };
@@ -161,15 +169,30 @@ export default async function CataloguePage({
           clevel: sp.clevel,
           sort: sp.sort,
           pmin: sp.pmin,
-          pmax: sp.pmax
+          pmax: sp.pmax,
+          view: sp.view
         }}
       />
 
       {total > 0 && (
-        <p className="mb-3 text-sm text-neutral-500">
-          {total} article{total > 1 ? 's' : ''}
-          {activeCatalogLabel ? ` dans « ${activeCatalogLabel} »` : ''}
-        </p>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <p className="text-sm text-neutral-500">
+            {total} article{total > 1 ? 's' : ''}
+            {activeCatalogLabel ? ` dans « ${activeCatalogLabel} »` : ''}
+          </p>
+          <ViewToggle
+            currentView={view}
+            searchParams={{
+              q: sp.q,
+              catalog: sp.catalog,
+              clevel: sp.clevel,
+              family: sp.family,
+              sort: sp.sort,
+              pmin: sp.pmin,
+              pmax: sp.pmax
+            }}
+          />
+        </div>
       )}
 
       {res.data.length === 0 ? (
@@ -179,6 +202,12 @@ export default async function CataloguePage({
           description="Aucun article ne correspond à votre recherche. Essayez d'autres filtres."
           action={{ label: 'Réinitialiser', href: '/catalogue' }}
         />
+      ) : view === 'list' ? (
+        <div className="flex flex-col gap-2">
+          {res.data.map((a) => (
+            <ArticleRow key={a.reference} article={a} />
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {res.data.map((a) => (

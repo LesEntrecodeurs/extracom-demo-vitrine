@@ -23,6 +23,8 @@ interface Current {
   /** Fourchette de prix (sur le prix de base). */
   pmin?: string;
   pmax?: string;
+  /** Vue d'affichage (grille ou liste), préservée entre changements de filtres. */
+  view?: string;
 }
 
 const ALL = 'all'; // Radix interdit les <SelectItem value="">.
@@ -77,6 +79,7 @@ export function CatalogueFilters({
     if (next.sort) p.set('sort', next.sort);
     if (next.pmin) p.set('pmin', next.pmin);
     if (next.pmax) p.set('pmax', next.pmax);
+    if (next.view) p.set('view', next.view);
     const qs = p.toString();
     router.push(qs ? `/catalogue?${qs}` : '/catalogue');
   };
