@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useDocuments } from '@extracom/site-kit/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useDocuments, useCart } from '@extracom/site-kit/react';
 import { formatPrice, formatDate } from '@extracom/site-kit';
 import { ListSkeleton } from '@/components/site/Loader';
 
@@ -23,6 +25,10 @@ export default function CommandesPage() {
   );
   const [searchInput, setSearchInput] = useState('');
   const [cityInput, setCityInput] = useState('');
+  // Référence de la commande en cours de « ré-commande » (anti double-clic).
+  const [reorderingRef, setReorderingRef] = useState<string | null>(null);
+  const router = useRouter();
+  const { reorder } = useCart();
   const { data, isLoading, error } = useDocuments({
     type: typeCode,
     search: applied.search,
@@ -44,6 +50,19 @@ export default function CommandesPage() {
     setApplied({});
   };
   const hasTextFilter = !!(applied.search || applied.city);
+
+  const handleReorder = async (doc: (typeof docs)[number]) => {
+    const ref = doc.orderReference ?? doc.reference;
+    if (!ref || reorderingRef) return;
+    setReorderingRef(ref);
+    try {
+      await reorder(ref);
+      router.push('/panier');
+    } catch {
+      toast.error('La ré-commande a échoué. Réessayez.');
+      setReorderingRef(null);
+    }
+  };
 
   return (
     <div>
@@ -143,6 +162,18 @@ export default function CommandesPage() {
                 <span className="font-medium">
                   {formatPrice(d.totalInclVat ?? null)}
                 </span>
+                {d.typeCode === 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleReorder(d)}
+                    disabled={reorderingRef === d.reference}
+                    className="btn-outline !py-1.5 text-sm disabled:opacity-50"
+                  >
+                    {reorderingRef === d.reference
+                      ? 'Préparation…'
+                      : 'Recommander'}
+                  </button>
+                )}
                 <Link
                   href={`/compte/commandes/${encodeURIComponent(d.id)}${
                     d.typeCode != null ? `?type=${d.typeCode}` : ''
