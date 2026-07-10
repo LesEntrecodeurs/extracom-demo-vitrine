@@ -7,6 +7,7 @@ import type { ShopContext, User } from '@extracom/site-kit';
 import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
+import { A11yMenu } from '@/components/site/A11yMenu';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
 
@@ -68,10 +69,28 @@ export default async function RootLayout({
 
   return (
     <html lang="fr">
+      <head>
+        {/* Restaure immédiatement les préférences d'accessibilité pour
+            éviter tout flash au chargement (avant l'hydratation React). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('a11y-text-size');var c=localStorage.getItem('a11y-contrast');var r=document.documentElement;if(t==='lg'||t==='xl'){r.setAttribute('data-text-size',t);}if(c==='1'){r.setAttribute('data-contrast','high');}}catch(e){}})();"
+          }}
+        />
+      </head>
       <body>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-[var(--brand-dark)] focus:px-5 focus:py-2.5 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
+        >
+          Aller au contenu
+        </a>
         <JsonLd data={orgLd} />
         <Nav context={context} user={user} />
-        <main className="container-x py-10">{children}</main>
+        <main id="main-content" tabIndex={-1} className="container-x py-10">
+          {children}
+        </main>
 
         <footer className="mt-16 border-t border-neutral-200 bg-white">
           <div className="container-x grid gap-8 py-10 sm:grid-cols-2 md:grid-cols-4">
@@ -115,6 +134,7 @@ export default async function RootLayout({
           </div>
         </footer>
         <CookieConsent />
+        <A11yMenu />
         <Toaster richColors position="top-center" />
       </body>
     </html>
