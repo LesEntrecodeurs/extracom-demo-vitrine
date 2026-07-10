@@ -181,8 +181,12 @@ export default async function CataloguePage({
         />
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {res.data.map((a) => (
-            <ArticleCard key={a.reference} article={a} />
+          {res.data.map((a, i) => (
+            <ArticleCard
+              key={a.reference}
+              article={a}
+              priority={i < 4}
+            />
           ))}
         </div>
       )}

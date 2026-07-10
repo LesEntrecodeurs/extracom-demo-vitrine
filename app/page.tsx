@@ -162,8 +162,12 @@ export default async function HomePage() {
             </Link>
           </div>
           <FeaturedCarousel
-            items={featured.map((a) => (
-              <ArticleCard key={a.reference} article={a} />
+            items={featured.map((a, i) => (
+              <ArticleCard
+                key={a.reference}
+                article={a}
+                priority={i < 2}
+              />
             ))}
           />
         </section>
