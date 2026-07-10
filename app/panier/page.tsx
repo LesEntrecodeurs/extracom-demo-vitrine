@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 import { useCart } from '@extracom/site-kit/react';
 import { formatPrice } from '@extracom/site-kit';
 import { AuthGate } from '@/components/site/AuthGate';
 import { CartSkeleton } from '@/components/site/Loader';
 import { EmptyState } from '@/components/site/EmptyState';
+import { QuantityStepper } from '@/components/site/QuantityStepper';
 
 export default function PanierPage() {
   return (
@@ -18,6 +21,32 @@ export default function PanierPage() {
 
 function PanierContent() {
   const { cart, isLoading, error, updateLine, removeItem } = useCart();
+  const [updatingLineId, setUpdatingLineId] = useState<string | null>(null);
+  const [removingLineId, setRemovingLineId] = useState<string | null>(null);
+
+  const changeQuantity = async (lineId: string, quantity: number) => {
+    setUpdatingLineId(lineId);
+    try {
+      await updateLine(lineId, { quantity });
+    } catch {
+      toast.error('Impossible de mettre à jour la quantité.');
+    } finally {
+      setUpdatingLineId(null);
+    }
+  };
+
+  const removeLine = async (lineId: string, label: string | undefined) => {
+    setRemovingLineId(lineId);
+    try {
+      await removeItem(lineId);
+      toast.success('Article retiré du panier.');
+    } catch {
+      toast.error('Impossible de retirer cet article.');
+    } finally {
+      setRemovingLineId(null);
+      void label;
+    }
+  };
 
   if (isLoading) return <CartSkeleton />;
   if (error)
@@ -41,43 +70,50 @@ function PanierContent() {
       <div>
         <h1 className="mb-6 text-xl font-semibold">Votre panier</h1>
         <ul className="card divide-y divide-neutral-100">
-          {cart.lines.map((line) => (
-            <li key={line.id} className="flex items-center gap-4 p-4">
-              <div className="flex-1">
-                <p className="font-medium">{line.label ?? line.reference}</p>
-                {line.variantLabel && (
-                  <p className="text-xs text-neutral-500">
-                    Déclinaison : {line.variantLabel}
-                  </p>
-                )}
-                <p className="text-sm text-neutral-500">
-                  {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
-                </p>
-              </div>
-              <input
-                type="number"
-                min={1}
-                defaultValue={line.quantity}
-                onBlur={(e) =>
-                  updateLine(line.id, { quantity: Number(e.target.value) })
-                }
-                className="field w-16 text-center"
-              />
-              <div className="w-24 text-right font-medium">
-                {formatPrice(
-                  line.lineTotalInclVat ?? line.unitPrice * line.quantity
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => removeItem(line.id)}
-                aria-label={`Retirer ${line.label ?? line.reference} du panier`}
-                className="text-sm text-neutral-400 hover:text-red-600"
+          {cart.lines.map((line) => {
+            const isUpdating = updatingLineId === line.id;
+            const isRemoving = removingLineId === line.id;
+            const rowDisabled = isUpdating || isRemoving;
+            return (
+              <li
+                key={line.id}
+                className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap sm:gap-4"
               >
-                <span aria-hidden="true">✕</span>
-              </button>
-            </li>
-          ))}
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{line.label ?? line.reference}</p>
+                  {line.variantLabel && (
+                    <p className="text-xs text-neutral-500">
+                      Déclinaison : {line.variantLabel}
+                    </p>
+                  )}
+                  <p className="text-sm text-neutral-500">
+                    {formatPrice(line.unitPrice)} / {line.unit ?? 'unité'}
+                  </p>
+                </div>
+                <QuantityStepper
+                  value={line.quantity}
+                  onChange={(q) => changeQuantity(line.id, q)}
+                  disabled={rowDisabled}
+                  loading={isUpdating}
+                  ariaLabel={`Quantité pour ${line.label ?? line.reference}`}
+                />
+                <div className="w-28 text-right font-medium">
+                  {formatPrice(
+                    line.lineTotalInclVat ?? line.unitPrice * line.quantity
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeLine(line.id, line.label ?? line.reference)}
+                  disabled={rowDisabled}
+                  aria-label={`Retirer ${line.label ?? line.reference} du panier`}
+                  className="grid size-8 place-items-center rounded text-sm text-neutral-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span aria-hidden="true">✕</span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
