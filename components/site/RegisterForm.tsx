@@ -209,6 +209,9 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
         {isLoading ? '…' : 'Créer mon compte'}
       </button>
       <p className="text-center text-sm text-neutral-500">
+        Sauf la civilité, tous les champs sont obligatoires.
+      </p>
+      <p className="text-center text-sm text-neutral-500">
         Déjà un compte ?{' '}
         <Link href="/connexion" className="text-[var(--brand-dark)] underline">
           Se connecter
