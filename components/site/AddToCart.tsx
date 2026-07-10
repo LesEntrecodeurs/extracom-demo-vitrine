@@ -8,10 +8,13 @@ import { Button } from '@/components/ui/button';
 
 export function AddToCart({
   reference,
-  disabled
+  disabled,
+  size = 'default'
 }: {
   reference: string;
   disabled?: boolean;
+  /** Compact en vue liste, plein en grille. */
+  size?: 'default' | 'sm';
 }) {
   const { addItem, isLoading } = useAddToCart();
   const [added, setAdded] = useState(false);
@@ -20,7 +23,8 @@ export function AddToCart({
     <Button
       type="button"
       disabled={disabled || isLoading}
-      className="w-full"
+      size={size}
+      className={size === 'default' ? 'w-full' : undefined}
       onClick={async () => {
         try {
           await addItem({ reference, quantity: 1 });
