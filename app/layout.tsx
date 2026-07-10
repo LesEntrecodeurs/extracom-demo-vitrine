@@ -8,6 +8,7 @@ import { Nav } from '@/components/site/Nav';
 import { JsonLd } from '@/components/site/JsonLd';
 import { CookieConsent } from '@/components/site/CookieConsent';
 import { ThemeProvider } from '@/components/site/ThemeProvider';
+import { SearchShortcuts } from '@/components/site/SearchShortcuts';
 import { Toaster } from '@/components/ui/sonner';
 import { siteUrl } from '@/lib/seo';
 

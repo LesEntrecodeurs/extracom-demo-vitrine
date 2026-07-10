@@ -44,12 +44,18 @@ export function Nav({
                 name="q"
                 placeholder="Rechercher par nom ou référence…"
                 aria-label="Rechercher un article par nom ou référence"
-                className="field !rounded-r-none pl-9 pr-10"
+                className="field !rounded-r-none pl-9 pr-16"
               />
+              <kbd
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 right-1 hidden h-7 -translate-y-1/2 items-center gap-0.5 rounded border border-neutral-200 bg-white px-1.5 text-[10px] font-medium text-neutral-500 sm:flex"
+              >
+                <span className="text-xs">⌘</span>K
+              </kbd>
               <button
                 type="submit"
                 aria-label="Lancer la recherche"
-                className="absolute top-1/2 right-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-neutral-500 transition hover:bg-[var(--brand-light)] hover:text-[var(--brand-dark)]"
+                className="absolute top-1/2 right-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-neutral-500 transition hover:bg-[var(--brand-light)] hover:text-[var(--brand-dark)] sm:hidden"
               >
                 <ArrowRightIcon className="h-4 w-4" />
               </button>
