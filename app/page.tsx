@@ -7,7 +7,11 @@ import {
   BadgeEuro,
   ClipboardCheck,
   Search,
-  ArrowRight
+  ArrowRight,
+  ShoppingCart,
+  ClipboardList,
+  MapPin,
+  CheckCircle2
 } from 'lucide-react';
 import {
   getArticlesAction,
@@ -150,6 +154,30 @@ export default async function HomePage() {
         ))}
       </section>
 
+      {/* Parcours de commande en 5 étapes, du catalogue à la validation
+          effectuée par le client lui-même. Visible pour tous les visiteurs. */}
+      <section>
+        <h2 className="mb-1 text-xl font-semibold">Comment commander</h2>
+        <p className="mb-6 text-sm text-neutral-500">
+          Le déroulé complet, du catalogue à la validation finale de votre commande.
+        </p>
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {orderingSteps.map((s, i) => (
+            <li key={s.title} className="card relative p-5">
+              <span className="absolute top-4 right-4 text-3xl font-bold text-[var(--brand-light)]">
+                {i + 1}
+              </span>
+              <span className="text-[var(--brand)]">{s.icon}</span>
+              <p className="mt-3 font-medium">{s.title}</p>
+              <p className="mt-1 text-sm text-neutral-500">{s.text}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 text-xs text-neutral-500">
+          Étape finale : c&apos;est toujours vous qui validez et déclenchez l&apos;envoi de votre commande.
+        </p>
+      </section>
+
       {featured.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between">
@@ -263,5 +291,35 @@ const valueProps = [
     title: 'Support dédié',
     text: 'Une équipe à votre écoute',
     icon: <MessageCircle className="size-6" />
+  }
+];
+
+// Parcours de commande, du catalogue à la validation par le client.
+// La dernière étape rappelle explicitement que c'est le client qui valide.
+const orderingSteps = [
+  {
+    title: 'Parcourez le catalogue',
+    text: 'Trouvez vos produits par catégorie ou par recherche, avec vos tarifs affichés.',
+    icon: <Search className="size-6" />
+  },
+  {
+    title: 'Ajoutez au panier',
+    text: 'Sélectionnez les quantités et déclinaisons : vos remises s’appliquent automatiquement.',
+    icon: <ShoppingCart className="size-6" />
+  },
+  {
+    title: 'Vérifiez votre panier',
+    text: 'Ajustez les quantités, ajoutez une référence interne ou un commentaire pour la préparation.',
+    icon: <ClipboardList className="size-6" />
+  },
+  {
+    title: 'Préparez la livraison',
+    text: 'Choisissez ou ajoutez votre adresse de livraison, puis complétez les informations.',
+    icon: <MapPin className="size-6" />
+  },
+  {
+    title: 'Vous validez votre commande',
+    text: 'C’est vous qui cliquez pour confirmer l’envoi : aucune commande n’est déclenchée sans votre accord.',
+    icon: <CheckCircle2 className="size-6" />
   }
 ];
