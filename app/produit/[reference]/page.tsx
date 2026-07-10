@@ -141,9 +141,7 @@ export default async function ProduitPage({
 
         {typeof article.stockQuantity === 'number' && (
           <p className="mt-2 text-sm text-neutral-600">
-            {article.stockQuantity > 0
-              ? `En stock (${article.stockQuantity})`
-              : 'Rupture de stock'}
+            {article.stockQuantity > 0 ? 'Disponible' : 'Indisponible'}
           </p>
         )}
 
