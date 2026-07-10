@@ -80,14 +80,14 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           <input
             className="field flex-1"
             required
-            placeholder="Prénom"
+            placeholder="Prénom *"
             value={f.firstName}
             onChange={set('firstName')}
           />
           <input
             className="field flex-1"
             required
-            placeholder="Nom"
+            placeholder="Nom *"
             value={f.lastName}
             onChange={set('lastName')}
           />
@@ -96,7 +96,7 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           className="field"
           type="email"
           required
-          placeholder="Email"
+          placeholder="Email *"
           value={f.email}
           onChange={set('email')}
         />
@@ -104,7 +104,7 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           className="field"
           type="tel"
           required
-          placeholder="Téléphone"
+          placeholder="Téléphone *"
           value={f.phoneNumber}
           onChange={set('phoneNumber')}
         />
@@ -113,7 +113,7 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           type="password"
           required
           minLength={8}
-          placeholder="Mot de passe (8 caractères min.)"
+          placeholder="Mot de passe (8 caractères min.) *"
           value={f.password}
           onChange={set('password')}
         />
@@ -126,14 +126,14 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
         <input
           className="field"
           required
-          placeholder="Raison sociale"
+          placeholder="Raison sociale *"
           value={f.companyName}
           onChange={set('companyName')}
         />
         <input
           className="field"
           required
-          placeholder="Adresse"
+          placeholder="Adresse *"
           value={f.address}
           onChange={set('address')}
         />
@@ -141,14 +141,14 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           <input
             className="field w-32"
             required
-            placeholder="Code postal"
+            placeholder="Code postal *"
             value={f.zipCode}
             onChange={set('zipCode')}
           />
           <input
             className="field flex-1"
             required
-            placeholder="Ville"
+            placeholder="Ville *"
             value={f.city}
             onChange={set('city')}
           />
@@ -157,14 +157,14 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           <input
             className="field flex-1"
             required
-            placeholder="SIRET"
+            placeholder="SIRET *"
             value={f.siret}
             onChange={set('siret')}
           />
           <input
             className="field flex-1"
             required
-            placeholder="N° TVA intracom."
+            placeholder="N° TVA intracom. *"
             value={f.taxId}
             onChange={set('taxId')}
           />
@@ -198,9 +198,13 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
               )}
             </span>
           ))}
+          {' *'}
         </span>
       </label>
 
+      <p className="text-xs text-neutral-500">
+        Les champs marqués d'un astérisque (*) sont obligatoires.
+      </p>
       <button
         type="submit"
         disabled={isLoading || !accept}
