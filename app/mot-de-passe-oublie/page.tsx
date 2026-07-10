@@ -81,6 +81,21 @@ export default function MotDePasseOubliePage() {
             }
           }}
         >
+          <div
+            role="status"
+            aria-live="polite"
+            className="rounded border border-green-200 bg-green-50 p-4 text-sm text-green-800"
+          >
+            <p className="font-medium">
+              ✓ Demande enregistrée — un email vient d'être envoyé à{' '}
+              <span className="font-semibold">{email}</span>.
+            </p>
+            <p className="mt-1 text-green-800/90">
+              Prochaines étapes : consultez votre boîte de réception (et votre
+              dossier de courrier indésirable si besoin), puis saisissez le
+              code ci-dessous pour définir votre nouveau mot de passe.
+            </p>
+          </div>
           <input
             required
             placeholder="Code reçu par email"
