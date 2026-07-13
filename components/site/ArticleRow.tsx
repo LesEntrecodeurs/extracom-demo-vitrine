@@ -78,7 +78,7 @@ export function ArticleRow({ article }: { article: Article }) {
               }`}
             >
               {article.stockQuantity > 0
-                ? `En stock${article.stockQuantity > 1 ? ` (${article.stockQuantity})` : ''}`
+                ? 'En stock'
                 : 'Épuisé'}
             </span>
           )}
