@@ -4,11 +4,14 @@ import Image from 'next/image';
 import {
   getArticleAction,
   getAnonymousArticleAction,
+  getArticlesAction,
+  getAnonymousArticlesAction,
   isAuthenticatedAction
 } from '@extracom/site-kit/server';
 import { formatPrice, type Article } from '@extracom/site-kit';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
+import { ArticleCard } from '@/components/site/ArticleCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,6 +62,12 @@ export default async function ProduitPage({
     ? await getArticleAction(decodeURIComponent(reference))
     : await cachedAnonArticle(reference);
 
+  // Produits liés : autres articles de la même famille (ou du même nœud
+  // catalogue en fallback). Récupérés via la même action que l'article
+  // courant pour rester cohérent sur le prix exposé. Si aucun voisin n'est
+  // trouvé (famille vide, erreur), la section est masquée.
+  const related = await fetchRelatedProducts(article, authed);
+
   // JSON-LD Product (SEO + GEO). L'offre n'est incluse que si un prix est exposé.
   const productLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -83,123 +92,180 @@ export default async function ProduitPage({
   };
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
-      <JsonLd data={productLd} />
+    <div className="space-y-12">
+      <div className="grid gap-8 md:grid-cols-2">
+        <JsonLd data={productLd} />
 
-      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-neutral-100">
-        <Image
-          src={article.imageUrl || '/placeholder.svg'}
-          alt={article.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
-          priority
-        />
-      </div>
-
-      <div>
-        <h1 className="text-2xl font-bold">{article.title}</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Réf. {article.reference}
-        </p>
-
-        <div className="mt-4 flex items-baseline gap-3">
-          <span className="text-xl font-semibold text-[var(--brand-dark)]">
-            {article.price == null ? (
-              <span className="text-base text-neutral-500">
-                Connectez-vous pour voir votre tarif
-              </span>
-            ) : (
-              formatPrice(article.price)
-            )}
-          </span>
-          {article.price != null &&
-            article.basePrice != null &&
-            article.basePrice > article.price && (
-              <span className="text-sm text-neutral-400 line-through">
-                {formatPrice(article.basePrice)}
-              </span>
-            )}
-          {article.promotion && (
-            <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-              -{article.promotion.discountPercent}%
-            </span>
-          )}
-          {typeof article.vatRate === 'number' && (
-            <span className="text-xs text-neutral-400">
-              TVA {article.vatRate}%
-            </span>
-          )}
-        </div>
-
-        <p className="mt-1 text-sm text-neutral-500">
-          Unité : {article.unit}
-          {article.packagingQuantity && article.packagingQuantity > 1
-            ? ` · par ${article.packagingQuantity}`
-            : ''}
-        </p>
-
-        {typeof article.stockQuantity === 'number' && (
-          <p className="mt-2 text-sm text-neutral-600">
-            {article.stockQuantity > 0
-              ? `En stock (${article.stockQuantity})`
-              : 'Rupture de stock'}
-          </p>
-        )}
-
-        {article.description && (
-          <p className="mt-4 whitespace-pre-line text-neutral-700">
-            {article.description}
-          </p>
-        )}
-
-        {/* Déclinaisons (gamme) + ajout au panier */}
-        <div className="mt-6">
-          <BuyBox
-            reference={article.reference}
-            gammes={article.gammes}
-            priceHidden={article.price == null}
+        <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-neutral-100">
+          <Image
+            src={article.imageUrl || '/placeholder.svg'}
+            alt={article.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            priority
           />
         </div>
 
-        {/* Caractéristiques */}
-        <Specs article={article} />
+        <div>
+          <h1 className="text-2xl font-bold">{article.title}</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Réf. {article.reference}
+          </p>
 
-        {/* Contenu enrichi (glossaires) */}
-        {article.glossaires
-          ?.filter((g) => g.text?.trim())
-          .map((g) => (
-            <p
-              key={g.text}
-              className="mt-4 text-sm whitespace-pre-line text-neutral-600"
-            >
-              {g.text}
-            </p>
-          ))}
-
-        {/* Fiches techniques */}
-        {article.specSheets && article.specSheets.length > 0 && (
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
-            <ul className="mt-2 space-y-1">
-              {article.specSheets.map((url, i) => (
-                <li key={url}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-[var(--brand-dark)] underline"
-                  >
-                    Fiche technique {i + 1}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <div className="mt-4 flex items-baseline gap-3">
+            <span className="text-xl font-semibold text-[var(--brand-dark)]">
+              {article.price == null ? (
+                <span className="text-base text-neutral-500">
+                  Connectez-vous pour voir votre tarif
+                </span>
+              ) : (
+                formatPrice(article.price)
+              )}
+            </span>
+            {article.price != null &&
+              article.basePrice != null &&
+              article.basePrice > article.price && (
+                <span className="text-sm text-neutral-400 line-through">
+                  {formatPrice(article.basePrice)}
+                </span>
+              )}
+            {article.promotion && (
+              <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
+                -{article.promotion.discountPercent}%
+              </span>
+            )}
+            {typeof article.vatRate === 'number' && (
+              <span className="text-xs text-neutral-400">
+                TVA {article.vatRate}%
+              </span>
+            )}
           </div>
-        )}
+
+          <p className="mt-1 text-sm text-neutral-500">
+            Unité : {article.unit}
+            {article.packagingQuantity && article.packagingQuantity > 1
+              ? ` · par ${article.packagingQuantity}`
+              : ''}
+          </p>
+
+          {typeof article.stockQuantity === 'number' && (
+            <p className="mt-2 text-sm text-neutral-600">
+              {article.stockQuantity > 0
+                ? `En stock (${article.stockQuantity})`
+                : 'Rupture de stock'}
+            </p>
+          )}
+
+          {article.description && (
+            <p className="mt-4 whitespace-pre-line text-neutral-700">
+              {article.description}
+            </p>
+          )}
+
+          {/* Déclinaisons (gamme) + ajout au panier */}
+          <div className="mt-6">
+            <BuyBox
+              reference={article.reference}
+              gammes={article.gammes}
+              priceHidden={article.price == null}
+            />
+          </div>
+
+          {/* Caractéristiques */}
+          <Specs article={article} />
+
+          {/* Contenu enrichi (glossaires) */}
+          {article.glossaires
+            ?.filter((g) => g.text?.trim())
+            .map((g) => (
+              <p
+                key={g.text}
+                className="mt-4 text-sm whitespace-pre-line text-neutral-600"
+              >
+                {g.text}
+              </p>
+            ))}
+
+          {/* Fiches techniques */}
+          {article.specSheets && article.specSheets.length > 0 && (
+            <div className="mt-5">
+              <h2 className="text-sm font-medium text-neutral-700">Documents</h2>
+              <ul className="mt-2 space-y-1">
+                {article.specSheets.map((url, i) => (
+                  <li key={url}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm text-[var(--brand-dark)] underline"
+                    >
+                      Fiche technique {i + 1}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Produits liés : autres articles de la même famille. */}
+      {related.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-end justify-between">
+            <h2 className="text-xl font-semibold">Vous aimerez aussi</h2>
+            {article.family?.label && (
+              <span className="text-sm text-neutral-500">
+                Dans la famille {article.family.label}
+              </span>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {related.map((a) => (
+              <ArticleCard key={a.reference} article={a} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
+}
+
+/**
+ * Récupère les autres articles de la même famille que l'article courant.
+ * - Priorité au code famille (`family.code`) si renseigné.
+ * - Sinon, retombe sur le dernier nœud du fil d'Ariane catalogue (`catalogPath`)
+ *   → filtrage au niveau le plus spécifique connu.
+ * - Exclut l'article courant, plafonne à 8 résultats.
+ * - Renvoie `[]` en cas d'erreur ou si aucun voisin n'est trouvé (la
+ *   section « Vous aimerez aussi » est alors masquée côté rendu).
+ */
+async function fetchRelatedProducts(
+  article: Article,
+  authed: boolean
+): Promise<Article[]> {
+  const familyCode = article.family?.code;
+  // Fil d'Ariane : on prend le nœud le plus profond (le plus spécifique).
+  const deepest = article.catalogPath?.[article.catalogPath.length - 1];
+
+  // Pas de regroupement exploitable → on n'affiche rien.
+  if (!familyCode && !deepest) return [];
+
+  try {
+    const query =
+      familyCode != null
+        ? { familyCode, limit: 8 }
+        : { catalogId: deepest!.id, catalogLevel: deepest!.level, limit: 8 };
+    const response = authed
+      ? await getArticlesAction(query)
+      : await getAnonymousArticlesAction(query);
+    return response.data.filter((a) => a.reference !== article.reference);
+  } catch {
+    // Récupération best-effort : on n'affiche pas la section si la liste
+    // ne peut pas être chargée.
+    return [];
+  }
 }
 
 function Specs({ article }: { article: Article }) {
