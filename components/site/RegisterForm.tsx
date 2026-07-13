@@ -214,6 +214,10 @@ export function RegisterForm({ terms }: { terms: TermsDocument[] }) {
           Se connecter
         </Link>
       </p>
+      <p className="text-center text-xs text-neutral-500">
+        Tous les champs sont obligatoires, sauf la civilité. Vous devez également
+        accepter les conditions pour créer votre compte.
+      </p>
     </form>
   );
 }
