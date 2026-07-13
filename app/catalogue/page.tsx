@@ -68,6 +68,7 @@ export default async function CataloguePage({
     sort?: string;
     pmin?: string;
     pmax?: string;
+    inStock?: string;
     view?: string;
   }>;
 }) {
@@ -122,6 +123,7 @@ export default async function CataloguePage({
     if (sp.sort) params.set('sort', sp.sort);
     if (sp.pmin) params.set('pmin', sp.pmin);
     if (sp.pmax) params.set('pmax', sp.pmax);
+    if (sp.inStock) params.set('inStock', sp.inStock);
     if (view === 'list') params.set('view', 'list');
     params.set('page', String(p));
     return `/catalogue?${params.toString()}`;
@@ -145,6 +147,7 @@ export default async function CataloguePage({
         {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
         {sp.pmin && <input type="hidden" name="pmin" value={sp.pmin} />}
         {sp.pmax && <input type="hidden" name="pmax" value={sp.pmax} />}
+        {sp.inStock && <input type="hidden" name="inStock" value={sp.inStock} />}
       </form>
 
       {/* Onboarding visiteur anonyme : les tarifs s'affichent après connexion. */}
@@ -170,6 +173,7 @@ export default async function CataloguePage({
           sort: sp.sort,
           pmin: sp.pmin,
           pmax: sp.pmax,
+          inStock: sp.inStock,
           view: sp.view
         }}
       />
@@ -189,7 +193,8 @@ export default async function CataloguePage({
               family: sp.family,
               sort: sp.sort,
               pmin: sp.pmin,
-              pmax: sp.pmax
+              pmax: sp.pmax,
+              inStock: sp.inStock
             }}
           />
         </div>
