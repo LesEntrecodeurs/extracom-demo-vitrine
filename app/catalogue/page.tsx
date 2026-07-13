@@ -159,6 +159,7 @@ export default async function CataloguePage({
         {sp.pmin && <input type="hidden" name="pmin" value={sp.pmin} />}
         {sp.pmax && <input type="hidden" name="pmax" value={sp.pmax} />}
         {sp.inStock && <input type="hidden" name="inStock" value={sp.inStock} />}
+        {view === 'list' && <input type="hidden" name="view" value="list" />}
       </form>
 
       {/* Onboarding visiteur anonyme : les tarifs s'affichent après connexion. */}
@@ -190,24 +191,27 @@ export default async function CataloguePage({
       />
 
       {total > 0 && (
-        <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-neutral-500">
             {total} article{total > 1 ? 's' : ''}
             {activeCatalogLabel ? ` dans « ${activeCatalogLabel} »` : ''}
           </p>
-          <ViewToggle
-            currentView={view}
-            searchParams={{
-              q: sp.q,
-              catalog: sp.catalog,
-              clevel: sp.clevel,
-              family: sp.family,
-              sort: sp.sort,
-              pmin: sp.pmin,
-              pmax: sp.pmax,
-              inStock: sp.inStock
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-neutral-500">Affichage</span>
+            <ViewToggle
+              currentView={view}
+              searchParams={{
+                q: sp.q,
+                catalog: sp.catalog,
+                clevel: sp.clevel,
+                family: sp.family,
+                sort: sp.sort,
+                pmin: sp.pmin,
+                pmax: sp.pmax,
+                inStock: sp.inStock
+              }}
+            />
+          </div>
         </div>
       )}
 
