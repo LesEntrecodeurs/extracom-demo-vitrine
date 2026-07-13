@@ -1,7 +1,18 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
-import { Lock, PackageSearch } from 'lucide-react';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Lock,
+  PackageSearch
+} from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink
+} from '@/components/ui/pagination';
 import {
   getArticlesAction,
   getContextAction,
@@ -222,18 +233,76 @@ export default async function CataloguePage({
       )}
 
       {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4 text-sm">
-          {page > 1 && <Link href={pageHref(page - 1)}>← Précédent</Link>}
-          <span className="text-neutral-500">
-            Page {page} / {totalPages}
-          </span>
-          {page < totalPages && (
-            <Link href={pageHref(page + 1)}>Suivant →</Link>
-          )}
-        </div>
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationLink
+                href={pageHref(Math.max(1, page - 1))}
+                size="default"
+                aria-label="Page précédente"
+                className={
+                  page === 1
+                    ? 'pointer-events-none gap-1 px-2.5 opacity-50 sm:pl-2.5'
+                    : 'gap-1 px-2.5 sm:pl-2.5'
+                }
+              >
+                <ChevronLeftIcon />
+                <span className="hidden sm:block">Précédent</span>
+              </PaginationLink>
+            </PaginationItem>
+            {buildPageList(page, totalPages).map((p, i) =>
+              p === '…' ? (
+                <PaginationItem key={`ellipsis-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    href={pageHref(p)}
+                    isActive={p === page}
+                    aria-label={`Page ${p}`}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+            <PaginationItem>
+              <PaginationLink
+                href={pageHref(Math.min(totalPages, page + 1))}
+                size="default"
+                aria-label="Page suivante"
+                className={
+                  page === totalPages
+                    ? 'pointer-events-none gap-1 px-2.5 opacity-50 sm:pr-2.5'
+                    : 'gap-1 px-2.5 sm:pr-2.5'
+                }
+              >
+                <span className="hidden sm:block">Suivant</span>
+                <ChevronRightIcon />
+              </PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
+}
+
+/** Construit la liste des boutons à afficher (1, …, courant-1, courant,
+ *  courant+1, …, dernière) en remplaçant les trous par "…". */
+function buildPageList(current: number, total: number): (number | '…')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const pages: (number | '…')[] = [1];
+  const left = Math.max(2, current - 1);
+  const right = Math.min(total - 1, current + 1);
+  if (left > 2) pages.push('…');
+  for (let i = left; i <= right; i += 1) pages.push(i);
+  if (right < total - 1) pages.push('…');
+  pages.push(total);
+  return pages;
 }
 
 /** Cherche récursivement le libellé d'un nœud catalogue par son id. */
