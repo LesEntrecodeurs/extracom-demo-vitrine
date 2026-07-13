@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUpDown, Layers, X } from 'lucide-react';
+import { ArrowUpDown, Layers, PackageCheck, X } from 'lucide-react';
 import type { ArticleSort, Family } from '@extracom/site-kit';
 import {
   Select,
@@ -23,6 +23,13 @@ interface Current {
   /** Fourchette de prix (sur le prix de base). */
   pmin?: string;
   pmax?: string;
+  /**
+   * Filtre « en stock uniquement ». Le kit n'expose pas de critère serveur pour
+   * le stock, donc ce flag est appliqué côté affichage sur la liste déjà chargée
+   * par la page catalogue (cf. `app/catalogue/page.tsx`). Il reste dans l'URL
+   * pour que la sélection soit partageable et préservée entre changements.
+   */
+  inStock?: string;
   /** Vue d'affichage (grille ou liste), préservée entre changements de filtres. */
   view?: string;
 }
@@ -79,6 +86,7 @@ export function CatalogueFilters({
     if (next.sort) p.set('sort', next.sort);
     if (next.pmin) p.set('pmin', next.pmin);
     if (next.pmax) p.set('pmax', next.pmax);
+    if (next.inStock) p.set('inStock', next.inStock);
     if (next.view) p.set('view', next.view);
     const qs = p.toString();
     router.push(qs ? `/catalogue?${qs}` : '/catalogue');
@@ -88,7 +96,8 @@ export function CatalogueFilters({
     current.family ||
     current.catalog ||
     current.pmin ||
-    current.pmax
+    current.pmax ||
+    current.inStock
   );
 
   return (
@@ -128,6 +137,22 @@ export function CatalogueFilters({
           </SelectContent>
         </Select>
       )}
+
+      {/* Bascule « en stock uniquement » — critère appliqué côté affichage
+          sur la liste chargée (le kit n'expose pas de filtre serveur pour le
+          stock, cf. `Current.inStock`). */}
+      <Button
+        type="button"
+        variant={current.inStock === '1' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() =>
+          apply({ inStock: current.inStock === '1' ? undefined : '1' })
+        }
+        aria-pressed={current.inStock === '1'}
+      >
+        <PackageCheck className="size-4" />
+        En stock uniquement
+      </Button>
 
       {/* Fourchette de prix (sur le prix de base) */}
       <form
@@ -218,7 +243,8 @@ export function CatalogueFilters({
               catalog: undefined,
               clevel: undefined,
               pmin: undefined,
-              pmax: undefined
+              pmax: undefined,
+              inStock: undefined
             });
           }}
         >

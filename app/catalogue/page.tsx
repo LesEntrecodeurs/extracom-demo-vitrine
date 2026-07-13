@@ -145,6 +145,7 @@ export default async function CataloguePage({
         {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
         {sp.pmin && <input type="hidden" name="pmin" value={sp.pmin} />}
         {sp.pmax && <input type="hidden" name="pmax" value={sp.pmax} />}
+        {sp.inStock && <input type="hidden" name="inStock" value={sp.inStock} />}
       </form>
 
       {/* Onboarding visiteur anonyme : les tarifs s'affichent après connexion. */}
@@ -226,6 +227,26 @@ export default async function CataloguePage({
             <Link href={pageHref(page + 1)}>Suivant →</Link>
           )}
         </div>
+      )}
+    </div>
+  );
+}
+
+/** Cherche récursivement le libellé d'un nœud catalogue par son id. */
+function findCatalogLabel(
+  nodes: CatalogNode[],
+  id: number
+): string | undefined {
+  for (const node of nodes) {
+    if (node.id === id) return node.label;
+    const child = node.children
+      ? findCatalogLabel(node.children, id)
+      : undefined;
+    if (child) return child;
+  }
+  return undefined;
+}
+      </div>
       )}
     </div>
   );
