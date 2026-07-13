@@ -23,6 +23,7 @@ import {
 } from '@extracom/site-kit/server';
 import type {
   ArticleListQuery,
+  ArticleListResponse,
   ArticleSort,
   CatalogNode
 } from '@extracom/site-kit';
@@ -91,6 +92,7 @@ export default async function CataloguePage({
   const minPrice = sp.pmin ? Number(sp.pmin) : undefined;
   const maxPrice = sp.pmax ? Number(sp.pmax) : undefined;
   const view: CatalogueView = sp.view === 'list' ? 'list' : 'grid';
+  const inStockOnly = sp.inStock === '1';
 
   const articlesQuery: ArticleListQuery = {
     search,
@@ -106,10 +108,12 @@ export default async function CataloguePage({
 
   // Connecté → données FRAÎCHES (prix client). Anonyme → cache (ISR).
   const authed = await isAuthenticatedAction();
+  const loadArticles = (query: ArticleListQuery) =>
+    authed ? getArticlesAction(query) : cachedAnonArticles(query);
   const [res, context, user] = await Promise.all([
-    authed
-      ? getArticlesAction(articlesQuery)
-      : cachedAnonArticles(articlesQuery),
+    inStockOnly
+      ? getInStockArticlesPage(articlesQuery, page, limit, loadArticles)
+      : loadArticles(articlesQuery),
     (authed ? getContextAction() : cachedAnonContext()).catch(() => null),
     authed ? meAction().catch(() => null) : Promise.resolve(null)
   ]);
@@ -318,4 +322,49 @@ function findCatalogLabel(
     if (child) return child;
   }
   return undefined;
+}
+
+/**
+ * Le service catalogue ne propose pas encore de critère de stock. Quand le
+ * filtre est actif, on parcourt donc les résultats déjà restreints par les
+ * autres critères, puis on applique la pagination sur les articles disponibles.
+ */
+async function getInStockArticlesPage(
+  query: ArticleListQuery,
+  page: number,
+  limit: number,
+  loadArticles: (query: ArticleListQuery) => Promise<ArticleListResponse>
+): Promise<ArticleListResponse> {
+  const fetchLimit = 100;
+  const first = await loadArticles({ ...query, page: 1, limit: fetchLimit });
+  const pageCount = Math.ceil(first.pagination.total / fetchLimit);
+  const responses = [first];
+
+  for (let firstPage = 2; firstPage <= pageCount; firstPage += 5) {
+    const pages = Array.from(
+      { length: Math.min(5, pageCount - firstPage + 1) },
+      (_, index) => firstPage + index
+    );
+    responses.push(
+      ...(await Promise.all(
+        pages.map((currentPage) =>
+          loadArticles({ ...query, page: currentPage, limit: fetchLimit })
+        )
+      ))
+    );
+  }
+
+  const inStockArticles = responses
+    .flatMap((response) => response.data)
+    .filter((article) => (article.stockQuantity ?? 0) > 0);
+  const start = (page - 1) * limit;
+
+  return {
+    data: inStockArticles.slice(start, start + limit),
+    pagination: {
+      page,
+      limit,
+      total: inStockArticles.length
+    }
+  };
 }

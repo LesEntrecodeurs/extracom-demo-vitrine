@@ -25,9 +25,9 @@ interface Current {
   pmax?: string;
   /**
    * Filtre « en stock uniquement ». Le kit n'expose pas de critère serveur pour
-   * le stock, donc ce flag est appliqué côté affichage sur la liste déjà chargée
-   * par la page catalogue (cf. `app/catalogue/page.tsx`). Il reste dans l'URL
-   * pour que la sélection soit partageable et préservée entre changements.
+   * le stock : la page rassemble les résultats correspondant aux autres filtres,
+   * conserve les quantités positives, puis recrée la pagination. Le flag reste
+   * dans l'URL pour que la sélection soit partageable et préservée.
    */
   inStock?: string;
   /** Vue d'affichage (grille ou liste), préservée entre changements de filtres. */
@@ -138,9 +138,8 @@ export function CatalogueFilters({
         </Select>
       )}
 
-      {/* Bascule « en stock uniquement » — critère appliqué côté affichage
-          sur la liste chargée (le kit n'expose pas de filtre serveur pour le
-          stock, cf. `Current.inStock`). */}
+      {/* Bascule « en stock uniquement » — la page filtre tous les résultats
+          correspondant aux autres critères avant de reconstruire les pages. */}
       <Button
         type="button"
         variant={current.inStock === '1' ? 'default' : 'outline'}
