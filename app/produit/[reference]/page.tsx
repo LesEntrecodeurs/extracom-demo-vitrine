@@ -6,7 +6,7 @@ import {
   getAnonymousArticleAction,
   isAuthenticatedAction
 } from '@extracom/site-kit/server';
-import { formatPrice, type Article } from '@extracom/site-kit';
+import { type Article } from '@extracom/site-kit';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
 
@@ -103,35 +103,6 @@ export default async function ProduitPage({
           Réf. {article.reference}
         </p>
 
-        <div className="mt-4 flex items-baseline gap-3">
-          <span className="text-xl font-semibold text-[var(--brand-dark)]">
-            {article.price == null ? (
-              <span className="text-base text-neutral-500">
-                Connectez-vous pour voir votre tarif
-              </span>
-            ) : (
-              formatPrice(article.price)
-            )}
-          </span>
-          {article.price != null &&
-            article.basePrice != null &&
-            article.basePrice > article.price && (
-              <span className="text-sm text-neutral-400 line-through">
-                {formatPrice(article.basePrice)}
-              </span>
-            )}
-          {article.promotion && (
-            <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-              -{article.promotion.discountPercent}%
-            </span>
-          )}
-          {typeof article.vatRate === 'number' && (
-            <span className="text-xs text-neutral-400">
-              TVA {article.vatRate}%
-            </span>
-          )}
-        </div>
-
         <p className="mt-1 text-sm text-neutral-500">
           Unité : {article.unit}
           {article.packagingQuantity && article.packagingQuantity > 1
@@ -153,12 +124,16 @@ export default async function ProduitPage({
           </p>
         )}
 
-        {/* Déclinaisons (gamme) + ajout au panier */}
+        {/* Prix + déclinaisons (gamme) + ajout au panier */}
         <div className="mt-6">
           <BuyBox
             reference={article.reference}
             gammes={article.gammes}
             priceHidden={article.price == null}
+            initialPrice={article.price}
+            basePrice={article.basePrice}
+            promotion={article.promotion}
+            vatRate={article.vatRate}
           />
         </div>
 
