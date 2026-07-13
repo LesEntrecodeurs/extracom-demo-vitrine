@@ -57,7 +57,7 @@ export function ViewToggle({
             )}
           >
             <Icon className="size-4" />
-            <span className="hidden sm:inline">{v.label}</span>
+            <span>{v.label}</span>
           </Link>
         );
       })}
