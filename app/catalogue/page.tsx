@@ -68,6 +68,7 @@ export default async function CataloguePage({
     sort?: string;
     pmin?: string;
     pmax?: string;
+    inStock?: string;
     view?: string;
   }>;
 }) {
@@ -122,6 +123,7 @@ export default async function CataloguePage({
     if (sp.sort) params.set('sort', sp.sort);
     if (sp.pmin) params.set('pmin', sp.pmin);
     if (sp.pmax) params.set('pmax', sp.pmax);
+    if (sp.inStock) params.set('inStock', sp.inStock);
     if (view === 'list') params.set('view', 'list');
     params.set('page', String(p));
     return `/catalogue?${params.toString()}`;
@@ -171,6 +173,7 @@ export default async function CataloguePage({
           sort: sp.sort,
           pmin: sp.pmin,
           pmax: sp.pmax,
+          inStock: sp.inStock,
           view: sp.view
         }}
       />
@@ -190,7 +193,8 @@ export default async function CataloguePage({
               family: sp.family,
               sort: sp.sort,
               pmin: sp.pmin,
-              pmax: sp.pmax
+              pmax: sp.pmax,
+              inStock: sp.inStock
             }}
           />
         </div>
@@ -227,26 +231,6 @@ export default async function CataloguePage({
             <Link href={pageHref(page + 1)}>Suivant →</Link>
           )}
         </div>
-      )}
-    </div>
-  );
-}
-
-/** Cherche récursivement le libellé d'un nœud catalogue par son id. */
-function findCatalogLabel(
-  nodes: CatalogNode[],
-  id: number
-): string | undefined {
-  for (const node of nodes) {
-    if (node.id === id) return node.label;
-    const child = node.children
-      ? findCatalogLabel(node.children, id)
-      : undefined;
-    if (child) return child;
-  }
-  return undefined;
-}
-      </div>
       )}
     </div>
   );
