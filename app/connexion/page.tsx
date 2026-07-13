@@ -9,6 +9,10 @@ export default function ConnexionPage() {
   const { login } = useAuth();
   const { data: context } = useShopContext();
   const registrationOpen = context?.capabilities?.registrationOpen ?? false;
+  const cgvUrl = context?.terms.find((term) => term.type === 'CGV')?.url;
+  const privacyUrl = context?.terms.find(
+    (term) => term.type === 'PRIVACY'
+  )?.url;
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -73,6 +77,31 @@ export default function ConnexionPage() {
           {pending ? '…' : 'Se connecter'}
         </button>
       </form>
+      {(cgvUrl || privacyUrl) && (
+        <p className="mt-3 text-center text-xs text-neutral-500">
+          {cgvUrl && (
+            <a
+              href={cgvUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--brand-dark)] underline"
+            >
+              Conditions générales de vente
+            </a>
+          )}
+          {cgvUrl && privacyUrl && <span aria-hidden="true"> · </span>}
+          {privacyUrl && (
+            <a
+              href={privacyUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--brand-dark)] underline"
+            >
+              Politique de confidentialité
+            </a>
+          )}
+        </p>
+      )}
       {registrationOpen && (
         <p className="mt-4 text-sm text-neutral-600">
           Pas de compte ?{' '}
