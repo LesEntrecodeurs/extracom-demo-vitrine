@@ -69,31 +69,19 @@ export default function MotDePasseOubliePage() {
       )}
 
       {step === 'code' && (
-        <form
-          className="space-y-4"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setErr(null);
-            try {
-              await verifyResetCode(email, code);
-              setStep('password');
-            } catch {
-              setErr('Code invalide ou expiré.');
-            }
-          }}
-        >
+        <>
           <div
             role="status"
             aria-live="assertive"
-            className="rounded-lg border-2 border-green-300 bg-green-50 p-5 text-green-900 shadow-sm"
+            className="mb-6 rounded-lg border-2 border-green-500 bg-green-50 p-6 text-green-900 shadow-md"
           >
             <div className="flex items-start gap-3">
               <MailCheck
-                className="mt-0.5 size-7 shrink-0 text-green-700"
+                className="mt-0.5 size-9 shrink-0 text-green-700"
                 aria-hidden="true"
               />
               <div className="space-y-2">
-                <p className="text-base font-semibold leading-snug">
+                <p className="text-lg font-bold leading-snug">
                   Demande enregistrée — vérifiez votre boîte de réception.
                 </p>
                 <p className="text-sm leading-relaxed text-green-900/90">
@@ -105,13 +93,26 @@ export default function MotDePasseOubliePage() {
                   pensez à l'utiliser rapidement. Si vous ne voyez rien, jetez
                   un œil au dossier de courrier indésirable.
                 </p>
-                <p className="text-sm font-medium text-green-900">
-                  Saisissez le code ci-dessous pour définir votre nouveau mot de
-                  passe.
+                <p className="text-sm font-semibold text-green-900">
+                  Saisissez maintenant le code reçu ci-dessous pour définir
+                  votre nouveau mot de passe.
                 </p>
               </div>
             </div>
           </div>
+          <form
+            className="space-y-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setErr(null);
+              try {
+                await verifyResetCode(email, code);
+                setStep('password');
+              } catch {
+                setErr('Code invalide ou expiré.');
+              }
+            }}
+          >
           <input
             required
             placeholder="Code reçu par email"
@@ -138,7 +139,8 @@ export default function MotDePasseOubliePage() {
           >
             ← Renvoyer un code
           </button>
-        </form>
+          </form>
+        </>
       )}
 
       {step === 'password' && (
