@@ -99,7 +99,9 @@ export default async function RootLayout({
                   ...(context?.capabilities?.registrationOpen
                     ? [['Créer un compte', '/inscription'] as [string, string]]
                     : []),
-                  ['Mon compte', '/compte']
+                  ...(user
+                    ? [['Mon compte', '/compte'] as [string, string]]
+                    : [])
                 ]}
               />
               <FooterCol
