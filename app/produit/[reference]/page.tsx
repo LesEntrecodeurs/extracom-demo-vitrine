@@ -4,9 +4,16 @@ import Image from 'next/image';
 import {
   getArticleAction,
   getAnonymousArticleAction,
+  getAnonymousArticlesAction,
+  getArticlesAction,
   isAuthenticatedAction
 } from '@extracom/site-kit/server';
-import { formatPrice, type Article } from '@extracom/site-kit';
+import {
+  formatPrice,
+  type Article,
+  type ArticleListQuery
+} from '@extracom/site-kit';
+import { ArticleCard } from '@/components/site/ArticleCard';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
 import { ShareLinks } from '@/components/site/ShareLinks';
@@ -18,6 +25,14 @@ export const dynamic = 'force-dynamic';
 const cachedAnonArticle = unstable_cache(
   (reference: string) => getAnonymousArticleAction(decodeURIComponent(reference)),
   ['product-anon'],
+  { revalidate: 300, tags: ['catalogue'] }
+);
+
+// Suggestions « produits complémentaires » (même famille) ANONYMES cachées :
+// même règle que la fiche détail — prix de base/masqué, jamais client.
+const cachedAnonRelated = unstable_cache(
+  (q: ArticleListQuery) => getAnonymousArticlesAction(q),
+  ['product-related-anon'],
   { revalidate: 300, tags: ['catalogue'] }
 );
 
@@ -201,6 +216,14 @@ export default async function ProduitPage({
           </div>
         )}
       </div>
+
+      {/* Suggestions cross-sell : autres articles de la même famille.
+          S'étend sur les 2 colonnes en desktop, empilé en mobile. */}
+      <RelatedProducts
+        currentReference={article.reference}
+        familyCode={article.family?.code}
+        authed={authed}
+      />
     </div>
   );
 }
@@ -235,5 +258,47 @@ function Specs({ article }: { article: Article }) {
         ))}
       </dl>
     </div>
+  );
+}
+
+// Cross-sell : autres articles de la même famille (max 4). Pas de section si
+// l'article n'a pas de famille renseignée ou si la famille n'a pas d'autre
+// article à proposer.
+async function RelatedProducts({
+  currentReference,
+  familyCode,
+  authed
+}: {
+  currentReference: string;
+  familyCode?: string;
+  authed: boolean;
+}) {
+  if (!familyCode) return null;
+
+  let products: Article[] = [];
+  try {
+    const res = authed
+      ? await getArticlesAction({ familyCode, limit: 5 })
+      : await cachedAnonRelated({ familyCode, limit: 5 });
+    products = res.data
+      .filter((a) => a.reference !== currentReference)
+      .slice(0, 4);
+  } catch {
+    return null;
+  }
+
+  if (products.length === 0) return null;
+
+  return (
+    <section className="md:col-span-2">
+      <h2 className="mb-4 text-xl font-semibold">
+        Produits complémentaires
+      </h2>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {products.map((a) => (
+          <ArticleCard key={a.reference} article={a} />
+        ))}
+      </div>
+    </section>
   );
 }
