@@ -9,6 +9,7 @@ import {
 import { formatPrice, type Article } from '@extracom/site-kit';
 import { BuyBox } from '@/components/site/BuyBox';
 import { JsonLd } from '@/components/site/JsonLd';
+import { ShareLinks } from '@/components/site/ShareLinks';
 
 export const dynamic = 'force-dynamic';
 
@@ -102,6 +103,8 @@ export default async function ProduitPage({
         <p className="mt-1 text-sm text-neutral-500">
           Réf. {article.reference}
         </p>
+
+        <ShareLinks title={article.title} />
 
         <div className="mt-4 flex items-baseline gap-3">
           <span className="text-xl font-semibold text-[var(--brand-dark)]">
