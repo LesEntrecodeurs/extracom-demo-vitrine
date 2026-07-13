@@ -8,6 +8,7 @@ import {
   useCompany
 } from '@extracom/site-kit/react';
 import { PageLoader } from '@/components/site/Loader';
+import { OrderSummary } from '@/components/site/OrderSummary';
 
 export default function ProfilPage() {
   const { user, isLoading: loadingUser, reload } = useAuth();
@@ -31,6 +32,12 @@ export default function ProfilPage() {
   if (loadingUser) return <PageLoader label="Chargement du profil…" />;
   if (!user) return null;
 
+  const activeMembership = user.memberships.find(
+    (membership) => membership.customerId === activeId
+  );
+  const canViewDocuments =
+    activeMembership?.capabilities.canViewDocuments ?? false;
+
   const identityChanged =
     name.trim() !== user.name || email.trim() !== user.email;
 
@@ -47,6 +54,14 @@ export default function ProfilPage() {
       {/* Identité — éditable (self-service) */}
       <div>
         <h1 className="mb-6 text-xl font-semibold">Profil</h1>
+        {canViewDocuments && (
+          <section className="mb-6">
+            <h2 className="mb-3 text-sm font-medium">
+              Résumé des commandes
+            </h2>
+            <OrderSummary companyId={activeId} />
+          </section>
+        )}
         <form
           className="card space-y-4 p-5"
           onSubmit={async (e) => {
