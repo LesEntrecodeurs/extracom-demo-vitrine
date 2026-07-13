@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { MailCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAccount } from '@extracom/site-kit/react';
 
@@ -83,18 +84,33 @@ export default function MotDePasseOubliePage() {
         >
           <div
             role="status"
-            aria-live="polite"
-            className="rounded border border-green-200 bg-green-50 p-4 text-sm text-green-800"
+            aria-live="assertive"
+            className="rounded-lg border-2 border-green-300 bg-green-50 p-5 text-green-900 shadow-sm"
           >
-            <p className="font-medium">
-              ✓ Demande enregistrée — un email vient d'être envoyé à{' '}
-              <span className="font-semibold">{email}</span>.
-            </p>
-            <p className="mt-1 text-green-800/90">
-              Prochaines étapes : consultez votre boîte de réception (et votre
-              dossier de courrier indésirable si besoin), puis saisissez le
-              code ci-dessous pour définir votre nouveau mot de passe.
-            </p>
+            <div className="flex items-start gap-3">
+              <MailCheck
+                className="mt-0.5 size-7 shrink-0 text-green-700"
+                aria-hidden="true"
+              />
+              <div className="space-y-2">
+                <p className="text-base font-semibold leading-snug">
+                  Demande enregistrée — vérifiez votre boîte de réception.
+                </p>
+                <p className="text-sm leading-relaxed text-green-900/90">
+                  Un email contenant votre code de réinitialisation vient d'être
+                  envoyé à <span className="font-semibold">{email}</span>.
+                </p>
+                <p className="text-sm leading-relaxed text-green-900/90">
+                  Le code expire après le délai indiqué dans l'email&nbsp;:
+                  pensez à l'utiliser rapidement. Si vous ne voyez rien, jetez
+                  un œil au dossier de courrier indésirable.
+                </p>
+                <p className="text-sm font-medium text-green-900">
+                  Saisissez le code ci-dessous pour définir votre nouveau mot de
+                  passe.
+                </p>
+              </div>
+            </div>
           </div>
           <input
             required
