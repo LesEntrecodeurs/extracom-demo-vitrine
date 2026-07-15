@@ -56,17 +56,8 @@ export default async function HomePage() {
           <p className="reveal reveal-1 text-xs font-semibold tracking-[0.2em] text-[var(--brand-dark)] uppercase">
             {shopName} · Espace professionnel
           </p>
-          <h1 className="reveal reveal-2 mt-4 max-w-3xl text-4xl leading-[1.05] font-semibold text-neutral-900 md:text-6xl">
-            {firstName ? (
-              <>Bonjour {firstName}, vos tarifs vous attendent.</>
-            ) : (
-              <>
-                Votre catalogue professionnel,{' '}
-                <span className="text-[var(--brand-dark)] italic">
-                  au juste prix.
-                </span>
-              </>
-            )}
+          <h1 className="hero-title reveal reveal-2 mt-4 max-w-3xl text-4xl leading-[1.05] font-semibold text-[var(--brand-dark)] md:text-6xl">
+            Bienvenue chez Acme
           </h1>
           <p className="reveal reveal-3 mt-5 max-w-xl text-base text-neutral-700 md:text-lg">
             {isAnonymous
