@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" fill="none">
+  <rect width="1200" height="600" fill="#F8F9FA"/>
+  <!-- Formes géométriques abstraites type Linear -->
+  <circle cx="900" cy="200" r="200" fill="#295795" opacity="0.06"/>
+  <circle cx="950" cy="180" r="140" fill="#295795" opacity="0.04"/>
+  <rect x="350" y="100" width="2" height="400" fill="#295795" opacity="0.08" rx="1"/>
+  <rect x="380" y="150" width="2" height="300" fill="#295795" opacity="0.05" rx="1"/>
+  <rect x="410" y="200" width="2" height="200" fill="#295795" opacity="0.04" rx="1"/>
+</svg>
